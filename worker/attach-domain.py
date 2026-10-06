@@ -7,31 +7,13 @@ wildcard route *.domain/* -> mayfly-router, then uploads nothing else.
 
 Usage: attach-domain.py <domain>
 """
-import json
 import os
 import sys
-import urllib.request
 
-sys.path.insert(0, "/opt/hatch/skills/skill-creator/bin")
-from dynamic_credentials import add_surrogate_to_request, read_json_response
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "scripts"))
+from mayfly_ops import ACCOUNT, cf  # noqa: E402
 
-CREDENTIAL = "custom.cloudflare"
-ALLOWED = ["api.cloudflare.com"]
-ACCOUNT = "2e7e19a2b269db15edd76c98799515bd"
-BASE = "https://api.cloudflare.com/client/v4"
 SCRIPT_NAME = "mayfly-router"
-
-
-def cf_req(method, path, body=None):
-    req = urllib.request.Request(BASE + path, method=method)
-    add_surrogate_to_request(req, CREDENTIAL, entry_name="access_token",
-                             allowed_hosts=ALLOWED)
-    if body is not None:
-        data = json.dumps(body).encode()
-        req.add_header("Content-Type", "application/json")
-        req.data = data
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        return read_json_response(resp)
 
 
 def main():
@@ -39,13 +21,13 @@ def main():
     if not domain or "." not in domain:
         print("usage: attach-domain.py <domain>")
         sys.exit(1)
-    zones = cf_req("GET", "/zones?name=%s&account.id=%s" % (domain, ACCOUNT))
+    zones = cf("GET", "/zones?name=%s&account.id=%s" % (domain, ACCOUNT))
     results = zones.get("result", [])
     if results:
         zone = results[0]
         print("zone exists:", zone["id"], zone["status"])
     else:
-        z = cf_req("POST", "/zones", {"name": domain, "account": {"id": ACCOUNT}})
+        z = cf("POST", "/zones", {"name": domain, "account": {"id": ACCOUNT}})
         if not z.get("success"):
             print("ZONE CREATE FAILED:", z.get("errors"))
             print("Is the domain delegating to Cloudflare nameservers yet?")
@@ -54,13 +36,13 @@ def main():
         print("zone created:", zone["id"], "- status:", zone["status"])
         print("nameservers:", ", ".join(zone.get("name_servers", [])))
     zid = zone["id"]
-    existing = cf_req("GET", "/zones/%s/workers/routes?per_page=100" % zid)
+    existing = cf("GET", "/zones/%s/workers/routes?per_page=100" % zid)
     have = {(r["pattern"], r["script"]) for r in existing.get("result", [])}
     pattern = "*.%s/*" % domain
     if (pattern, SCRIPT_NAME) in have:
         print("route ok:", pattern)
     else:
-        res = cf_req("POST", "/zones/%s/workers/routes" % zid,
+        res = cf("POST", "/zones/%s/workers/routes" % zid,
                      {"pattern": pattern, "script": SCRIPT_NAME})
         if res.get("success"):
             print("route created:", pattern)
@@ -70,7 +52,7 @@ def main():
     # Apex serves the landing page too.
     pattern2 = "%s/*" % domain
     if (pattern2, SCRIPT_NAME) not in have:
-        res = cf_req("POST", "/zones/%s/workers/routes" % zid,
+        res = cf("POST", "/zones/%s/workers/routes" % zid,
                      {"pattern": pattern2, "script": SCRIPT_NAME})
         print(("route created: " if res.get("success") else "ROUTE FAILED: ") + pattern2)
     print("done. https://%s/ should serve Mayfly once DNS propagates." % domain)

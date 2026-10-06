@@ -1,93 +1,45 @@
 #!/usr/bin/env python3
-"""Pin the 8 Mayfly example sites so the daily expiry sweep skips them.
+"""Pin already-published example sites so the expiry sweep skips them.
 
-For each theme sub:
-  1. Read site:<sub> from KV (with retries — KV is eventually consistent).
-  2. Set pinned:true on the record.
-  3. Swap the countdown badge for a "permanent example" badge
-     (data-expires="" -> the badge JS sees NaN and leaves the static text).
-  4. Remove any <section> whose .gallery div is empty (no photos on examples).
-  5. Write the record back.
+New examples don't need this: publish them with build-site.py --pin. This is
+for records published before --pin existed. For each sub it reads site:<sub>
+from KV, sets pinned:true, writes the record back with the key metadata the
+sweep reads, and swaps an old-style countdown badge for an "Example page"
+badge.
 
-Usage: python3 pin-examples.py [sub ...]   (defaults to all 8 themes)
+Usage: pin-examples.py [sub ...]   (defaults to the 8 theme subs)
 """
+
 import json
 import re
-import subprocess
 import sys
 import time
-import urllib.parse
 
-THEMES = ["celebrate", "invite", "announce", "sell",
-          "remember", "rally", "inform", "play"]
-ACCOUNT = "2e7e19a2b269db15edd76c98799515bd"
+from mayfly_ops import CF_BASE, THEMES, cf, cf_token, curl, kv_url, load_env
 
-sys.path.insert(0, "/opt/hatch/skills/skill-creator/bin")
-from dynamic_credentials import dynamic_credential_entry  # noqa: E402
-
-
-def kv_id():
-    with open("/home/hatch/workspace/mayfly/hidden_files/mayfly.env") as f:
-        for line in f:
-            if line.startswith("MAYFLY_KV_ID="):
-                return line.strip().split("=", 1)[1]
-    raise RuntimeError("MAYFLY_KV_ID not found")
-
-
-def kv_call(method, key, data=None):
-    e = dynamic_credential_entry("custom.cloudflare", "access_token")
-    token = str(e["surrogate"]).strip()
-    url = ("https://api.cloudflare.com/client/v4/accounts/%s/storage/kv/"
-           "namespaces/%s/values/%s"
-           % (ACCOUNT, kv_id(), urllib.parse.quote(key, safe="")))
-    cmd = ["curl", "-s", "--max-time", "60", "-X", method,
-           "-H", "Authorization: Bearer " + token]
-    if data is not None:
-        cmd += ["-H", "Content-Type: application/json",
-                "--data-binary", data]
-    cmd.append(url)
-    r = subprocess.run(cmd, capture_output=True, text=True)
-    return r.stdout
-
-
-PERM_BADGE = ('<div class="badge" id="expiry" data-expires="">'
-              "<strong>permanent example · made with Mayfly</strong> 🪰</div>")
-
-
-def patch_html(html):
-    # 1. Swap the countdown badge for a permanent-example badge.
-    html = re.sub(r'<div class="badge" id="expiry" data-expires="[^"]*">.*?</div>',
-                  PERM_BADGE, html, flags=re.S)
-    # 2. Drop any section whose gallery div is empty (no photos on examples).
-    html = re.sub(r'<section\b[^>]*>(?:(?!</section>).)*'
-                  r'<div class="gallery">\s*</div>'
-                  r'(?:(?!</section>).)*</section>',
-                  "", html, flags=re.S)
-    return html
+OLD_BADGE = re.compile(r'<div class="badge" id="expiry" data-expires="[^"]*">.*?</div>', re.S)
+NEW_BADGE = '<div class="badge" id="expiry" data-expires=""><strong>Example page · made with Mayfly</strong></div>'
 
 
 def main():
-    subs = sys.argv[1:] or THEMES
-    for sub in subs:
+    env = load_env()
+    for sub in sys.argv[1:] or THEMES:
         key = "site:" + sub
         rec = None
-        for attempt in range(6):
-            out = kv_call("GET", key)
-            try:
-                rec = json.loads(out)
+        for _ in range(6):  # KV is eventually consistent right after a publish
+            code, text = curl("GET", CF_BASE + kv_url(key, env), headers={"Authorization": "Bearer " + cf_token()})
+            if code == 200:
+                rec = json.loads(text)
                 break
-            except Exception:
-                time.sleep(20)
+            time.sleep(20)
         if not rec or not rec.get("html"):
             print("FAILED to read", key)
             continue
         rec["pinned"] = True
-        rec["html"] = patch_html(rec["html"])
-        out = kv_call("PUT", key, json.dumps(rec))
-        ok = '"success":true' in out
-        print(("pinned " if ok else "WRITE FAILED ") + key,
-              "| badge:" + ("ok" if "permanent example" in rec["html"] else "MISSING"),
-              "| galleries removed:" + ("yes" if 'class="gallery"' not in rec["html"] else "no"))
+        rec["html"] = OLD_BADGE.sub(NEW_BADGE, rec["html"])
+        meta = json.dumps({"exp": rec.get("expiresAt", 0), "pinned": True})
+        res = cf("PUT", kv_url(key, env), form=[("value", json.dumps(rec).encode()), ("metadata", meta)])
+        print(("pinned " if res.get("success") else "WRITE FAILED ") + key)
 
 
 if __name__ == "__main__":
