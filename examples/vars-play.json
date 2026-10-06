@@ -1,14 +1,13 @@
 {
- "title": "The Dilworth <em>scavenger hunt</em>",
- "subtitle": "Saturday, October 17 \u00b7 10 AM \u00b7 free, all ages",
- "cta_html": "<a class=\"btn-glow\" href=\"sms:+17045550177\">Enter a team</a>",
- "details_html": "<p class=\"big\">Twenty clues hidden across Dilworth. One golden duck. Glory forever.</p><p>Teams of up to 4. Start at the Latta Park gazebo, finish wherever the last clue takes you. First team back with the golden duck wins the trophy (a spray-painted duck, obviously).</p><p>Free to play. Bring a phone for photos and comfortable shoes.</p><details class=\"acc\"><summary>The rules</summary><div class=\"ab\"><p>Teams of up to 4. No cars \u2014 feet and bikes only. The golden duck must be carried, not hidden, once found.</p></div></details><details class=\"acc\"><summary>What to bring</summary><div class=\"ab\"><p>A phone for photo clues, comfortable shoes, and a healthy suspicion of garden gnomes.</p></div></details><details class=\"acc\"><summary>Rain plan</summary><div class=\"ab\"><p>Light rain: we hunt. Downpour: we postpone to Sunday and eat the trophy duck's feelings.</p></div></details>",
- "contact_html": "<p><a href=\"sms:+17045550177\">Text to enter your team</a> by Friday night.</p>",
- "gallery_html": "<figure><img src=\"/_img/play/photo-2.jpg\" alt=\"The hunting grounds\" loading=\"lazy\"><figcaption>The hunting grounds</figcaption></figure><figure><img src=\"/_img/play/photo-3.jpg\" alt=\"At play\" loading=\"lazy\"><figcaption>At play</figcaption></figure><figure><img src=\"/_img/play/photo-4.jpg\" alt=\"Whispers and clues\" loading=\"lazy\"><figcaption>Whispers and clues</figcaption></figure>",
- "hero_image": "/_img/play/photo-1.jpg",
- "qr_svg": "",
- "event_iso": "2026-10-17T10:00:00-04:00",
- "venue_text": "Latta Park gazebo, Charlotte NC",
- "rsvp_contact": "+17045550177",
- "verdict_answer": "You found the golden duck. Obviously."
+  "title": "The Dilworth <em>scavenger hunt</em>",
+  "subtitle": "Saturday, October 17 · 10 AM · free, all ages",
+  "cta_html": "<a class=\"btn-glow\" href=\"sms:+17045550177\">Enter a team</a>",
+  "details_html": "<p class=\"big\">Twenty clues hidden across Dilworth. One golden duck. Glory forever.</p><p>Teams of up to 4. Start at the Latta Park gazebo, finish wherever the last clue takes you. First team back with the golden duck wins the trophy (a spray-painted duck, obviously).</p><p>Free to play. Bring a phone for photos and comfortable shoes.</p><details class=\"acc\"><summary>The rules</summary><div class=\"ab\"><p>Teams of up to 4. No cars — feet and bikes only. The golden duck must be carried, not hidden, once found.</p></div></details><details class=\"acc\"><summary>What to bring</summary><div class=\"ab\"><p>A phone for photo clues, comfortable shoes, and a healthy suspicion of garden gnomes.</p></div></details><details class=\"acc\"><summary>Rain plan</summary><div class=\"ab\"><p>Light rain: we hunt. Downpour: we postpone to Sunday and eat the trophy duck's feelings.</p></div></details>",
+  "contact_html": "<p><a href=\"sms:+17045550177\">Text to enter your team</a> by Friday night.</p>",
+  "gallery_html": "<figure><img src=\"/_img/play/photo-2.jpg\" alt=\"The hunting grounds\" loading=\"lazy\"><figcaption>The hunting grounds</figcaption></figure><figure><img src=\"/_img/play/photo-3.jpg\" alt=\"At play\" loading=\"lazy\"><figcaption>At play</figcaption></figure><figure><img src=\"/_img/play/photo-4.jpg\" alt=\"Whispers and clues\" loading=\"lazy\"><figcaption>Whispers and clues</figcaption></figure>",
+  "hero_image": "/_img/play/photo-1.jpg",
+  "event_iso": "2026-10-17T10:00:00-04:00",
+  "venue_text": "Latta Park gazebo, Charlotte NC",
+  "rsvp_contact": "+17045550177",
+  "verdict_answer": "You found the golden duck. Obviously."
 }
