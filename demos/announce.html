@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome, Baby Noor</title>
+<!--
+  MAYFLY THEME: announce (announcements: baby, graduation, new job)
+  Variable map:
+    Welcome, <em>Baby Noor</em>          -> h1.hero-title   (inline <em>..</em> allowed for an italic accent word)
+    born September 21st, already running the household       -> p.hero-sub
+    <a class="btn-glow" href="mailto:layla@example.com">Send love</a><a class="btn-ghost" href="#photos">See photos</a>       -> .cta-row inner HTML, e.g. <a class="btn-glow" href="..">..</a><a class="btn-ghost" href="..">..</a>
+    img/announce.jpg     -> img.hero-photo src  (CSS art shows until a real photo loads)
+    <div class="stat"><div class="v">7 lb 4 oz</div><div class="l">Weight</div></div><div class="stat"><div class="v">19 in</div><div class="l">Length</div></div><div class="stat"><div class="v">2:14 AM</div><div class="l">Arrival</div></div>   -> .stats inner HTML   (blocks of .stat > .v + .l)
+    <div class="kv-row"><span>Parents</span><span>Layla & Omar Haddad</span></div><div class="kv-row"><span>Big brother</span><span>Adam, age 3 — taking it well, mostly</span></div><div class="kv-row"><span>Visits</span><span>After Oct 5, please — text Layla first</span></div><div class="kv-row"><span>Meal train</span><span>Link below — the lasagna era is over, try soup</span></div>  -> .kv inner HTML      (rows of .kv-row > span + span)
+    <p>She has Omar’s eyes and Layla’s opinions. We’re so tired and so happy. — Grandma Salma</p>      -> .note inner HTML    (a quote or short note)
+    <figure><img src="img/announce.jpg" alt="" loading="lazy"><figcaption>Hour one</figcaption></figure><figure><img src="img/announce.jpg" alt="" loading="lazy"><figcaption>Meeting Adam</figcaption></figure>   -> .gallery inner HTML  (figures)
+    2026-10-05T12:00:00+00:00 -> #expiry data-expires (ISO timestamp; live countdown)
+    <h2>Say hello (quietly)</h2><p>Meal train & visit sign-up: <a href="mailto:layla@example.com">layla@example.com</a></p>   -> .contact inner HTML
+             -> .qr-box (real QR svg; the box hides itself when empty)
+-->
+<style>
+  :root{--cream:#FDF6F0;--paper:#FFFEFB;--ink:#4A3A30;--muted:#A68E7C;
+    --rose:#D98A94;--rose-deep:#B25F6E;--sage:#8FA382;--line:#F2E3D8}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--cream);color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:clip}
+  .wrap{max-width:640px;margin:0 auto;padding:0 22px}
+
+  .badge{position:sticky;top:0;z-index:20;background:#4A3A30;color:#FBE9E4;text-align:center;
+    font-size:13px;letter-spacing:1px;padding:10px 16px;font-weight:600}
+  .badge strong{font-weight:700}
+
+  .hero{position:relative;overflow-x:clip;overflow-y:visible;
+    background:linear-gradient(170deg,#F3CFC0 0%,#E8B4A8 55%,#D99A92 100%)}
+  .hero::before{content:"";position:absolute;left:50%;top:34%;width:420px;height:420px;
+    transform:translate(-50%,-50%);border-radius:50%;
+    background:radial-gradient(circle,rgba(255,250,244,.85) 0%,rgba(255,250,244,0) 62%)}
+  .hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+  .hero-wash{position:absolute;inset:0;
+    background:linear-gradient(170deg,rgba(217,138,148,.30) 0%,rgba(232,180,168,.35) 45%,rgba(120,60,66,.66) 100%)}
+  .hero-inner{position:relative;z-index:2;padding:84px 22px 0;max-width:640px;margin:0 auto}
+  .hero-card{background:var(--paper);border-radius:30px;padding:40px 28px 36px;text-align:center;
+    margin-bottom:-66px;position:relative;box-shadow:0 24px 55px rgba(140,70,80,.28)}
+  .dots{display:flex;gap:8px;justify-content:center;margin-bottom:20px}
+  .dots i{width:9px;height:9px;border-radius:50%;background:var(--rose)}
+  .dots i:nth-child(2){background:var(--sage)}
+  .dots i:nth-child(3){background:#EBC07A}
+  h1.hero-title{font-family:Georgia,serif;font-weight:normal;font-size:clamp(38px,10vw,58px);
+    line-height:1.08;margin-bottom:12px}
+  h1.hero-title em{font-style:italic;color:var(--rose-deep)}
+  p.hero-sub{font-family:Georgia,serif;font-style:italic;font-size:18px;color:#7A6455;max-width:28em;margin:0 auto}
+  .cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+  .cta-row:empty{display:none}
+  .btn-glow{display:inline-block;background:linear-gradient(180deg,#E39AA4,var(--rose-deep));
+    color:#FFF9F6;font-weight:800;font-size:16px;padding:15px 28px;border-radius:999px;text-decoration:none;
+    box-shadow:0 10px 28px rgba(217,138,148,.55),inset 0 1px 0 rgba(255,255,255,.4)}
+  .btn-glow:active{transform:scale(.97)}
+  .btn-ghost{display:inline-block;border:2px solid #EACFC2;color:var(--rose-deep);font-weight:700;
+    font-size:16px;padding:13px 26px;border-radius:999px;text-decoration:none;background:transparent}
+
+  section{padding:56px 0;scroll-margin-top:56px}
+  section.first{padding-top:120px}
+  .kicker{display:flex;align-items:center;gap:14px;margin-bottom:22px;color:var(--rose-deep);
+    font-size:12px;letter-spacing:2.5px;text-transform:uppercase;font-weight:700}
+  .kicker::before,.kicker::after{content:"";height:1px;background:var(--line);flex:1}
+
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .stat{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:20px 8px;
+    text-align:center;box-shadow:0 10px 26px rgba(140,70,80,.10)}
+  .stat .v{font-family:Georgia,serif;font-style:italic;font-size:23px;color:var(--rose-deep)}
+  .stat .l{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-top:6px}
+
+  .kv{margin-top:14px;background:var(--paper);border:1px solid var(--line);border-radius:18px;
+    overflow:hidden;box-shadow:0 10px 26px rgba(140,70,80,.10)}
+  .kv-row{display:flex;gap:14px;padding:16px 20px;border-top:1px solid var(--line)}
+  .kv-row:first-child{border-top:none}
+  .kv-row span:first-child{flex:0 0 96px;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--muted);font-weight:700;padding-top:3px}
+  .kv-row span:last-child{font-size:16px}
+
+  .note{position:relative;font-family:Georgia,serif;font-style:italic;font-size:20px;line-height:1.7;
+    color:#6E584A;text-align:center;padding:10px 12px}
+  .note::before{content:"“";display:block;font-size:64px;line-height:.6;color:var(--rose);margin-bottom:10px}
+
+  .gallery{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .gallery figure{border-radius:18px;overflow:hidden;box-shadow:0 10px 26px rgba(140,70,80,.14);background:var(--paper)}
+  .gallery img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}
+  .gallery figcaption{font-size:13px;color:var(--muted);padding:10px 12px;font-style:italic;font-family:Georgia,serif}
+  .g1{background:linear-gradient(135deg,#F3CFC0,#D98A94)}
+  .g2{background:linear-gradient(135deg,#FBE9E4,#B25F6E)}
+  .g3{background:linear-gradient(135deg,#E8B4A8,#8FA382)}
+  .g4{background:linear-gradient(135deg,#F6DCD2,#D99A92)}
+
+  .contact{background:#4A3A30;color:#FBE9E4;border-radius:22px;padding:30px 24px;text-align:center}
+  .contact h2{font-family:Georgia,serif;font-weight:normal;font-style:italic;font-size:24px;margin-bottom:8px;color:#FFF9F6}
+  .contact p{font-size:16px}
+  .contact a{color:#F2B8C0;font-weight:700}
+
+  .qr-box{text-align:center;margin-top:36px}
+  .qr-box:empty{display:none}
+  .qr-box svg{width:140px;height:140px;border:10px solid #fff;border-radius:16px;
+    box-shadow:0 8px 24px rgba(140,70,80,.16)}
+
+  footer{text-align:center;padding:34px 22px 44px;font-size:14px;color:var(--muted)}
+  footer a{color:var(--rose-deep);font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="badge" id="expiry" data-expires="2026-10-05T12:00:00+00:00"><strong>this site vanishes in 6d 2h</strong> 🪰</div>
+
+<header class="hero">
+  <img class="hero-photo" src="img/announce.jpg" alt="" onerror="this.remove()">
+  <div class="hero-wash"></div>
+  <div class="hero-inner">
+    <div class="hero-card">
+      <div class="dots"><i></i><i></i><i></i></div>
+      <h1 class="hero-title">Welcome, <em>Baby Noor</em></h1>
+      <p class="hero-sub">born September 21st, already running the household</p>
+      <div class="cta-row"><a class="btn-glow" href="mailto:layla@example.com">Send love</a><a class="btn-ghost" href="#photos">See photos</a></div>
+    </div>
+  </div>
+</header>
+
+<section class="first" id="details">
+  <div class="wrap">
+    <p class="kicker">The vital statistics</p>
+    <div class="stats">
+      <div class="stat"><div class="v">7 lb 4 oz</div><div class="l">Weight</div></div><div class="stat"><div class="v">19 in</div><div class="l">Length</div></div><div class="stat"><div class="v">2:14 AM</div><div class="l">Arrival</div></div>
+    </div>
+    <div class="kv">
+      <div class="kv-row"><span>Parents</span><span>Layla & Omar Haddad</span></div><div class="kv-row"><span>Big brother</span><span>Adam, age 3 — taking it well, mostly</span></div><div class="kv-row"><span>Visits</span><span>After Oct 5, please — text Layla first</span></div><div class="kv-row"><span>Meal train</span><span>Link below — the lasagna era is over, try soup</span></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="note"><p>She has Omar’s eyes and Layla’s opinions. We’re so tired and so happy. — Grandma Salma</p></div>
+  </div>
+</section>
+
+<section style="padding-top:0" id="photos">
+  <div class="wrap">
+    <p class="kicker">First photos</p>
+    <div class="gallery">
+      <figure><img src="img/announce.jpg" alt="" loading="lazy"><figcaption>Hour one</figcaption></figure><figure><img src="img/announce.jpg" alt="" loading="lazy"><figcaption>Meeting Adam</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="contact">
+      <h2>Say hello (quietly)</h2><p>Meal train & visit sign-up: <a href="mailto:layla@example.com">layla@example.com</a></p>
+    </div>
+    <div class="qr-box"></div>
+  </div>
+</section>
+
+<footer>
+  <p>made with <a href="https://mayfly.site">Mayfly</a> 🪰</p>
+</footer>
+
+<script>
+(function(){
+  var el=document.getElementById('expiry'), strong=el.querySelector('strong');
+  var t=Date.parse(el.getAttribute('data-expires'));
+  if(isNaN(t)) return;
+  function fmt(ms){var s=Math.floor(ms/1000),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);
+    if(d>0)return d+"d "+h+"h"; if(h>0)return h+"h "+m+"m"; return m+"m";}
+  function tick(){var ms=t-Date.now();
+    strong.textContent=ms>0?("this site vanishes in "+fmt(ms)):("this site has vanished");}
+  tick(); setInterval(tick,30000);
+})();
+</script>
+</body>
+</html>

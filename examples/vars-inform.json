@@ -1,0 +1,12 @@
+{
+  "title": "Have you seen <em>Biscuit?</em>",
+  "subtitle": "Golden retriever · lost near Freedom Park on Oct 5",
+  "cta_html": "<a class=\"btn-glow\" href=\"tel:+17045550142\">Call (704) 555-0142</a>",
+  "details_html": "<li><span class=\"box\"></span><span>Male, 3 years old, 65 lbs, honey-colored coat</span></li><li><span class=\"box\"></span><span>Wearing a blue collar with a brass tag</span></li><li><span class=\"box\"></span><span>Very friendly — answers to &ldquo;Biscuit&rdquo;</span></li><li><span class=\"box\"></span><span>Last seen Monday Oct 5, ~6 PM, by the duck pond</span></li>",
+  "emergency_html": "<h3>Do not chase</h3><p>He's scared and fast. If you see him, crouch down, stay still, and call us right away.</p>",
+  "contact_html": "<p>Call or text any time, day or night: <a href=\"tel:+17045550142\">(704) 555-0142</a></p>",
+  "gallery_html": "<figure><img src=\"/_img/inform/photo-2.jpg\" alt=\"That smile\" loading=\"lazy\"><figcaption>That smile</figcaption></figure><figure><img src=\"/_img/inform/photo-3.jpg\" alt=\"With his favorite stick\" loading=\"lazy\"><figcaption>With his favorite stick</figcaption></figure><figure><img src=\"/_img/inform/photo-4.jpg\" alt=\"Have you seen him?\" loading=\"lazy\"><figcaption>Have you seen him?</figcaption></figure>",
+  "hero_image": "/_img/inform/photo-1.jpg",
+  "qr_svg": "",
+  "venue_text": "Freedom Park duck pond, Charlotte NC"
+}

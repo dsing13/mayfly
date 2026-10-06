@@ -1,0 +1,5 @@
+# Secrets — never commit
+hidden_files/*.env
+*.env
+*.pem
+*.key

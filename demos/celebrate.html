@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maya Turns Thirty</title>
+<!--
+  MAYFLY THEME: celebrate (birthdays / parties)
+  Variable map:
+    Maya Turns <em>Thirty</em>          -> h1.hero-title   (inline <em>..</em> allowed for an italic accent word)
+    A backyard birthday — cake, string lights, and the people she likes most. Come hungry.       -> p.hero-sub
+    <a class="btn-glow" href="sms:+17045550134">Text Maya you’re in 🎉</a><a class="btn-ghost" href="#details">The details</a>       -> .cta-row inner HTML, e.g. <a class="btn-glow" href="..">..</a><a class="btn-ghost" href="..">..</a>
+    img/celebrate.jpg     -> img.hero-photo src  (CSS art shows until a real photo loads)
+    <div class="kv-row"><span>When</span><span>Saturday, June 14 · 4:00 PM till late</span></div><div class="kv-row"><span>Where</span><span>Maya’s backyard, 412 Elmwood Ave, Charlotte</span></div><div class="kv-row"><span>Bring</span><span>Just yourself — food and drinks are covered</span></div><div class="kv-row"><span>Theme</span><span>Golden hour casual. Dress for photos.</span></div><div class="kv-row"><span>Kids</span><span>Very welcome — there’ll be a kiddie pool</span></div>   -> .kv inner HTML       (rows of .kv-row > span + span)
+    <figure><img src="img/celebrate.jpg" alt="" loading="lazy"><figcaption>Maya, age 7, already the boss</figcaption></figure><figure><img src="img/celebrate.jpg" alt="" loading="lazy"><figcaption>Last year’s infamous piñata</figcaption></figure>   -> .gallery inner HTML  (figures)
+    2026-10-05T12:00:00+00:00 -> #expiry data-expires (ISO timestamp; live countdown)
+    <h2>Can you make it?</h2><p>Text Maya at <a href="tel:+17045550134">(704) 555-0134</a><br>or email <a href="mailto:maya@example.com">maya@example.com</a></p>   -> .contact inner HTML
+             -> .qr-box (real QR svg; the box hides itself when empty)
+-->
+<style>
+  :root{--cream:#FFF8EF;--paper:#FFFEFA;--ink:#2E1F14;--muted:#93765A;
+    --accent:#E8622C;--accent-deep:#B34A1E;--gold:#F2A93B;--line:#F1DFC6}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--cream);color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:clip}
+  .wrap{max-width:640px;margin:0 auto;padding:0 22px}
+
+  .badge{position:sticky;top:0;z-index:20;background:#2E1F14;color:#FFE3C2;text-align:center;
+    font-size:13px;letter-spacing:1px;padding:10px 16px;font-weight:600}
+  .badge strong{font-weight:700}
+
+  .hero{position:relative;color:#FFF8EF;
+    background:linear-gradient(165deg,#3A1C10 0%,#7A2E14 55%,#4A2410 100%)}
+  .hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+  .hero-wash{position:absolute;inset:0;
+    background:linear-gradient(160deg,rgba(242,169,59,.38) 0%,rgba(232,98,44,.42) 45%,rgba(46,22,8,.82) 100%)}
+  .hero-inner{position:relative;z-index:2;padding:76px 22px 0;max-width:640px;margin:0 auto}
+  .hero-card{background:var(--paper);color:var(--ink);border-radius:26px;padding:38px 28px 34px;
+    text-align:center;box-shadow:0 26px 60px rgba(60,20,5,.38);margin-bottom:-64px;position:relative}
+  .hero-card::before{content:"";position:absolute;top:14px;left:50%;transform:translateX(-50%);
+    width:56px;height:5px;border-radius:99px;background:linear-gradient(90deg,var(--gold),var(--accent))}
+  h1.hero-title{font-family:Georgia,serif;font-weight:normal;font-size:clamp(38px,10vw,58px);
+    line-height:1.06;margin:14px 0 12px}
+  h1.hero-title em{font-style:italic;color:var(--accent-deep)}
+  p.hero-sub{font-size:17px;color:#6B5138;max-width:30em;margin:0 auto}
+  .cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+  .cta-row:empty{display:none}
+  .btn-glow{display:inline-block;background:linear-gradient(180deg,#F0763A,var(--accent-deep));
+    color:#FFF8EF;font-weight:800;font-size:16px;padding:15px 28px;border-radius:999px;text-decoration:none;
+    box-shadow:0 10px 28px rgba(232,98,44,.55),inset 0 1px 0 rgba(255,255,255,.35)}
+  .btn-glow:active{transform:scale(.97)}
+  .btn-ghost{display:inline-block;border:2px solid #E3CDA8;color:var(--accent-deep);font-weight:700;
+    font-size:16px;padding:13px 26px;border-radius:999px;text-decoration:none;background:transparent}
+
+  section{padding:56px 0;scroll-margin-top:56px}
+  section.first{padding-top:118px}
+  .kicker{display:flex;align-items:center;gap:14px;margin-bottom:22px;color:var(--accent-deep);
+    font-size:12px;letter-spacing:2.5px;text-transform:uppercase;font-weight:700}
+  .kicker::before,.kicker::after{content:"";height:1px;background:var(--line);flex:1}
+
+  .kv{background:var(--paper);border:1px solid var(--line);border-radius:18px;overflow:hidden;
+    box-shadow:0 10px 30px rgba(150,80,20,.10)}
+  .kv-row{display:flex;gap:14px;padding:16px 20px;border-top:1px solid var(--line)}
+  .kv-row:first-child{border-top:none}
+  .kv-row span:first-child{flex:0 0 96px;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--muted);font-weight:700;padding-top:3px}
+  .kv-row span:last-child{font-size:16px}
+
+  .gallery{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .gallery figure{border-radius:14px;overflow:hidden;box-shadow:0 8px 22px rgba(150,80,20,.12);background:var(--paper)}
+  .gallery img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+  .gallery figcaption{font-size:13px;color:var(--muted);padding:10px 12px}
+  .g1{background:linear-gradient(135deg,#F9B44C,#E0643A)}
+  .g2{background:linear-gradient(135deg,#F6CFA3,#D9A441)}
+  .g3{background:linear-gradient(135deg,#F08A3C,#B34A28)}
+  .g4{background:linear-gradient(135deg,#FBD9A0,#E08A2E)}
+
+  .contact{background:#2E1F14;color:#FFE3C2;border-radius:20px;padding:30px 24px;text-align:center}
+  .contact h2{font-family:Georgia,serif;font-weight:normal;font-size:24px;margin-bottom:8px;color:#FFF8EF}
+  .contact p{font-size:16px}
+  .contact a{color:var(--gold);font-weight:700}
+
+  .qr-box{text-align:center;margin-top:36px}
+  .qr-box:empty{display:none}
+  .qr-box svg{width:150px;height:150px;border:10px solid #fff;border-radius:14px;
+    box-shadow:0 8px 24px rgba(150,80,20,.16)}
+
+  footer{text-align:center;padding:34px 22px 44px;font-size:14px;color:var(--muted)}
+  footer a{color:var(--accent-deep);font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="badge" id="expiry" data-expires="2026-10-05T12:00:00+00:00"><strong>this site vanishes in 2d 4h</strong> 🪰</div>
+
+<header class="hero">
+  <img class="hero-photo" src="img/celebrate.jpg" alt="" onerror="this.remove()">
+  <div class="hero-wash"></div>
+  <div class="hero-inner">
+    <div class="hero-card">
+      <h1 class="hero-title">Maya Turns <em>Thirty</em></h1>
+      <p class="hero-sub">A backyard birthday — cake, string lights, and the people she likes most. Come hungry.</p>
+      <div class="cta-row"><a class="btn-glow" href="sms:+17045550134">Text Maya you’re in 🎉</a><a class="btn-ghost" href="#details">The details</a></div>
+    </div>
+  </div>
+</header>
+
+<section class="first" id="details">
+  <div class="wrap">
+    <p class="kicker">The details</p>
+    <div class="kv">
+      <div class="kv-row"><span>When</span><span>Saturday, June 14 · 4:00 PM till late</span></div><div class="kv-row"><span>Where</span><span>Maya’s backyard, 412 Elmwood Ave, Charlotte</span></div><div class="kv-row"><span>Bring</span><span>Just yourself — food and drinks are covered</span></div><div class="kv-row"><span>Theme</span><span>Golden hour casual. Dress for photos.</span></div><div class="kv-row"><span>Kids</span><span>Very welcome — there’ll be a kiddie pool</span></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0" id="photos">
+  <div class="wrap">
+    <p class="kicker">A few favorites</p>
+    <div class="gallery">
+      <figure><img src="img/celebrate.jpg" alt="" loading="lazy"><figcaption>Maya, age 7, already the boss</figcaption></figure><figure><img src="img/celebrate.jpg" alt="" loading="lazy"><figcaption>Last year’s infamous piñata</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="contact">
+      <h2>Can you make it?</h2><p>Text Maya at <a href="tel:+17045550134">(704) 555-0134</a><br>or email <a href="mailto:maya@example.com">maya@example.com</a></p>
+    </div>
+    <div class="qr-box"></div>
+  </div>
+</section>
+
+<footer>
+  <p>made with <a href="https://mayfly.site">Mayfly</a> 🪰</p>
+</footer>
+
+<script>
+(function(){
+  var el=document.getElementById('expiry'), strong=el.querySelector('strong');
+  var t=Date.parse(el.getAttribute('data-expires'));
+  if(isNaN(t)) return;
+  function fmt(ms){var s=Math.floor(ms/1000),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);
+    if(d>0)return d+"d "+h+"h"; if(h>0)return h+"h "+m+"m"; return m+"m";}
+  function tick(){var ms=t-Date.now();
+    strong.textContent=ms>0?("this site vanishes in "+fmt(ms)):("this site has vanished");}
+  tick(); setInterval(tick,30000);
+})();
+</script>
+</body>
+</html>

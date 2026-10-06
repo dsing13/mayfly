@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maple Street Yard Sale</title>
+<!--
+  MAYFLY THEME: sell (yard sale / open house / pop-up)
+  Variable map:
+    Maple Street <em>Yard Sale</em>          -> h1.hero-title   (inline <em>..</em> allowed for an italic accent word)
+    Two households, one driveway, an unreasonable amount of stuff. Everything priced to move — Saturday only.       -> p.hero-sub
+    <a class="btn-glow" href="sms:+17045550198">Text about an item</a><a class="btn-ghost" href="#details">When & where</a>       -> .cta-row inner HTML, e.g. <a class="btn-glow" href="..">..</a><a class="btn-ghost" href="..">..</a>
+    img/sell.jpg     -> img.hero-photo src  (CSS art shows until a real photo loads)
+    <div class="kv-row"><span>When</span><span>Saturday only · 8:00 AM – 2:00 PM</span></div><div class="kv-row"><span>Where</span><span>1214 & 1216 Maple St, Charlotte — look for the balloons</span></div><div class="kv-row"><span>Payment</span><span>Cash, Venmo, or Zelle. No holds.</span></div><div class="kv-row"><span>Fine print</span><span>Everything sold as-is. Early birds welcome at 7:45.</span></div>   -> .kv inner HTML      (rows of .kv-row > span + span)
+    <div class="item"><div class="thumb i1"></div><div><h3>Mid-century dresser</h3><p>Solid wood, great shape, drawers glide</p></div><span class="p">$85</span></div><div class="item"><div class="thumb i2"></div><div><h3>Kids’ bikes (2)</h3><p>16" and 20", helmets included</p></div><span class="p">$40</span></div><div class="item"><div class="thumb i3"></div><div><h3>KitchenAid mixer</h3><p>Barely used, all attachments</p></div><span class="p">$120</span></div><div class="item"><div class="thumb i4"></div><div><h3>Box of vinyl LPs</h3><p>~60 records, mostly 70s rock</p></div><span class="p">$50</span></div>     -> .items inner HTML   (rows of .item: .thumb + div(h3/p) + .p price)
+    <figure><img src="img/sell.jpg" alt="" loading="lazy"><figcaption>The driveway, half-unloaded</figcaption></figure><figure><img src="img/sell.jpg" alt="" loading="lazy"><figcaption>Free box — yes, really</figcaption></figure>   -> .gallery inner HTML  (figures)
+    2026-10-05T12:00:00+00:00 -> #expiry data-expires (ISO timestamp; live countdown)
+    <h2>Want something held? <em>Too bad.</em></h2><p>First come, first served — but text <a href="tel:+17045550198">(704) 555-0198</a> with questions.</p>   -> .contact inner HTML
+             -> .qr-box (real QR svg; the box hides itself when empty)
+-->
+<style>
+  :root{--cream:#FFFBF2;--paper:#FFFDF8;--ink:#23201A;--muted:#8A7A64;
+    --amber:#F59E0B;--amber-deep:#B45309;--teal:#0F766E;--line:#EFE3CB}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--cream);color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:clip}
+  .wrap{max-width:640px;margin:0 auto;padding:0 22px}
+
+  .badge{position:sticky;top:0;z-index:20;background:#23201A;color:#FFE9B8;text-align:center;
+    font-size:13px;letter-spacing:1px;padding:10px 16px;font-weight:600}
+  .badge strong{font-weight:700}
+
+  .hero{position:relative;overflow:hidden;color:#FFFBF2;
+    background:
+      repeating-linear-gradient(-45deg, rgba(255,255,255,.05) 0 16px, transparent 16px 32px),
+      linear-gradient(150deg,#2B2416 0%,#4A3410 60%,#23201A 100%)}
+  .hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+  .hero-wash{position:absolute;inset:0;
+    background:linear-gradient(150deg,rgba(245,158,11,.42) 0%,rgba(180,83,9,.48) 50%,rgba(20,14,6,.82) 100%)}
+  .hero-inner{position:relative;z-index:2;padding:72px 22px 64px;max-width:640px;margin:0 auto}
+  h1.hero-title{font-weight:800;font-size:clamp(36px,9.5vw,56px);line-height:1.04;
+    text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;
+    text-shadow:0 3px 26px rgba(20,10,0,.5)}
+  h1.hero-title em{font-family:Georgia,serif;font-style:italic;font-weight:normal;
+    text-transform:none;letter-spacing:0;color:var(--amber)}
+  p.hero-sub{font-size:18px;opacity:.95;max-width:32em;font-weight:500}
+  .cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+  .cta-row:empty{display:none}
+  .btn-glow{display:inline-block;background:linear-gradient(180deg,#FFB627,#E08A00);
+    color:#23201A;font-weight:800;font-size:16px;padding:15px 28px;border-radius:999px;text-decoration:none;
+    box-shadow:0 10px 30px rgba(245,158,11,.55),inset 0 1px 0 rgba(255,255,255,.5)}
+  .btn-glow:active{transform:scale(.97)}
+  .btn-ghost{display:inline-block;border:2px solid rgba(255,251,242,.55);color:#FFFBF2;font-weight:700;
+    font-size:16px;padding:13px 26px;border-radius:999px;text-decoration:none;background:transparent}
+
+  section{padding:56px 0;scroll-margin-top:56px}
+  .kicker{display:flex;align-items:center;gap:14px;margin-bottom:22px;color:var(--amber-deep);
+    font-size:12px;letter-spacing:2.5px;text-transform:uppercase;font-weight:800}
+  .kicker::before,.kicker::after{content:"";height:2px;background:var(--line);flex:1}
+
+  .kv{background:var(--paper);border:2px solid var(--ink);border-radius:16px;overflow:hidden;
+    box-shadow:5px 5px 0 rgba(35,32,26,.9)}
+  .kv-row{display:flex;gap:14px;padding:16px 20px;border-top:2px solid var(--line)}
+  .kv-row:first-child{border-top:none}
+  .kv-row span:first-child{flex:0 0 96px;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--muted);font-weight:800;padding-top:3px}
+  .kv-row span:last-child{font-size:16px;font-weight:500}
+
+  .items{display:grid;gap:12px}
+  .item{background:var(--paper);border:2px solid var(--ink);border-radius:16px;padding:14px 16px;
+    display:flex;gap:14px;align-items:center;box-shadow:4px 4px 0 rgba(35,32,26,.9)}
+  .item .thumb{flex:0 0 60px;height:60px;border-radius:12px}
+  .item h3{font-size:16px;font-weight:700}
+  .item p{font-size:13px;color:var(--muted)}
+  .item .p{margin-left:auto;background:var(--amber);color:#23201A;font-weight:800;font-size:17px;
+    padding:8px 14px;border-radius:10px;transform:rotate(2deg);white-space:nowrap;
+    box-shadow:0 4px 12px rgba(245,158,11,.35)}
+  .i1{background:linear-gradient(135deg,#F9B44C,#D97B1F)}
+  .i2{background:linear-gradient(135deg,#5EC4B6,#0F766E)}
+  .i3{background:linear-gradient(135deg,#F6CFA3,#B45309)}
+  .i4{background:linear-gradient(135deg,#FBD9A0,#E08A2E)}
+
+  .gallery{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:26px}
+  .gallery figure{border-radius:14px;overflow:hidden;box-shadow:0 8px 22px rgba(150,80,20,.12);background:var(--paper)}
+  .gallery img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+  .gallery figcaption{font-size:13px;color:var(--muted);padding:10px 12px}
+  .g1{background:linear-gradient(135deg,#F9B44C,#B45F1B)}
+  .g2{background:linear-gradient(135deg,#F6CFA3,#D97B1F)}
+
+  .contact{background:#23201A;color:#FFE9B8;border-radius:16px;padding:30px 24px;text-align:center;
+    border:2px solid #23201A}
+  .contact h2{font-weight:800;font-size:22px;margin-bottom:8px;color:#FFFBF2;text-transform:uppercase;letter-spacing:.5px}
+  .contact h2 em{font-family:Georgia,serif;font-style:italic;font-weight:normal;text-transform:none;color:var(--amber)}
+  .contact p{font-size:16px}
+  .contact a{color:var(--amber);font-weight:700;white-space:nowrap}
+
+  .qr-box{text-align:center;margin-top:36px}
+  .qr-box:empty{display:none}
+  .qr-box svg{width:150px;height:150px;border:10px solid #fff;border-radius:14px;
+    box-shadow:0 8px 24px rgba(150,80,20,.16)}
+
+  footer{text-align:center;padding:34px 22px 44px;font-size:14px;color:var(--muted)}
+  footer a{color:var(--amber-deep);font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="badge" id="expiry" data-expires="2026-10-05T12:00:00+00:00"><strong>this site vanishes in 1d 3h</strong> 🪰</div>
+
+<header class="hero">
+  <img class="hero-photo" src="img/sell.jpg" alt="" onerror="this.remove()">
+  <div class="hero-wash"></div>
+  <div class="hero-inner">
+    <h1 class="hero-title">Maple Street <em>Yard Sale</em></h1>
+    <p class="hero-sub">Two households, one driveway, an unreasonable amount of stuff. Everything priced to move — Saturday only.</p>
+    <div class="cta-row"><a class="btn-glow" href="sms:+17045550198">Text about an item</a><a class="btn-ghost" href="#details">When & where</a></div>
+  </div>
+</header>
+
+<section id="details">
+  <div class="wrap">
+    <p class="kicker">When &amp; where</p>
+    <div class="kv">
+      <div class="kv-row"><span>When</span><span>Saturday only · 8:00 AM – 2:00 PM</span></div><div class="kv-row"><span>Where</span><span>1214 & 1216 Maple St, Charlotte — look for the balloons</span></div><div class="kv-row"><span>Payment</span><span>Cash, Venmo, or Zelle. No holds.</span></div><div class="kv-row"><span>Fine print</span><span>Everything sold as-is. Early birds welcome at 7:45.</span></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0" id="items">
+  <div class="wrap">
+    <p class="kicker">The good stuff</p>
+    <div class="items">
+      <div class="item"><div class="thumb i1"></div><div><h3>Mid-century dresser</h3><p>Solid wood, great shape, drawers glide</p></div><span class="p">$85</span></div><div class="item"><div class="thumb i2"></div><div><h3>Kids’ bikes (2)</h3><p>16" and 20", helmets included</p></div><span class="p">$40</span></div><div class="item"><div class="thumb i3"></div><div><h3>KitchenAid mixer</h3><p>Barely used, all attachments</p></div><span class="p">$120</span></div><div class="item"><div class="thumb i4"></div><div><h3>Box of vinyl LPs</h3><p>~60 records, mostly 70s rock</p></div><span class="p">$50</span></div>
+    </div>
+    <p class="kicker">Sneak a peek</p>
+    <div class="gallery">
+      <figure><img src="img/sell.jpg" alt="" loading="lazy"><figcaption>The driveway, half-unloaded</figcaption></figure><figure><img src="img/sell.jpg" alt="" loading="lazy"><figcaption>Free box — yes, really</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="contact">
+      <h2>Want something held? <em>Too bad.</em></h2><p>First come, first served — but text <a href="tel:+17045550198">(704) 555-0198</a> with questions.</p>
+    </div>
+    <div class="qr-box"></div>
+  </div>
+</section>
+
+<footer>
+  <p>made with <a href="https://mayfly.site">Mayfly</a> 🪰</p>
+</footer>
+
+<script>
+(function(){
+  var el=document.getElementById('expiry'), strong=el.querySelector('strong');
+  var t=Date.parse(el.getAttribute('data-expires'));
+  if(isNaN(t)) return;
+  function fmt(ms){var s=Math.floor(ms/1000),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);
+    if(d>0)return d+"d "+h+"h"; if(h>0)return h+"h "+m+"m"; return m+"m";}
+  function tick(){var ms=t-Date.now();
+    strong.textContent=ms>0?("this site vanishes in "+fmt(ms)):("this site has vanished");}
+  tick(); setInterval(tick,30000);
+})();
+</script>
+</body>
+</html>

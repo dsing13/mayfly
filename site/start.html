@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Start your site — Mayfly</title>
+<meta name="description" content="Chat with Nova and get a beautiful one-page website in minutes.">
+<style>
+  :root{
+    --cream:#FFF9F0; --paper:#FFFDF8; --ink:#2B2118; --muted:#8A7660;
+    --amber:#E8930C; --amber-deep:#B45F1B; --peach:#F6CFA3; --rose:#C65D3B;
+    --line:#EFE2CC; --card-shadow:0 10px 30px rgba(120,72,20,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--cream);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;max-width:640px;margin:0 auto}
+  .topbar{background:rgba(255,249,240,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+    padding:12px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:5}
+  .brand{font-family:Georgia,serif;font-weight:bold;font-size:19px;text-decoration:none;color:var(--ink)}
+  .brand span{color:var(--amber-deep)}
+  .topbar .tag{font-size:12px;color:var(--muted);margin-left:auto}
+  #chat{flex:1;overflow-y:auto;padding:20px 16px 12px;display:flex;flex-direction:column;gap:10px}
+  .row{display:flex;gap:8px;align-items:flex-end}
+  .row.me{justify-content:flex-end}
+  .avatar{flex:0 0 30px;width:30px;height:30px;border-radius:50%;background:var(--peach);
+    display:flex;align-items:center;justify-content:center;font-size:16px}
+  .bubble{max-width:78%;padding:11px 15px;border-radius:18px;font-size:16px;line-height:1.5}
+  .bot .bubble{background:var(--paper);border:1px solid var(--line);border-bottom-left-radius:6px;
+    box-shadow:var(--card-shadow)}
+  .me .bubble{background:var(--ink);color:var(--cream);border-bottom-right-radius:6px}
+  .bubble img.thumb{max-width:150px;border-radius:10px;display:block;margin-top:6px}
+  .typing{display:inline-flex;gap:5px;padding:4px 2px}
+  .typing span{width:7px;height:7px;border-radius:50%;background:var(--muted);opacity:.5;animation:tp 1.1s infinite}
+  .typing span:nth-child(2){animation-delay:.18s}.typing span:nth-child(3){animation-delay:.36s}
+  @keyframes tp{0%,60%,100%{transform:none;opacity:.4}30%{transform:translateY(-4px);opacity:1}}
+  #chips{display:flex;gap:8px;overflow-x:auto;padding:4px 16px 8px;-webkit-overflow-scrolling:touch}
+  #chips:empty{display:none}
+  .chip{flex:0 0 auto;border:1px solid var(--amber-deep);color:var(--amber-deep);background:transparent;
+    border-radius:999px;padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer;min-height:40px}
+  .chip:active{background:var(--peach)}
+  #composer{display:flex;gap:8px;padding:10px 12px calc(12px + env(safe-area-inset-bottom));
+    border-top:1px solid var(--line);background:var(--paper)}
+  #upbtn{flex:0 0 46px;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);
+    background:var(--cream);font-size:20px;cursor:pointer}
+  #upbtn:active{transform:scale(.95)}
+  #msg{flex:1;border:1px solid var(--line);border-radius:999px;padding:12px 18px;font-size:16px;
+    background:var(--cream);color:var(--ink);outline:none;min-width:0}
+  #msg:focus{border-color:var(--amber)}
+  #send{flex:0 0 46px;width:46px;height:46px;border-radius:50%;border:none;background:var(--ink);
+    color:var(--cream);font-size:18px;cursor:pointer}
+  #send:disabled{opacity:.4}
+  #send:active{transform:scale(.95)}
+  .note{text-align:center;font-size:12px;color:var(--muted);padding:8px 20px 4px}
+  .note a{color:var(--amber-deep)}
+  input[type=file]{display:none}
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <a class="brand" href="/">Mayfly<span>.</span></a>
+    <span class="tag">chat with Nova</span>
+  </div>
+  <div id="chat" aria-live="polite"></div>
+  <div id="chips"></div>
+  <form id="composer">
+    <button type="button" id="upbtn" title="Add a photo" aria-label="Add a photo">📷</button>
+    <input type="file" id="file" accept="image/*" multiple>
+    <input id="msg" type="text" placeholder="Tell me about your site…" autocomplete="off" maxlength="2000">
+    <button type="submit" id="send" aria-label="Send">➤</button>
+  </form>
+  <p class="note">Prefer email? Write to <a href="mailto:mayfly@agentmail.to">mayfly@agentmail.to</a> — same Nova, slower chat.</p>
+
+<script>
+(function(){
+  const chat = document.getElementById('chat');
+  const chips = document.getElementById('chips');
+  const form = document.getElementById('composer');
+  const msg = document.getElementById('msg');
+  const send = document.getElementById('send');
+  const upbtn = document.getElementById('upbtn');
+  const file = document.getElementById('file');
+  let sid = localStorage.getItem('mayfly_sid');
+  if (!sid) { sid = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2)); localStorage.setItem('mayfly_sid', sid); }
+  let busy = false, greeted = false;
+
+  function scroll(){ chat.scrollTop = chat.scrollHeight; }
+  function linkify(t){
+    var d = document.createElement('div'); d.textContent = t; var h = d.innerHTML;
+    return h.replace(/(https:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+  }
+  function bubble(text, me){
+    const row = document.createElement('div');
+    row.className = 'row ' + (me ? 'me' : 'bot');
+    row.innerHTML = (me ? '' : '<div class="avatar">🪰</div>') + '<div class="bubble"></div>';
+    if (me) row.querySelector('.bubble').textContent = text;
+    else row.querySelector('.bubble').innerHTML = linkify(text);
+    chat.appendChild(row); scroll();
+    return row;
+  }
+  function typing(){
+    const row = document.createElement('div');
+    row.className = 'row bot'; row.id = 'typing';
+    row.innerHTML = '<div class="avatar">🪰</div><div class="bubble"><span class="typing"><span></span><span></span><span></span></span></div>';
+    chat.appendChild(row); scroll();
+  }
+  function untype(){ const t = document.getElementById('typing'); if (t) t.remove(); }
+  function setChips(list){
+    chips.innerHTML = '';
+    list.forEach(function(c){
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip'; b.textContent = c;
+      b.onclick = function(){ msg.value = c; form.requestSubmit(); };
+      chips.appendChild(b);
+    });
+  }
+  const TIER_CHIPS = ['Just a day (free)', '2 days ($1)', 'A week ($1.50)', 'A month ($5)', 'A year ($50)'];
+  const OPEN_CHIPS = ['A birthday 🎂', 'A wedding 💒', 'A yard sale 🏷️', 'Something else ✨'];
+  function maybeChips(reply){
+    if (!greeted) { setChips(OPEN_CHIPS); greeted = true; return; }
+    if (/how long|day|week|month|tier|long should/i.test(reply)) setChips(TIER_CHIPS);
+    else chips.innerHTML = '';
+  }
+
+  function freshSession(){
+    sid = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2));
+    localStorage.setItem('mayfly_sid', sid);
+  }
+
+  async function postChat(text){
+    const r = await fetch('/api/intake/chat', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: sid, message: text })
+    });
+    return r.json();
+  }
+
+  async function postChatRetry(text){
+    try { return await postChat(text); }
+    catch (e) {
+      await new Promise(function(res){ setTimeout(res, 1500); });
+      return postChat(text); // one retry; a second failure throws to the caller
+    }
+  }
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    const text = msg.value.trim();
+    if (!text || busy) return;
+    busy = true; send.disabled = true;
+    bubble(text, true); msg.value = ''; chips.innerHTML = '';
+    typing();
+    try {
+      const d = await postChatRetry(text);
+      untype();
+      if (d.error === 'session rejected' || (d.error && d.error.indexOf('session ') === 0)) {
+        // This conversation is closed (flagged content, or already finished) —
+        // start clean instead of dead-ending.
+        freshSession();
+        bubble("Let's start fresh — what are we making a website for?", false);
+        setChips(OPEN_CHIPS);
+      }
+      else if (d.error === 'slow down a touch') { bubble("Whoa, one sec — try again in a moment?", false); }
+      else if (d.error) { bubble("Hmm, that didn't go through — mind trying again?", false); }
+      else {
+        bubble(d.reply || "Got it.", false);
+        maybeChips(d.reply || '');
+        if (d.done || d.rejected) { msg.disabled = true; send.disabled = true; upbtn.disabled = true; }
+      }
+    } catch { untype(); bubble("Lost you for a sec — try sending that again?", false); }
+    busy = false; send.disabled = false; msg.focus();
+  });
+
+  upbtn.addEventListener('click', function(){ file.click(); });
+  file.addEventListener('change', async function(){
+    const files = Array.prototype.slice.call(file.files || []).slice(0, 6);
+    if (!files.length) return;
+    for (const f of files) {
+      if (f.size > 5 * 1024 * 1024) { bubble('That photo is over 5MB — mind shrinking it a touch?', false); continue; }
+      const dataUrl = await new Promise(function(res, rej){
+        const fr = new FileReader();
+        fr.onload = function(){ res(fr.result); }; fr.onerror = rej; fr.readAsDataURL(f);
+      });
+      const row = bubble('Sending photo…', true);
+      try {
+        const r = await fetch('/api/intake/upload', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId: sid, name: f.name, ct: f.type || 'image/jpeg',
+            b64: String(dataUrl).split(',')[1] })
+        });
+        const d = await r.json();
+        if (d.rejected) { row.querySelector('.bubble').textContent = 'Photo skipped.'; bubble(d.reply, false); msg.disabled = true; }
+        else if (d.ok) { row.querySelector('.bubble').innerHTML = ''; row.querySelector('.bubble').textContent = '📷 ' + d.name + ' (' + d.count + '/6)'; }
+        else { row.querySelector('.bubble').textContent = 'Photo didn\'t make it — try another?'; }
+      } catch { row.querySelector('.bubble').textContent = 'Photo didn\'t make it — try another?'; }
+    }
+    file.value = '';
+  });
+
+  // greeting
+  typing();
+  setTimeout(function(){
+    untype();
+    bubble("Hey! I'm Nova — I design the sites around here. 🪰 Here's how this goes: you tell me the idea, I ask a few quick questions, you pick how long it lives, and I build it and email you the link. Usually ready within a few hours. So — what are we making a website for?", false);
+    maybeChips('');
+  }, 600);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mayfly — Websites that live for a day.</title>
+<meta name="description" content="Email us an idea and we'll build you a beautiful one-page website at yourname.trymayfly.com. It stays up exactly as long as you need — then it evaporates.">
+<style>
+  :root{
+    --cream:#FFF9F0; --paper:#FFFDF8; --ink:#2B2118; --muted:#8A7660;
+    --amber:#E8930C; --amber-deep:#B45F1B; --peach:#F6CFA3; --rose:#C65D3B;
+    --line:#EFE2CC; --card-shadow:0 10px 30px rgba(120,72,20,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--cream);color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:640px;margin:0 auto;padding:0 22px}
+  .serif{font-family:Georgia,"Times New Roman",serif}
+
+  /* ---------- top bar ---------- */
+  .topbar{position:sticky;top:0;z-index:10;background:rgba(255,249,240,.92);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line)}
+  .topbar .wrap{display:flex;align-items:center;justify-content:space-between;padding-top:12px;padding-bottom:12px}
+  .brand{font-family:Georgia,serif;font-weight:bold;font-size:20px;letter-spacing:.5px;text-decoration:none;color:var(--ink)}
+  .brand span{color:var(--amber-deep)}
+  .btn{display:inline-block;background:var(--ink);color:#FFF9F0;text-decoration:none;font-weight:600;
+    padding:13px 26px;border-radius:999px;font-size:16px;border:none;cursor:pointer;min-height:48px}
+  .btn.small{padding:10px 20px;font-size:14px;min-height:44px}
+  .btn:active{transform:scale(.97)}
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 50% 110%, #F9B44C 0%, #F2A25C 28%, #E98B4B 52%, #D96F3C 74%, #B9552F 100%);
+    color:#FFF9F0}
+  .hero::before{content:"";position:absolute;inset:0;
+    background:radial-gradient(42% 34% at 50% 68%, rgba(255,236,190,.85) 0%, rgba(255,236,190,0) 70%)}
+  .hero .wrap{position:relative;padding:84px 22px 72px;text-align:center}
+    background:rgba(43,33,24,.28);padding:8px 16px;border-radius:999px;margin-bottom:22px}
+  h1{font-family:Georgia,serif;font-size:clamp(38px,9vw,58px);line-height:1.12;font-weight:bold;margin-bottom:18px;
+    text-shadow:0 2px 24px rgba(120,50,10,.35)}
+  .lede{font-size:18px;max-width:34em;margin:0 auto 30px;opacity:.96}
+  .hero .btn{background:#FFF9F0;color:var(--ink)}
+  .hero-note{margin-top:16px;font-size:14px;opacity:.85}
+
+  /* ---------- sections ---------- */
+  section{padding:64px 0}
+  section.alt{background:var(--paper);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .kicker{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--amber-deep);font-weight:700;margin-bottom:10px}
+  h2{font-family:Georgia,serif;font-size:30px;line-height:1.25;margin-bottom:14px}
+  .sub{color:var(--muted);font-size:16px;margin-bottom:8px}
+
+  /* steps */
+  .steps{list-style:none;margin-top:28px;display:grid;gap:14px}
+  .step{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:20px 20px 20px 22px;
+    display:flex;gap:16px;align-items:flex-start;box-shadow:var(--card-shadow)}
+  .num{flex:0 0 40px;height:40px;border-radius:50%;background:var(--ink);color:#FFF9F0;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px}
+  .step h3{font-size:17px;margin-bottom:4px}
+  .step p{font-size:15px;color:var(--muted)}
+  .step a{color:var(--amber-deep);font-weight:600}
+
+  /* pricing */
+  .tiers{display:grid;gap:14px;margin-top:28px}
+  @media(min-width:560px){.tiers{grid-template-columns:1fr 1fr}}
+  .tier{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:26px 22px;
+    box-shadow:var(--card-shadow);position:relative}
+  .tier.hot{border:2px solid var(--amber)}
+  .tier .flag{position:absolute;top:-13px;left:20px;background:var(--amber);color:var(--ink);font-size:12px;
+    font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 12px;border-radius:999px}
+  .tier h3{font-family:Georgia,serif;font-size:22px;margin-bottom:6px}
+  .tier .blurb{font-size:14px;color:var(--muted);margin-bottom:14px;min-height:44px}
+  .price{display:flex;align-items:baseline;gap:8px;margin-bottom:16px}
+  .price .amount{font-family:Georgia,serif;font-size:34px;font-weight:bold;color:var(--amber-deep)}
+  .price .per{font-size:14px;color:var(--muted)}
+  .price-note{margin-top:22px;font-size:14px;color:var(--muted);text-align:center}
+
+  /* use cases */
+  .cases{display:flex;gap:12px;overflow-x:auto;margin:26px -22px 0;padding:4px 22px 18px;
+    scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+  .case{flex:0 0 200px;scroll-snap-align:start;background:var(--paper);border:1px solid var(--line);
+    border-radius:18px;padding:18px;box-shadow:var(--card-shadow)}
+  .case .art{height:96px;border-radius:12px;margin-bottom:12px}
+  .case h3{font-size:15px;margin-bottom:4px}
+  .case p{font-size:13px;color:var(--muted);line-height:1.5}
+  a.case{color:inherit;text-decoration:none;display:block}
+  .a1{background:linear-gradient(135deg,#F9B44C,#E0643A)}
+  .a2{background:linear-gradient(135deg,#F6CFA3,#D9A441)}
+  .a3{background:linear-gradient(135deg,#E8930C,#B45F1B)}
+  .a4{background:linear-gradient(135deg,#F2A25C,#C65D3B)}
+  .a5{background:linear-gradient(135deg,#F9D9A8,#E08A2E)}
+  .a6{background:linear-gradient(135deg,#EFC27A,#B9552F)}
+
+  /* faq */
+  details{background:var(--paper);border:1px solid var(--line);border-radius:16px;margin-top:12px;
+    padding:18px 20px;box-shadow:var(--card-shadow)}
+  summary{font-weight:700;font-size:16px;cursor:pointer;list-style:none;min-height:44px;display:flex;align-items:center}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";margin-left:auto;font-size:22px;color:var(--amber-deep);font-weight:400}
+  details[open] summary::after{content:"–"}
+  details p{font-size:15px;color:var(--muted);margin-top:8px}
+
+  /* cta */
+  .cta{background:
+      radial-gradient(120% 100% at 50% 120%, #F9B44C 0%, #E98B4B 55%, #C65D3B 100%);
+    color:#FFF9F0;text-align:center}
+  .cta h2{color:#FFF9F0}
+  .cta p{opacity:.92;margin-bottom:26px;font-size:17px}
+  .cta .btn{background:#FFF9F0;color:var(--ink);font-size:18px;padding:16px 34px}
+  .cta .addr{margin-top:18px;font-size:15px}
+  .cta .addr a{color:#FFF9F0;font-weight:700}
+
+  footer{background:var(--ink);color:#CBB99F;text-align:center;padding:36px 22px;font-size:14px}
+  footer a{color:#F6CFA3;font-weight:600}
+  footer .tag{font-family:Georgia,serif;font-style:italic;margin-top:8px;color:#9A8668}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="/">Mayfly<span>.</span></a>
+    <a class="btn small" href="/start">Start a site</a>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <h1>Websites that live for a day.</h1>
+    <p class="lede">Tell us your idea — a birthday, a yard sale, a lost dog, a wedding — and we'll build you a beautiful one-page site at <strong>yourname.trymayfly.com</strong>. It stays up exactly as long as you need it. Then it evaporates, like it should.</p>
+    <a class="btn" href="/start">Start your site</a>
+    <p class="hero-note">A real human (well, Nova) reads every order and builds every site.<br>Prefer email? <a href="mailto:mayfly@agentmail.to">mayfly@agentmail.to</a></p>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">How it works</p>
+    <h2>From email to website before your coffee cools.</h2>
+    <ol class="steps">
+      <li class="step"><span class="num">1</span><div><h3>Tell us your idea</h3><p>Answer a few quick questions in the <a href="/start">chat</a> — a sentence, a photo, a half-formed plan. Rough is fine. Prefer email? Write to <a href="mailto:mayfly@agentmail.to">mayfly@agentmail.to</a>.</p></div></li>
+      <li class="step"><span class="num">2</span><div><h3>We ask a few questions</h3><p>Nova emails back for the details that matter — dates, photos, the tone you want — until the picture is clear.</p></div></li>
+      <li class="step"><span class="num">3</span><div><h3>Pay for the time you need</h3><p>A day, two days, a week, a month, a year. Pick the lifespan, pay once, no subscriptions, no renewals lurking.</p></div></li>
+      <li class="step"><span class="num">4</span><div><h3>Share your link</h3><p>Your site goes live at <strong>yourname.trymayfly.com</strong> — with a QR code for the fridge, the flyer, or the yard-sale sign.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <p class="kicker">Pricing</p>
+    <h2>Pay for time, not software.</h2>
+    <p class="sub">Five lifespans. One payment. When the clock runs out, the site gracefully vanishes.</p>
+    <div class="tiers">
+      <div class="tier">
+        <span class="flag">Try it free</span>
+        <h3>A day</h3>
+        <p class="blurb">24 hours, full design, all eight themes. Taste the whole thing.</p>
+        <p class="price"><span class="amount">Free</span></p>
+        <a class="btn small" href="/start">Start free</a>
+      </div>
+      <div class="tier">
+        <h3>Two days</h3>
+        <p class="blurb">48 hours for a buck. The flash sale, the lost pet, the weekend thing.</p>
+        <p class="price"><span class="amount">$1</span></p>
+        <a class="btn small" href="https://buy.stripe.com/6oU00l6Ee7iu8Cn3300kE04">Get two days</a>
+      </div>
+      <div class="tier hot">
+        <span class="flag">Most popular</span>
+        <h3>A week</h3>
+        <p class="blurb">Seven days for a buck fifty. The party invite, the yard sale, the big question.</p>
+        <p class="price"><span class="amount">$1.50</span></p>
+        <a class="btn small" href="https://buy.stripe.com/fZu6oJ8MmauGf0L6fc0kE05">Get a week</a>
+      </div>
+      <div class="tier">
+        <h3>A month</h3>
+        <p class="blurb">For the season of it — the wedding month, the fundraiser, the pop-up run.</p>
+        <p class="price"><span class="amount">$5</span></p>
+        <a class="btn small" href="https://buy.stripe.com/5kQaEZ2nY5am2dZcDA0kE06">Get a month</a>
+      </div>
+      <div class="tier">
+        <h3>A year</h3>
+        <p class="blurb">For the thing worth keeping around — the house sale, the team, the memorial.</p>
+        <p class="price"><span class="amount">$50</span></p>
+        <a class="btn small" href="https://buy.stripe.com/bJefZjbYy1Ya3i38nk0kE07">Get a year</a>
+      </div>
+    </div>
+    <p class="price-note">Need more time? Extend any site at the same rates — just email before the clock runs out.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">Made for moments</p>
+    <h2>Some things don't need to last forever.</h2>
+    <p class="sub">They just need to look great while they're here. Swipe through →</p>
+  </div>
+  <div class="wrap">
+    <div class="cases">
+      <div class="case"><div class="art a1"></div><h3>Birthday invite</h3><p>Maya's 30th, Saturday at 4. Text the link, skip the group chat chaos.</p></div>
+      <div class="case"><div class="art a2"></div><h3>Yard sale</h3><p>Photos of the good stuff, the address, Saturday 8–2. Gone by Sunday.</p></div>
+      <div class="case"><div class="art a3"></div><h3>Lost pet</h3><p>One clear photo, where he was last seen, your number. Up in an hour.</p></div>
+      <div class="case"><div class="art a4"></div><h3>Wedding-day info</h3><p>Schedule, venue, parking, plus-ones. For the month around the big day.</p></div>
+      <div class="case"><div class="art a5"></div><h3>Open house</h3><p>A weekend listing page with photos that beats a flyer box.</p></div>
+      <div class="case"><div class="art a6"></div><h3>The big question</h3><p>A promposal or proposal page, live just long enough for the answer.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">Examples</p>
+    <h2>See what's possible.</h2>
+    <p class="lede">Real Mayfly pages, live right now. Each one stays up permanently as a sample — yours will vanish on schedule.</p>
+    <div class="cases">
+      <a class="case" href="https://celebrate.trymayfly.com"><div class="art a1"></div><h3>Celebrate</h3><p>Mia's 7th birthday party — cake time, RSVP, goody-bag logistics.</p></a>
+      <a class="case" href="https://invite.trymayfly.com"><div class="art a2"></div><h3>Invite</h3><p>June &amp; Marcus's wedding — ceremony schedule, venue, RSVP.</p></a>
+      <a class="case" href="https://announce.trymayfly.com"><div class="art a3"></div><h3>Announce</h3><p>Baby Nora has arrived — the stats, the story, the visiting rules.</p></a>
+      <a class="case" href="https://sell.trymayfly.com"><div class="art a4"></div><h3>Sell</h3><p>A three-household yard sale — the goods, the prices, the rules.</p></a>
+      <a class="case" href="https://remember.trymayfly.com"><div class="art a5"></div><h3>Remember</h3><p>A memorial for Nana Whitaker — service details and a tribute.</p></a>
+      <a class="case" href="https://rally.trymayfly.com"><div class="art a6"></div><h3>Rally</h3><p>Freedom Park cleanup day — crews, signups, donuts.</p></a>
+      <a class="case" href="https://inform.trymayfly.com"><div class="art a1"></div><h3>Inform</h3><p>Lost dog: Biscuit — what he looks like, where he was last seen.</p></a>
+      <a class="case" href="https://play.trymayfly.com"><div class="art a2"></div><h3>Play</h3><p>A neighborhood scavenger hunt — twenty clues, one golden duck.</p></a>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <p class="kicker">Questions</p>
+    <h2>Fair things to ask.</h2>
+    <details open>
+      <summary>What happens when it expires?</summary>
+      <p>It evaporates. The page comes down, the link stops working, and nothing lingers — no archives, no "renew now" emails chasing you. Like it was never there, because it didn't need to be.</p>
+    </details>
+    <details>
+      <summary>Can I extend it?</summary>
+      <p>Yes. Email us before the clock runs out and we'll add time at the same simple rates. After it's gone, it's gone — so don't sleep on it.</p>
+    </details>
+    <details>
+      <summary>What content do you refuse?</summary>
+      <p>Anything lewd, vulgar, racist, hateful, dangerous, or gross — and nothing about vice. Mayfly sites are one-shot pages for fun and genuinely useful information. If it's mean or sketchy, it's a no, and we'll tell you so kindly.</p>
+    </details>
+  </div>
+</section>
+
+<div class="cta">
+  <section>
+    <div class="wrap">
+      <h2>Got something worth a day on the internet?</h2>
+      <p>Tell us about it. We'll take it from there.</p>
+      <a class="btn" href="/start">Start your site</a>
+      <p class="addr">or just write to <a href="mailto:mayfly@agentmail.to">mayfly@agentmail.to</a></p>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>© 2026 Mayfly · <a href="mailto:mayfly@agentmail.to">mayfly@agentmail.to</a></p>
+    <p class="tag">Here today, gone tomorrow — on purpose.</p>
+  </div>
+</footer>
+
+</body>
+</html>

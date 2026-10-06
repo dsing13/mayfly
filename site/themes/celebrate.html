@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maya Turns Thirty</title>
+<!--
+  MAYFLY THEME: celebrate (birthdays / parties)
+  Variable map:
+    {{title}}          -> h1.hero-title   (inline <em>..</em> allowed for an italic accent word)
+    {{subtitle}}       -> p.hero-sub
+    {{cta_html}}       -> .cta-row inner HTML, e.g. <a class="btn-glow" href="..">..</a><a class="btn-ghost" href="..">..</a>
+    {{hero_image}}     -> img.hero-photo src  (CSS art shows until a real photo loads)
+    {{details_html}}   -> .kv inner HTML       (rows of .kv-row > span + span)
+    {{gallery_html}}   -> .gallery inner HTML  (figures)
+    {{expires_at_iso}} -> #expiry data-expires (ISO timestamp; live countdown)
+    {{contact_html}}   -> .contact inner HTML
+    {{qr_svg}}         -> .qr-box (real QR svg; the box hides itself when empty)
+    {{event_iso}}        -> .ev-count data-event (ISO datetime; countdown + calendar; hidden when empty)
+    {{venue_text}}       -> directions chip query (Google Maps link; hidden when empty)
+    {{rsvp_contact}}     -> RSVP buttons (email or phone; mailto:/sms: prefilled; hidden when empty)
+-->
+<style>
+  :root{--hi:#E8622C;--cream:#FFF8EF;--paper:#FFFEFA;--ink:#2E1F14;--muted:#93765A;
+    --accent:#E8622C;--accent-deep:#B34A1E;--gold:#F2A93B;--line:#F1DFC6}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--cream);color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:clip}
+  .wrap{max-width:640px;margin:0 auto;padding:0 22px}
+
+  .badge{position:sticky;top:0;z-index:20;background:#2E1F14;color:#FFE3C2;text-align:center;
+    font-size:13px;letter-spacing:1px;padding:10px 16px;font-weight:600}
+  .badge strong{font-weight:700}
+
+  .hero{position:relative;color:#FFF8EF;
+    background:linear-gradient(165deg,#3A1C10 0%,#7A2E14 55%,#4A2410 100%)}
+  .hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+  .hero-wash{position:absolute;inset:0;
+    background:linear-gradient(160deg,rgba(242,169,59,.38) 0%,rgba(232,98,44,.42) 45%,rgba(46,22,8,.82) 100%)}
+  .hero-inner{position:relative;z-index:2;padding:76px 22px 0;max-width:640px;margin:0 auto}
+  .hero-card{background:var(--paper);color:var(--ink);border-radius:26px;padding:38px 28px 34px;
+    text-align:center;box-shadow:0 26px 60px rgba(60,20,5,.38);margin-bottom:-64px;position:relative}
+  .hero-card::before{content:"";position:absolute;top:14px;left:50%;transform:translateX(-50%);
+    width:56px;height:5px;border-radius:99px;background:linear-gradient(90deg,var(--gold),var(--accent))}
+  h1.hero-title{font-family:Georgia,serif;font-weight:normal;font-size:clamp(38px,10vw,58px);
+    line-height:1.06;margin:14px 0 12px}
+  h1.hero-title em{font-style:italic;color:var(--accent-deep)}
+  p.hero-sub{font-size:17px;color:#6B5138;max-width:30em;margin:0 auto}
+  .cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+  .cta-row:empty{display:none}
+  .btn-glow{display:inline-block;background:linear-gradient(180deg,#F0763A,var(--accent-deep));
+    color:#FFF8EF;font-weight:800;font-size:16px;padding:15px 28px;border-radius:999px;text-decoration:none;
+    box-shadow:0 10px 28px rgba(232,98,44,.55),inset 0 1px 0 rgba(255,255,255,.35)}
+  .btn-glow:active{transform:scale(.97)}
+  .btn-ghost{display:inline-block;border:2px solid #E3CDA8;color:var(--accent-deep);font-weight:700;
+    font-size:16px;padding:13px 26px;border-radius:999px;text-decoration:none;background:transparent}
+
+  section{padding:56px 0;scroll-margin-top:56px}
+  section.first{padding-top:118px}
+  .kicker{display:flex;align-items:center;gap:14px;margin-bottom:22px;color:var(--accent-deep);
+    font-size:12px;letter-spacing:2.5px;text-transform:uppercase;font-weight:700}
+  .kicker::before,.kicker::after{content:"";height:1px;background:var(--line);flex:1}
+
+  .kv{background:var(--paper);border:1px solid var(--line);border-radius:18px;overflow:hidden;
+    box-shadow:0 10px 30px rgba(150,80,20,.10)}
+  .kv-row{display:flex;gap:14px;padding:16px 20px;border-top:1px solid var(--line)}
+  .kv-row:first-child{border-top:none}
+  .kv-row span:first-child{flex:0 0 96px;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--muted);font-weight:700;padding-top:3px}
+  .kv-row span:last-child{font-size:16px}
+
+  .gallery{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .gallery figure{border-radius:14px;overflow:hidden;box-shadow:0 8px 22px rgba(150,80,20,.12);background:var(--paper)}
+  .gallery img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+  .gallery figcaption{font-size:13px;color:var(--muted);padding:10px 12px}
+  .g1{background:linear-gradient(135deg,#F9B44C,#E0643A)}
+  .g2{background:linear-gradient(135deg,#F6CFA3,#D9A441)}
+  .g3{background:linear-gradient(135deg,#F08A3C,#B34A28)}
+  .g4{background:linear-gradient(135deg,#FBD9A0,#E08A2E)}
+
+  .contact{background:#2E1F14;color:#FFE3C2;border-radius:20px;padding:30px 24px;text-align:center}
+  .contact h2{font-family:Georgia,serif;font-weight:normal;font-size:24px;margin-bottom:8px;color:#FFF8EF}
+  .contact p{font-size:16px}
+  .contact a{color:var(--gold);font-weight:700}
+
+  .qr-box{text-align:center;margin-top:36px}
+  .qr-box:empty{display:none}
+  .qr-box svg{width:150px;height:150px;border:10px solid #fff;border-radius:14px;
+    box-shadow:0 8px 24px rgba(150,80,20,.16)}
+
+  footer{text-align:center;padding:34px 22px 44px;font-size:14px;color:var(--muted)}
+  footer a{color:var(--accent-deep);font-weight:700;text-decoration:none}
+
+
+
+
+<!--WIDGETS v2-->
+
+/* ---------- event section ---------- */
+.evsec[hidden]{display:none}
+.ev-count{display:flex;gap:10px;justify-content:center;margin:6px 0 4px}
+.ev-count .cell{background:var(--paper);border:1px solid var(--line);border-radius:16px;
+  min-width:70px;padding:12px 8px 10px;text-align:center;box-shadow:0 8px 22px rgba(120,70,30,.08)}
+.ev-count .cell.wide{min-width:0;padding:12px 26px}
+.ev-count .n{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1;color:var(--ink)}
+.ev-count .l{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.ev-note{text-align:center;color:var(--muted);font-size:14px;margin:10px 0 0}
+.ev-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.ev-actions .chip{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;
+  background:var(--paper);border:1px solid var(--line);color:var(--ink);font-weight:700;font-size:15px;
+  text-decoration:none;box-shadow:0 6px 16px rgba(120,70,30,.08)}
+.ev-actions .chip:active{transform:scale(.97)}
+.ev-actions .chip[hidden]{display:none}
+/* ---------- rsvp ---------- */
+.rsvpsec[hidden]{display:none}
+.rsvp-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+.btn-rsvp{flex:1 1 200px;max-width:300px;text-align:center;padding:16px 20px;border-radius:16px;
+  font-weight:800;font-size:17px;text-decoration:none}
+.btn-rsvp.yes{background:var(--hi);color:#fff;box-shadow:0 10px 24px rgba(120,60,20,.25)}
+.btn-rsvp.no{background:var(--paper);color:var(--ink);border:2px solid var(--line)}
+.btn-rsvp:active{transform:scale(.97)}
+/* ---------- accordion (native details) ---------- */
+details.acc{background:var(--paper);border:1px solid var(--line);border-radius:14px;margin:0 0 10px;overflow:hidden}
+details.acc summary{padding:15px 18px;font-weight:700;font-size:16px;cursor:pointer;list-style:none;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;color:var(--ink)}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary::after{content:"+";font-size:22px;line-height:1;color:var(--muted);flex:0 0 auto}
+details.acc[open] summary::after{content:"\2013"}
+details.acc .ab{padding:2px 18px 16px;font-size:15px}
+/* ---------- gallery lightbox ---------- */
+.gallery img{cursor:zoom-in}
+.lb{position:fixed;inset:0;z-index:100;background:rgba(18,10,5,.95);display:none;
+  align-items:center;justify-content:center;touch-action:pan-y}
+.lb.open{display:flex}
+.lb img{max-width:94vw;max-height:82vh;border-radius:10px;object-fit:contain;cursor:default}
+.lb-c{position:absolute;bottom:22px;left:0;right:0;text-align:center;color:#FFE3C2;font-size:14px;padding:0 20px}
+.lb-x{position:absolute;top:12px;right:14px;width:44px;height:44px;border-radius:50%;border:none;
+  background:rgba(255,255,255,.16);color:#fff;font-size:20px;cursor:pointer}
+.lb-p,.lb-n{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;
+  border:none;background:rgba(255,255,255,.16);color:#fff;font-size:28px;line-height:1;cursor:pointer}
+.lb-p{left:10px}.lb-n{right:10px}
+/* ---------- verdict (play theme) ---------- */
+[data-verdict][hidden]{display:none}
+
+<!--WIDGETS v3-->
+</style>
+</head>
+<body>
+
+<div class="badge" id="expiry" data-expires="{{expires_at_iso}}"><strong>this site vanishes in 2d 4h</strong> 🪰</div>
+
+<header class="hero">
+  <img class="hero-photo" src="{{hero_image}}" alt="" onerror="this.remove()">
+  <div class="hero-wash"></div>
+  <div class="hero-inner">
+    <div class="hero-card">
+      <h1 class="hero-title">{{title}}</h1>
+      <p class="hero-sub">{{subtitle}}</p>
+      <div class="cta-row">{{cta_html}}<button type="button" class="btn-ghost" data-share>&#x2197; Share</button></div>
+    </div>
+  </div>
+</header>
+<section class="evsec" hidden>
+  <div class="wrap">
+    <div class="ev-count" data-event="{{event_iso}}">
+      <div class="cell"><div class="n" data-u="d">&ndash;</div><div class="l">days</div></div>
+      <div class="cell"><div class="n" data-u="h">&ndash;</div><div class="l">hours</div></div>
+      <div class="cell"><div class="n" data-u="m">&ndash;</div><div class="l">mins</div></div>
+      <div class="cell"><div class="n" data-u="s">&ndash;</div><div class="l">secs</div></div>
+    </div>
+    <p class="ev-note" data-evnote></p>
+    <div class="ev-actions">
+      <a class="chip" data-cal hidden>&#x1F4C5; Add to calendar</a>
+      <a class="chip" data-dir data-venue="{{venue_text}}" hidden>&#x1F4CD; Get directions</a>
+    </div>
+  </div>
+</section>
+
+
+<section class="first" id="details">
+  <div class="wrap">
+    <p class="kicker">The details</p>
+    <div class="kv">
+      {{details_html}}
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0" id="photos">
+  <div class="wrap">
+    <p class="kicker">A few favorites</p>
+    <div class="gallery">
+      {{gallery_html}}
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0" class="rsvpsec" hidden>
+  <div class="wrap">
+    <p class="kicker">RSVP</p>
+    <div class="rsvp-btns">
+      <a class="btn-rsvp yes" data-rsvp="{{rsvp_contact}}" data-answer="yes" href="#">Count me in &#x2713;</a>
+      <a class="btn-rsvp no" data-rsvp="{{rsvp_contact}}" data-answer="no" href="#">Can&rsquo;t make it</a>
+    </div>
+  </div>
+</section>
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="contact">
+      {{contact_html}}
+    </div>
+    <div class="qr-box">{{qr_svg}}</div>
+  </div>
+</section>
+
+<footer>
+  <p>made with <a href="https://mayfly.site">Mayfly</a> 🪰</p>
+</footer>
+
+
+<script>
+/* MAYFLY WIDGETS-JS v3 */
+(function(){
+"use strict";
+function $(s,r){return (r||document).querySelector(s);}
+function $all(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
+
+/* ---------- event: countdown + calendar + directions ---------- */
+(function(){
+  var sec=$('.evsec'); if(!sec) return;
+  var evc=$('.ev-count',sec);
+  var t=evc?Date.parse(evc.getAttribute('data-event')):NaN;
+  var dir=$('[data-dir]',sec), venue=dir?((dir.getAttribute('data-venue')||'').trim()):'';
+  var cal=$('[data-cal]',sec);
+  function f(d){return d.toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');}
+  if(evc&&!isNaN(t)){
+    sec.hidden=false;
+    var cells={d:$('[data-u="d"]',evc),h:$('[data-u="h"]',evc),m:$('[data-u="m"]',evc),s:$('[data-u="s"]',evc)};
+    var note=$('[data-evnote]',sec);
+    if(note){var nd=new Date(t);
+      note.textContent=nd.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})+
+        ' \u00B7 '+nd.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});}
+    (function tick(){
+      var ms=t-Date.now(), s=Math.floor(ms/1000);
+      function pad(n){return (n<10?'0':'')+n;}
+      if(ms<=0){
+        evc.innerHTML=ms>-86400000
+          ? '<div class="cell wide"><div class="n">\uD83C\uDF89</div><div class="l">it\u2019s happening!</div></div>'
+          : '<div class="cell wide"><div class="n">\u2713</div><div class="l">that was a good one</div></div>';
+        return;
+      }
+      cells.d.textContent=Math.floor(s/86400);
+      cells.h.textContent=pad(Math.floor(s%86400/3600));
+      cells.m.textContent=pad(Math.floor(s%3600/60));
+      cells.s.textContent=pad(s%60);
+      setTimeout(tick,1000);
+    })();
+    if(cal){
+      var ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Mayfly//EN','BEGIN:VEVENT',
+        'UID:'+Date.now()+'@mayfly','DTSTAMP:'+f(new Date()),
+        'DTSTART:'+f(new Date(t)),'DTEND:'+f(new Date(t+2*3600*1000)),
+        'SUMMARY:'+document.title.replace(/[\r\n]+/g,' '),
+        venue?('LOCATION:'+venue):'','END:VEVENT','END:VCALENDAR']
+        .filter(Boolean).join('\r\n');
+      cal.href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics);
+      cal.setAttribute('download','event.ics');
+      cal.hidden=false;
+    }
+  }
+  if(venue&&dir){
+    dir.href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(venue);
+    dir.hidden=false; sec.hidden=false;
+  }
+})();
+
+/* ---------- RSVP ---------- */
+(function(){
+  var sec=$('.rsvpsec'); if(!sec) return;
+  var btns=$all('[data-rsvp]',sec);
+  if(!btns.length) return;
+  var c=(btns[0].getAttribute('data-rsvp')||'').trim();
+  if(!c) return;
+  sec.hidden=false;
+  var isMail=c.indexOf('@')>-1, digits=c.replace(/[^+\d]/g,'');
+  btns.forEach(function(b){
+    var yes=b.getAttribute('data-answer')==='yes';
+    var subj=(yes?'RSVP: Yes \u2014 ':'RSVP: No \u2014 ')+document.title;
+    var body=yes?'Count me in!':'Sorry, can\u2019t make it.';
+    b.href=isMail
+      ? 'mailto:'+c+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body)
+      : 'sms:'+digits+'?&body='+encodeURIComponent(subj+'. '+body);
+  });
+})();
+
+/* ---------- share ---------- */
+$all('[data-share]').forEach(function(b){
+  b.addEventListener('click',function(){
+    var url=location.href, title=document.title, orig=b.textContent;
+    function flash(t){b.textContent=t;setTimeout(function(){b.textContent=orig;},1800);}
+    if(navigator.share){navigator.share({title:title,url:url}).catch(function(){});}
+    else if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(function(){flash('Link copied \u2713');});
+    } else { b.style.display='none'; }
+  });
+});
+
+/* ---------- lightbox ---------- */
+(function(){
+  var items=[];
+  var hero=document.querySelector('img.hero-photo');
+  if(hero&&hero.getAttribute('src')) items.push({src:hero.src,cap:''});
+  var gImgs=$all('.gallery img');
+  gImgs.forEach(function(im){
+    if(!im.getAttribute('src')) return;
+    var fig=im.closest?im.closest('figure'):null;
+    var fc=fig?fig.querySelector('figcaption'):null;
+    items.push({src:im.src,cap:fc?fc.textContent:''});
+  });
+  if(!items.length) return;
+  var off=items.length-gImgs.filter(function(im){return im.getAttribute('src');}).length;
+  var lb=document.createElement('div');
+  lb.className='lb'; lb.setAttribute('role','dialog'); lb.setAttribute('aria-label','Photo viewer');
+  lb.innerHTML='<button class="lb-x" aria-label="Close">\u2715</button>'+
+    '<button class="lb-p" aria-label="Previous">\u2039</button><img alt="">'+
+    '<button class="lb-n" aria-label="Next">\u203A</button><div class="lb-c"></div>';
+  document.body.appendChild(lb);
+  var im=lb.querySelector('img'), cp=lb.querySelector('.lb-c'), ix=0;
+  function show(i){ix=(i+items.length)%items.length;im.src=items[ix].src;
+    cp.textContent=items[ix].cap||'';cp.style.display=items[ix].cap?'block':'none';}
+  function open(i){show(i);lb.classList.add('open');document.body.style.overflow='hidden';}
+  function close(){lb.classList.remove('open');document.body.style.overflow='';}
+  lb.querySelector('.lb-x').addEventListener('click',close);
+  lb.querySelector('.lb-p').addEventListener('click',function(e){e.stopPropagation();show(ix-1);});
+  lb.querySelector('.lb-n').addEventListener('click',function(e){e.stopPropagation();show(ix+1);});
+  lb.addEventListener('click',function(e){if(e.target===lb)close();});
+  document.addEventListener('keydown',function(e){
+    if(!lb.classList.contains('open'))return;
+    if(e.key==='Escape')close();
+    else if(e.key==='ArrowLeft')show(ix-1);
+    else if(e.key==='ArrowRight')show(ix+1);
+  });
+  var tx=0;
+  lb.addEventListener('touchstart',function(e){tx=e.changedTouches[0].clientX;},{passive:true});
+  lb.addEventListener('touchend',function(e){
+    var dx=e.changedTouches[0].clientX-tx;
+    if(dx>40)show(ix-1); else if(dx<-40)show(ix+1);
+  },{passive:true});
+  $all('.gallery').forEach(function(g){
+    g.addEventListener('click',function(e){
+      var t=e.target&&e.target.closest?e.target.closest('img'):null;
+      if(!t||!t.getAttribute('src'))return;
+      open(off+$all('img',g).filter(function(x){return x.getAttribute('src');}).indexOf(t));
+    });
+  });
+})();
+})();
+
+/* ---------- verdict (play theme) ---------- */
+(function(){
+  var v=document.querySelector('[data-verdict]'); if(!v) return;
+  var a=document.querySelector('[data-verdict-answer]');
+  var txt=a?((a.getAttribute('data-verdict-answer')||'').trim()):'';
+  if(!txt) return;
+  v.hidden=false; a.hidden=false; a.textContent=txt;
+})();
+
+</script>
+</body>
+</html>

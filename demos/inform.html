@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Babysitter Cheat Sheet</title>
+<!--
+  MAYFLY THEME: inform (info sheets: babysitter instructions, itineraries, notices)
+  Variable map:
+    Babysitter <em>Cheat Sheet</em>          -> h1.hero-title   (inline <em>..</em> allowed for an italic accent word)
+    The Alvarez family — everything you need for Saturday night. Kids are angels. Mostly.       -> p.hero-sub
+    <a class="btn-glow" href="sms:+17045550142">Text the parents</a><a class="btn-ghost" href="javascript:window.print()">Print this page</a>       -> .cta-row inner HTML, e.g. <a class="btn-glow" href="..">..</a><a class="btn-ghost" href="..">..</a>
+    img/inform.jpg     -> img.hero-photo src  (CSS art shows until a real photo loads)
+    <li><span class="box"></span><span>Wi-Fi: <strong>AlvarezHome_5G</strong> · password <strong>sunnyporch42</strong><small>Yes, really. We know.</small></span></li><li><span class="box"></span><span>Dinner at 6:00 — nuggets in the freezer, veggies already cut<small>Mateo (6) will claim he’s not hungry. He is.</small></span></li><li><span class="box"></span><span>Bath at 7:00, teeth, then one (1) episode<small>Bluey only. Do not negotiate on this.</small></span></li><li><span class="box"></span><span>Bedtime 8:00 sharp — Sofia (3) sleeps with the hallway light on<small>Nightlight is in the top dresser drawer.</small></span></li><li><span class="box"></span><span>Snacks are fine, candy is not (we’ll know)<small>Popcorn in the pantry, top shelf.</small></span></li><li><span class="box"></span><span>Back door sticks — lift AND pull<small>Front door deadbolt works normally.</small></span></li>   -> .checklist inner HTML (li items: .box + span, small allowed)
+    <h3>🚨 Just in case</h3><p>Parents: <a href="tel:+17045550142">Elena (704) 555-0142</a> · <a href="tel:+17045550143">Marco (704) 555-0143</a><br>Neighbor Rosa (nurse, two doors down): <a href="tel:+17045550144">(704) 555-0144</a><br>Pediatrician after-hours: <a href="tel:+17045550100">(704) 555-0100</a> · Poison control: <a href="tel:+18002221222">1-800-222-1222</a></p> -> .emergency inner HTML (h3 + p content)
+       -> .gallery inner HTML  (figures) — optional for this theme
+    2026-10-05T12:00:00+00:00 -> #expiry data-expires (ISO timestamp; live countdown)
+    <h2>We’re at dinner, not in another time zone</h2><p>Text anytime — we keep phones on vibrate.<br><a href="tel:+17045550142">(704) 555-0142</a></p>   -> .contact inner HTML
+             -> .qr-box (real QR svg; the box hides itself when empty)
+-->
+<style>
+  :root{--cream:#FAF5EA;--paper:#FFFDF8;--ink:#2E2A22;--muted:#8A7A64;
+    --amber:#D98A12;--amber-deep:#96600F;--line:#EBDFC6;--ok:#5F7A3A;--alert:#B3402E;--alert-bg:#FBEDE8}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--cream);color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:clip}
+  .wrap{max-width:640px;margin:0 auto;padding:0 22px}
+
+  .badge{position:sticky;top:0;z-index:20;background:#2E2A22;color:#FFE9B8;text-align:center;
+    font-size:13px;letter-spacing:1px;padding:10px 16px;font-weight:600}
+  .badge strong{font-weight:700}
+
+  .hero{position:relative;
+    background:
+      linear-gradient(rgba(150,96,15,.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(150,96,15,.07) 1px, transparent 1px),
+      linear-gradient(180deg,#F8EBCB 0%,#F3DCAC 100%);
+    background-size:28px 28px,28px 28px,auto}
+  .hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+  .hero-wash{position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(217,138,18,.16) 0%,rgba(250,245,234,.55) 55%,rgba(250,245,234,.96) 100%)}
+  .hero-inner{position:relative;z-index:2;padding:64px 22px 0;max-width:640px;margin:0 auto}
+  .doc{background:var(--paper);border-radius:22px;padding:38px 28px 34px;margin-bottom:-60px;
+    position:relative;box-shadow:0 24px 55px rgba(150,96,15,.20);border-top:6px solid var(--amber)}
+  h1.hero-title{font-family:Georgia,serif;font-weight:normal;font-size:clamp(34px,8.8vw,52px);
+    line-height:1.1;margin-bottom:12px}
+  h1.hero-title em{font-style:italic;color:var(--amber-deep)}
+  p.hero-sub{font-size:17px;color:#5C4A24;max-width:32em}
+  .cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+  .cta-row:empty{display:none}
+  .btn-glow{display:inline-block;background:linear-gradient(180deg,#E89A1A,var(--amber-deep));
+    color:#FFFDF8;font-weight:800;font-size:16px;padding:15px 28px;border-radius:999px;text-decoration:none;
+    box-shadow:0 10px 28px rgba(217,138,18,.5),inset 0 1px 0 rgba(255,255,255,.4)}
+  .btn-glow:active{transform:scale(.97)}
+  .btn-ghost{display:inline-block;border:2px solid #DCC794;color:var(--amber-deep);font-weight:700;
+    font-size:16px;padding:13px 26px;border-radius:999px;text-decoration:none;background:transparent}
+
+  section{padding:52px 0;scroll-margin-top:56px}
+  section.first{padding-top:112px}
+  .kicker{display:flex;align-items:center;gap:14px;margin-bottom:22px;color:var(--amber-deep);
+    font-size:12px;letter-spacing:2.5px;text-transform:uppercase;font-weight:700}
+  .kicker::before,.kicker::after{content:"";height:1px;background:var(--line);flex:1}
+
+  .checklist{list-style:none}
+  .checklist li{display:flex;gap:16px;padding:18px 4px;border-top:1px solid var(--line);
+    font-size:16.5px;align-items:flex-start}
+  .checklist li:last-child{border-bottom:1px solid var(--line)}
+  .checklist .box{flex:0 0 26px;height:26px;border:2px solid var(--amber);border-radius:8px;margin-top:3px;background:#fff}
+  .checklist small{display:block;color:var(--muted);font-size:13.5px;font-style:italic;font-family:Georgia,serif}
+
+  .emergency{background:var(--alert-bg);border:2px solid var(--alert);border-radius:18px;
+    padding:24px;margin-top:26px}
+  .emergency:empty{display:none}
+  .emergency h3{font-size:16px;margin-bottom:12px;color:var(--alert);letter-spacing:.5px}
+  .emergency p{font-size:15.5px;line-height:2}
+  .emergency a{font-weight:800;color:var(--alert);text-decoration:none;border-bottom:2px solid rgba(179,64,46,.35);white-space:nowrap}
+
+  .gallery{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:26px}
+  .gallery:empty{display:none}
+  .gallery figure{border-radius:14px;overflow:hidden;box-shadow:0 8px 22px rgba(150,100,20,.12);background:var(--paper)}
+  .gallery img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+  .gallery figcaption{font-size:13px;color:var(--muted);padding:10px 12px}
+
+  .contact{background:#2E2A22;color:#FFE9B8;border-radius:18px;padding:30px 24px;text-align:center;margin-top:8px}
+  .contact h2{font-family:Georgia,serif;font-weight:normal;font-style:italic;font-size:23px;margin-bottom:8px;color:#FFFDF8}
+  .contact p{font-size:16px}
+  .contact a{color:#F2C063;font-weight:700}
+
+  .qr-box{text-align:center;margin-top:36px}
+  .qr-box:empty{display:none}
+  .qr-box svg{width:150px;height:150px;border:10px solid #fff;border-radius:14px;
+    box-shadow:0 8px 24px rgba(150,100,20,.16)}
+
+  footer{text-align:center;padding:34px 22px 44px;font-size:14px;color:var(--muted)}
+  footer a{color:var(--amber-deep);font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="badge" id="expiry" data-expires="2026-10-05T12:00:00+00:00"><strong>this site vanishes in 3d 9h</strong> 🪰</div>
+
+<header class="hero">
+  <img class="hero-photo" src="img/inform.jpg" alt="" onerror="this.remove()">
+  <div class="hero-wash"></div>
+  <div class="hero-inner">
+    <div class="doc">
+      <h1 class="hero-title">Babysitter <em>Cheat Sheet</em></h1>
+      <p class="hero-sub">The Alvarez family — everything you need for Saturday night. Kids are angels. Mostly.</p>
+      <div class="cta-row"><a class="btn-glow" href="sms:+17045550142">Text the parents</a><a class="btn-ghost" href="javascript:window.print()">Print this page</a></div>
+    </div>
+  </div>
+</header>
+
+<section class="first" id="details">
+  <div class="wrap">
+    <p class="kicker">The essentials</p>
+    <ul class="checklist">
+      <li><span class="box"></span><span>Wi-Fi: <strong>AlvarezHome_5G</strong> · password <strong>sunnyporch42</strong><small>Yes, really. We know.</small></span></li><li><span class="box"></span><span>Dinner at 6:00 — nuggets in the freezer, veggies already cut<small>Mateo (6) will claim he’s not hungry. He is.</small></span></li><li><span class="box"></span><span>Bath at 7:00, teeth, then one (1) episode<small>Bluey only. Do not negotiate on this.</small></span></li><li><span class="box"></span><span>Bedtime 8:00 sharp — Sofia (3) sleeps with the hallway light on<small>Nightlight is in the top dresser drawer.</small></span></li><li><span class="box"></span><span>Snacks are fine, candy is not (we’ll know)<small>Popcorn in the pantry, top shelf.</small></span></li><li><span class="box"></span><span>Back door sticks — lift AND pull<small>Front door deadbolt works normally.</small></span></li>
+    </ul>
+    <div class="emergency"><h3>🚨 Just in case</h3><p>Parents: <a href="tel:+17045550142">Elena (704) 555-0142</a> · <a href="tel:+17045550143">Marco (704) 555-0143</a><br>Neighbor Rosa (nurse, two doors down): <a href="tel:+17045550144">(704) 555-0144</a><br>Pediatrician after-hours: <a href="tel:+17045550100">(704) 555-0100</a> · Poison control: <a href="tel:+18002221222">1-800-222-1222</a></p></div>
+    <div class="gallery"></div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="contact">
+      <h2>We’re at dinner, not in another time zone</h2><p>Text anytime — we keep phones on vibrate.<br><a href="tel:+17045550142">(704) 555-0142</a></p>
+    </div>
+    <div class="qr-box"></div>
+  </div>
+</section>
+
+<footer>
+  <p>made with <a href="https://mayfly.site">Mayfly</a> 🪰</p>
+</footer>
+
+<script>
+(function(){
+  var el=document.getElementById('expiry'), strong=el.querySelector('strong');
+  var t=Date.parse(el.getAttribute('data-expires'));
+  if(isNaN(t)) return;
+  function fmt(ms){var s=Math.floor(ms/1000),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);
+    if(d>0)return d+"d "+h+"h"; if(h>0)return h+"h "+m+"m"; return m+"m";}
+  function tick(){var ms=t-Date.now();
+    strong.textContent=ms>0?("this site vanishes in "+fmt(ms)):("this site has vanished");}
+  tick(); setInterval(tick,30000);
+})();
+</script>
+</body>
+</html>

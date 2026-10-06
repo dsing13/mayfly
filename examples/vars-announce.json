@@ -1,0 +1,12 @@
+{
+  "title": "Nora Elise Hart",
+  "subtitle": "has arrived",
+  "cta_html": "",
+  "details_html": "<div class=\"stat\"><div class=\"v\">7 lbs 4 oz</div><div class=\"l\">weight</div></div><div class=\"stat\"><div class=\"v\">20 in</div><div class=\"l\">length</div></div><div class=\"stat\"><div class=\"v\">Sep 28</div><div class=\"l\">born 2026</div></div>",
+  "details2_html": "<div class=\"kv-row\"><span>Born</span><span>September 28, 2026 · 6:42 AM</span></div><div class=\"kv-row\"><span>At</span><span>Atrium Health Carolinas Medical Center</span></div><div class=\"kv-row\"><span>Parents</span><span>Priya &amp; Tom Hart</span></div><div class=\"kv-row\"><span>Big brother</span><span>Arjun, 3, is thrilled</span></div>",
+  "note_html": "<p>&ldquo;She has Tom's nose and Priya's opinions.&rdquo; — Grandma Dee</p>",
+  "contact_html": "<p>Visitors welcome after October 15 — <a href=\"mailto:priya@example.com\">email Priya first</a>. Naps are sacred.</p>",
+  "gallery_html": "<figure><img src=\"/_img/announce/photo-2.jpg\" alt=\"First portraits\" loading=\"lazy\"><figcaption>First portraits</figcaption></figure><figure><img src=\"/_img/announce/photo-3.jpg\" alt=\"So small\" loading=\"lazy\"><figcaption>So small</figcaption></figure><figure><img src=\"/_img/announce/photo-4.jpg\" alt=\"Hello, world\" loading=\"lazy\"><figcaption>Hello, world</figcaption></figure>",
+  "hero_image": "/_img/announce/photo-1.jpg",
+  "qr_svg": ""
+}

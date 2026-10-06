@@ -1,0 +1,200 @@
+<!-- MAYFLY WIDGETS v3 — shared block, injected into every theme by scripts/inject-widgets.py.
+     Do not edit the injected copies by hand; edit this file and re-run the injector.
+     Widgets: event countdown, add-to-calendar (.ics), directions, RSVP buttons,
+     share button, photo lightbox, details accordion (native <details class="acc">),
+     verdict buttons (play theme, driven by {{verdict_answer}}).
+     New optional placeholders: {{event_iso}} (ISO datetime), {{venue_text}},
+     {{rsvp_contact}} (email or phone). Blocks hide when their data is empty. -->
+<style>
+/* ---------- event section ---------- */
+.evsec[hidden]{display:none}
+.ev-count{display:flex;gap:10px;justify-content:center;margin:6px 0 4px}
+.ev-count .cell{background:var(--paper);border:1px solid var(--line);border-radius:16px;
+  min-width:70px;padding:12px 8px 10px;text-align:center;box-shadow:0 8px 22px rgba(120,70,30,.08)}
+.ev-count .cell.wide{min-width:0;padding:12px 26px}
+.ev-count .n{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1;color:var(--ink)}
+.ev-count .l{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.ev-note{text-align:center;color:var(--muted);font-size:14px;margin:10px 0 0}
+.ev-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.ev-actions .chip{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;
+  background:var(--paper);border:1px solid var(--line);color:var(--ink);font-weight:700;font-size:15px;
+  text-decoration:none;box-shadow:0 6px 16px rgba(120,70,30,.08)}
+.ev-actions .chip:active{transform:scale(.97)}
+.ev-actions .chip[hidden]{display:none}
+/* ---------- rsvp ---------- */
+.rsvpsec[hidden]{display:none}
+.rsvp-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+.btn-rsvp{flex:1 1 200px;max-width:300px;text-align:center;padding:16px 20px;border-radius:16px;
+  font-weight:800;font-size:17px;text-decoration:none}
+.btn-rsvp.yes{background:var(--hi);color:#fff;box-shadow:0 10px 24px rgba(120,60,20,.25)}
+.btn-rsvp.no{background:var(--paper);color:var(--ink);border:2px solid var(--line)}
+.btn-rsvp:active{transform:scale(.97)}
+/* ---------- accordion (native details) ---------- */
+details.acc{background:var(--paper);border:1px solid var(--line);border-radius:14px;margin:0 0 10px;overflow:hidden}
+details.acc summary{padding:15px 18px;font-weight:700;font-size:16px;cursor:pointer;list-style:none;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;color:var(--ink)}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary::after{content:"+";font-size:22px;line-height:1;color:var(--muted);flex:0 0 auto}
+details.acc[open] summary::after{content:"\2013"}
+details.acc .ab{padding:2px 18px 16px;font-size:15px}
+/* ---------- gallery lightbox ---------- */
+.gallery img{cursor:zoom-in}
+.lb{position:fixed;inset:0;z-index:100;background:rgba(18,10,5,.95);display:none;
+  align-items:center;justify-content:center;touch-action:pan-y}
+.lb.open{display:flex}
+.lb img{max-width:94vw;max-height:82vh;border-radius:10px;object-fit:contain;cursor:default}
+.lb-c{position:absolute;bottom:22px;left:0;right:0;text-align:center;color:#FFE3C2;font-size:14px;padding:0 20px}
+.lb-x{position:absolute;top:12px;right:14px;width:44px;height:44px;border-radius:50%;border:none;
+  background:rgba(255,255,255,.16);color:#fff;font-size:20px;cursor:pointer}
+.lb-p,.lb-n{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;
+  border:none;background:rgba(255,255,255,.16);color:#fff;font-size:28px;line-height:1;cursor:pointer}
+.lb-p{left:10px}.lb-n{right:10px}
+/* ---------- verdict (play theme) ---------- */
+[data-verdict][hidden]{display:none}
+</style>
+<script>
+/* MAYFLY WIDGETS-JS v3 */
+(function(){
+"use strict";
+function $(s,r){return (r||document).querySelector(s);}
+function $all(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
+
+/* ---------- event: countdown + calendar + directions ---------- */
+(function(){
+  var sec=$('.evsec'); if(!sec) return;
+  var evc=$('.ev-count',sec);
+  var t=evc?Date.parse(evc.getAttribute('data-event')):NaN;
+  var dir=$('[data-dir]',sec), venue=dir?((dir.getAttribute('data-venue')||'').trim()):'';
+  var cal=$('[data-cal]',sec);
+  function f(d){return d.toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');}
+  if(evc&&!isNaN(t)){
+    sec.hidden=false;
+    var cells={d:$('[data-u="d"]',evc),h:$('[data-u="h"]',evc),m:$('[data-u="m"]',evc),s:$('[data-u="s"]',evc)};
+    var note=$('[data-evnote]',sec);
+    if(note){var nd=new Date(t);
+      note.textContent=nd.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})+
+        ' \u00B7 '+nd.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});}
+    (function tick(){
+      var ms=t-Date.now(), s=Math.floor(ms/1000);
+      function pad(n){return (n<10?'0':'')+n;}
+      if(ms<=0){
+        evc.innerHTML=ms>-86400000
+          ? '<div class="cell wide"><div class="n">\uD83C\uDF89</div><div class="l">it\u2019s happening!</div></div>'
+          : '<div class="cell wide"><div class="n">\u2713</div><div class="l">that was a good one</div></div>';
+        return;
+      }
+      cells.d.textContent=Math.floor(s/86400);
+      cells.h.textContent=pad(Math.floor(s%86400/3600));
+      cells.m.textContent=pad(Math.floor(s%3600/60));
+      cells.s.textContent=pad(s%60);
+      setTimeout(tick,1000);
+    })();
+    if(cal){
+      var ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Mayfly//EN','BEGIN:VEVENT',
+        'UID:'+Date.now()+'@mayfly','DTSTAMP:'+f(new Date()),
+        'DTSTART:'+f(new Date(t)),'DTEND:'+f(new Date(t+2*3600*1000)),
+        'SUMMARY:'+document.title.replace(/[\r\n]+/g,' '),
+        venue?('LOCATION:'+venue):'','END:VEVENT','END:VCALENDAR']
+        .filter(Boolean).join('\r\n');
+      cal.href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics);
+      cal.setAttribute('download','event.ics');
+      cal.hidden=false;
+    }
+  }
+  if(venue&&dir){
+    dir.href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(venue);
+    dir.hidden=false; sec.hidden=false;
+  }
+})();
+
+/* ---------- RSVP ---------- */
+(function(){
+  var sec=$('.rsvpsec'); if(!sec) return;
+  var btns=$all('[data-rsvp]',sec);
+  if(!btns.length) return;
+  var c=(btns[0].getAttribute('data-rsvp')||'').trim();
+  if(!c) return;
+  sec.hidden=false;
+  var isMail=c.indexOf('@')>-1, digits=c.replace(/[^+\d]/g,'');
+  btns.forEach(function(b){
+    var yes=b.getAttribute('data-answer')==='yes';
+    var subj=(yes?'RSVP: Yes \u2014 ':'RSVP: No \u2014 ')+document.title;
+    var body=yes?'Count me in!':'Sorry, can\u2019t make it.';
+    b.href=isMail
+      ? 'mailto:'+c+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body)
+      : 'sms:'+digits+'?&body='+encodeURIComponent(subj+'. '+body);
+  });
+})();
+
+/* ---------- share ---------- */
+$all('[data-share]').forEach(function(b){
+  b.addEventListener('click',function(){
+    var url=location.href, title=document.title, orig=b.textContent;
+    function flash(t){b.textContent=t;setTimeout(function(){b.textContent=orig;},1800);}
+    if(navigator.share){navigator.share({title:title,url:url}).catch(function(){});}
+    else if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(function(){flash('Link copied \u2713');});
+    } else { b.style.display='none'; }
+  });
+});
+
+/* ---------- lightbox ---------- */
+(function(){
+  var items=[];
+  var hero=document.querySelector('img.hero-photo');
+  if(hero&&hero.getAttribute('src')) items.push({src:hero.src,cap:''});
+  var gImgs=$all('.gallery img');
+  gImgs.forEach(function(im){
+    if(!im.getAttribute('src')) return;
+    var fig=im.closest?im.closest('figure'):null;
+    var fc=fig?fig.querySelector('figcaption'):null;
+    items.push({src:im.src,cap:fc?fc.textContent:''});
+  });
+  if(!items.length) return;
+  var off=items.length-gImgs.filter(function(im){return im.getAttribute('src');}).length;
+  var lb=document.createElement('div');
+  lb.className='lb'; lb.setAttribute('role','dialog'); lb.setAttribute('aria-label','Photo viewer');
+  lb.innerHTML='<button class="lb-x" aria-label="Close">\u2715</button>'+
+    '<button class="lb-p" aria-label="Previous">\u2039</button><img alt="">'+
+    '<button class="lb-n" aria-label="Next">\u203A</button><div class="lb-c"></div>';
+  document.body.appendChild(lb);
+  var im=lb.querySelector('img'), cp=lb.querySelector('.lb-c'), ix=0;
+  function show(i){ix=(i+items.length)%items.length;im.src=items[ix].src;
+    cp.textContent=items[ix].cap||'';cp.style.display=items[ix].cap?'block':'none';}
+  function open(i){show(i);lb.classList.add('open');document.body.style.overflow='hidden';}
+  function close(){lb.classList.remove('open');document.body.style.overflow='';}
+  lb.querySelector('.lb-x').addEventListener('click',close);
+  lb.querySelector('.lb-p').addEventListener('click',function(e){e.stopPropagation();show(ix-1);});
+  lb.querySelector('.lb-n').addEventListener('click',function(e){e.stopPropagation();show(ix+1);});
+  lb.addEventListener('click',function(e){if(e.target===lb)close();});
+  document.addEventListener('keydown',function(e){
+    if(!lb.classList.contains('open'))return;
+    if(e.key==='Escape')close();
+    else if(e.key==='ArrowLeft')show(ix-1);
+    else if(e.key==='ArrowRight')show(ix+1);
+  });
+  var tx=0;
+  lb.addEventListener('touchstart',function(e){tx=e.changedTouches[0].clientX;},{passive:true});
+  lb.addEventListener('touchend',function(e){
+    var dx=e.changedTouches[0].clientX-tx;
+    if(dx>40)show(ix-1); else if(dx<-40)show(ix+1);
+  },{passive:true});
+  $all('.gallery').forEach(function(g){
+    g.addEventListener('click',function(e){
+      var t=e.target&&e.target.closest?e.target.closest('img'):null;
+      if(!t||!t.getAttribute('src'))return;
+      open(off+$all('img',g).filter(function(x){return x.getAttribute('src');}).indexOf(t));
+    });
+  });
+})();
+})();
+
+/* ---------- verdict (play theme) ---------- */
+(function(){
+  var v=document.querySelector('[data-verdict]'); if(!v) return;
+  var a=document.querySelector('[data-verdict-answer]');
+  var txt=a?((a.getAttribute('data-verdict-answer')||'').trim()):'';
+  if(!txt) return;
+  v.hidden=false; a.hidden=false; a.textContent=txt;
+})();
+</script>

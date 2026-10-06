@@ -1,0 +1,13 @@
+{
+  "title": "The Morningside <em>yard sale</em>",
+  "subtitle": "Three households, one driveway, everything must go",
+  "cta_html": "",
+  "details_html": "<div class=\"kv-row\"><span>When</span><span>Saturday, October 10 · 8 AM–2 PM</span></div><div class=\"kv-row\"><span>Rain date</span><span>Sunday, October 11</span></div><div class=\"kv-row\"><span>Where</span><span>2214 Morningside Drive, Charlotte NC</span></div><div class=\"kv-row\"><span>Payment</span><span>Cash or Venmo. No holds — first come, first served</span></div>",
+  "items_html": "<div class=\"item\"><div class=\"thumb\"></div><div><h3>Mid-century walnut dresser</h3><p>Great shape, dovetail drawers</p></div><div class=\"p\">$120</div></div><div class=\"item\"><div class=\"thumb\"></div><div><h3>Two kids' bikes (20\" &amp; 24\")</h3><p>Tuned up and ready to ride</p></div><div class=\"p\">$35 each</div></div><div class=\"item\"><div class=\"thumb\"></div><div><h3>KitchenAid stand mixer</h3><p>Barely used, all attachments</p></div><div class=\"p\">$150</div></div><div class=\"item\"><div class=\"thumb\"></div><div><h3>Boxes of books</h3><p>Fill a grocery bag for $5</p></div><div class=\"p\">50&cent; each</div></div><div class=\"item\"><div class=\"thumb\"></div><div><h3>Patio set</h3><p>Table + 4 chairs</p></div><div class=\"p\">$80</div></div>",
+  "contact_html": "<p>Early birds: the sale starts at 8, not 7:30. <a href=\"sms:+17045550198\">Text with questions</a>.</p>",
+  "gallery_html": "<figure><img src=\"/_img/sell/photo-2.jpg\" alt=\"Saturday's haul\" loading=\"lazy\"><figcaption>Saturday's haul</figcaption></figure><figure><img src=\"/_img/sell/photo-3.jpg\" alt=\"Priced to move\" loading=\"lazy\"><figcaption>Priced to move</figcaption></figure><figure><img src=\"/_img/sell/photo-4.jpg\" alt=\"More where that came from\" loading=\"lazy\"><figcaption>More where that came from</figcaption></figure>",
+  "hero_image": "/_img/sell/photo-1.jpg",
+  "qr_svg": "",
+  "event_iso": "2026-10-10T08:00:00-04:00",
+  "venue_text": "2214 Morningside Drive, Charlotte NC"
+}

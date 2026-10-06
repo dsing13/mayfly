@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>June & Theo</title>
+<!--
+  MAYFLY THEME: invite (events / weddings)
+  Variable map:
+    June <em>&</em> Theo          -> h1.hero-title   (inline <em>..</em> allowed for an italic accent word)
+    request the honour of your presence — Saturday, October 18th       -> p.hero-sub
+    <a class="btn-glow" href="mailto:juneandtheo@example.com">RSVP</a><a class="btn-ghost" href="#schedule">Order of events</a>       -> .cta-row inner HTML, e.g. <a class="btn-glow" href="..">..</a><a class="btn-ghost" href="..">..</a>
+    img/invite.jpg     -> img.hero-photo src  (CSS art shows until a real photo loads)
+    <div class="slot"><span class="time">3:30 PM</span><span class="what">Ceremony<small>under the oak grove — unplugged, please</small></span></div><div class="slot"><span class="time">4:30 PM</span><span class="what">Cocktail hour<small>on the terrace, string quartet</small></span></div><div class="slot"><span class="time">6:00 PM</span><span class="what">Dinner & toasts<small>in the barn — seating chart at the door</small></span></div><div class="slot"><span class="time">8:00 PM</span><span class="what">Dancing<small>until the lights (politely) come on</small></span></div>   -> .schedule inner HTML (rows of .slot > .time + .what)
+    <div class="kv-row"><span>Venue</span><span>The Bradford Barn, 88 Orchard Ln, Huntersville</span></div><div class="kv-row"><span>Parking</span><span>Field lot past the barn — shuttle from 3:00 PM</span></div><div class="kv-row"><span>Dress</span><span>Garden formal. Grass-friendly shoes advised.</span></div><div class="kv-row"><span>Plus-ones</span><span>Named on your invitation — ask us if unsure</span></div>  -> .kv inner HTML       (rows of .kv-row > span + span)
+    <figure><img src="img/invite.jpg" alt="" loading="lazy"><figcaption>Asheville, 2022 — the first trip</figcaption></figure><figure><img src="img/invite.jpg" alt="" loading="lazy"><figcaption>The venue at golden hour</figcaption></figure>   -> .gallery inner HTML  (figures)
+    2026-10-05T12:00:00+00:00 -> #expiry data-expires (ISO timestamp; live countdown)
+    <h2>Questions? Stuck on the seating chart?</h2><p>Email <a href="mailto:juneandtheo@example.com">juneandtheo@example.com</a></p>   -> .contact inner HTML
+             -> .qr-box (real QR svg; the box hides itself when empty)
+-->
+<style>
+  :root{--ivory:#FBF6EA;--paper:#FFFDF6;--ink:#33302A;--muted:#9A8F7C;
+    --gold:#C19A3F;--gold-deep:#96702A;--line:#EADFC6;--rose:#B76E5A}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--ivory);color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:clip}
+  .wrap{max-width:640px;margin:0 auto;padding:0 26px}
+
+  .badge{position:sticky;top:0;z-index:20;background:#33302A;color:#F3E8CE;text-align:center;
+    font-size:13px;letter-spacing:1px;padding:10px 16px;font-weight:600}
+  .badge strong{font-weight:700}
+
+  .hero{position:relative;
+    background:linear-gradient(180deg,#F3E7CC 0%,#EAD9B8 100%)}
+  .hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+  .hero-wash{position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(193,154,63,.18) 0%,rgba(251,246,234,.28) 45%,rgba(251,246,234,.96) 100%)}
+  .hero-inner{position:relative;z-index:2;padding:88px 26px 0;max-width:640px;margin:0 auto}
+  .hero-card{background:var(--paper);border:1px solid var(--gold);border-radius:8px;
+    padding:44px 30px 40px;text-align:center;margin-bottom:-70px;position:relative;
+    box-shadow:0 24px 55px rgba(150,112,42,.18)}
+  .hero-card::before{content:"";position:absolute;inset:10px;border:1px solid var(--line);
+    border-radius:4px;pointer-events:none}
+  .rule-top{width:64px;height:1px;background:var(--gold);margin:0 auto 22px;position:relative}
+  .rule-top::after{content:"";position:absolute;left:50%;top:-3px;width:7px;height:7px;
+    transform:translateX(-50%) rotate(45deg);background:var(--gold)}
+  h1.hero-title{font-family:Georgia,serif;font-weight:normal;font-size:clamp(40px,10.5vw,62px);
+    line-height:1.08;margin-bottom:12px;color:var(--ink)}
+  h1.hero-title em{font-style:italic;color:var(--gold-deep)}
+  p.hero-sub{font-family:Georgia,serif;font-style:italic;font-size:18px;color:#6E6350;max-width:28em;margin:0 auto}
+  .cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+  .cta-row:empty{display:none}
+  .btn-glow{display:inline-block;background:linear-gradient(180deg,#D4AC4E,var(--gold-deep));
+    color:#FFFDF6;font-weight:800;font-size:16px;padding:15px 30px;border-radius:999px;text-decoration:none;
+    box-shadow:0 10px 28px rgba(193,154,63,.5),inset 0 1px 0 rgba(255,255,255,.4)}
+  .btn-glow:active{transform:scale(.97)}
+  .btn-ghost{display:inline-block;border:1.5px solid var(--gold);color:var(--gold-deep);font-weight:700;
+    font-size:16px;padding:13px 28px;border-radius:999px;text-decoration:none;background:transparent}
+
+  section{padding:60px 0;scroll-margin-top:56px}
+  section.first{padding-top:128px}
+  .kicker{display:flex;align-items:center;gap:14px;margin-bottom:24px;color:var(--gold-deep);
+    font-size:12px;letter-spacing:2.5px;text-transform:uppercase;font-weight:700}
+  .kicker::before,.kicker::after{content:"";height:1px;background:var(--line);flex:1}
+
+  .schedule{background:var(--paper);border:1px solid var(--line);border-radius:8px;overflow:hidden;
+    box-shadow:0 12px 32px rgba(150,112,42,.10)}
+  .slot{display:flex;gap:18px;padding:20px 24px;border-top:1px solid var(--line);align-items:baseline}
+  .slot:first-child{border-top:none}
+  .slot .time{flex:0 0 88px;font-family:Georgia,serif;font-style:italic;color:var(--gold-deep);font-size:17px}
+  .slot .what{font-size:16px}
+  .slot .what small{display:block;color:var(--muted);font-size:13.5px;font-style:italic;font-family:Georgia,serif}
+
+  .kv-row{display:flex;gap:14px;padding:15px 2px;border-top:1px solid var(--line)}
+  .kv-row span:first-child{flex:0 0 96px;font-family:Georgia,serif;font-style:italic;color:var(--gold-deep);font-size:15px}
+  .kv-row span:last-child{font-size:16px}
+
+  .gallery{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .gallery figure{border-radius:6px;overflow:hidden;box-shadow:0 10px 26px rgba(150,112,42,.14);background:var(--paper)}
+  .gallery img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block}
+  .gallery figcaption{font-size:13px;color:var(--muted);padding:10px 12px;font-style:italic;font-family:Georgia,serif}
+  .g1{background:linear-gradient(135deg,#E8CE9E,#C19A3F)}
+  .g2{background:linear-gradient(135deg,#F6E7C8,#B76E5A)}
+  .g3{background:linear-gradient(135deg,#EAD9B8,#96702A)}
+  .g4{background:linear-gradient(135deg,#F2E3BC,#C19A3F)}
+
+  .contact{background:#33302A;color:#F3E8CE;border-radius:8px;padding:32px 26px;text-align:center}
+  .contact h2{font-family:Georgia,serif;font-weight:normal;font-style:italic;font-size:24px;margin-bottom:8px;color:#FFFDF6}
+  .contact p{font-size:16px}
+  .contact a{color:#E3C77E;font-weight:700}
+
+  .qr-box{text-align:center;margin-top:36px}
+  .qr-box:empty{display:none}
+  .qr-box svg{width:140px;height:140px;border:8px solid #fff;border-radius:8px;
+    box-shadow:0 8px 24px rgba(150,112,42,.16)}
+
+  footer{text-align:center;padding:36px 22px 46px;font-size:14px;color:var(--muted)}
+  footer a{color:var(--gold-deep);font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="badge" id="expiry" data-expires="2026-10-05T12:00:00+00:00"><strong>this site vanishes in 29d 6h</strong> 🪰</div>
+
+<header class="hero">
+  <img class="hero-photo" src="img/invite.jpg" alt="" onerror="this.remove()">
+  <div class="hero-wash"></div>
+  <div class="hero-inner">
+    <div class="hero-card">
+      <div class="rule-top"></div>
+      <h1 class="hero-title">June <em>&</em> Theo</h1>
+      <p class="hero-sub">request the honour of your presence — Saturday, October 18th</p>
+      <div class="cta-row"><a class="btn-glow" href="mailto:juneandtheo@example.com">RSVP</a><a class="btn-ghost" href="#schedule">Order of events</a></div>
+    </div>
+  </div>
+</header>
+
+<section class="first" id="schedule">
+  <div class="wrap">
+    <p class="kicker">Order of the day</p>
+    <div class="schedule">
+      <div class="slot"><span class="time">3:30 PM</span><span class="what">Ceremony<small>under the oak grove — unplugged, please</small></span></div><div class="slot"><span class="time">4:30 PM</span><span class="what">Cocktail hour<small>on the terrace, string quartet</small></span></div><div class="slot"><span class="time">6:00 PM</span><span class="what">Dinner & toasts<small>in the barn — seating chart at the door</small></span></div><div class="slot"><span class="time">8:00 PM</span><span class="what">Dancing<small>until the lights (politely) come on</small></span></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <p class="kicker">Good to know</p>
+    <div class="kv">
+      <div class="kv-row"><span>Venue</span><span>The Bradford Barn, 88 Orchard Ln, Huntersville</span></div><div class="kv-row"><span>Parking</span><span>Field lot past the barn — shuttle from 3:00 PM</span></div><div class="kv-row"><span>Dress</span><span>Garden formal. Grass-friendly shoes advised.</span></div><div class="kv-row"><span>Plus-ones</span><span>Named on your invitation — ask us if unsure</span></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0" id="photos">
+  <div class="wrap">
+    <p class="kicker">The two of them</p>
+    <div class="gallery">
+      <figure><img src="img/invite.jpg" alt="" loading="lazy"><figcaption>Asheville, 2022 — the first trip</figcaption></figure><figure><img src="img/invite.jpg" alt="" loading="lazy"><figcaption>The venue at golden hour</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="contact">
+      <h2>Questions? Stuck on the seating chart?</h2><p>Email <a href="mailto:juneandtheo@example.com">juneandtheo@example.com</a></p>
+    </div>
+    <div class="qr-box"></div>
+  </div>
+</section>
+
+<footer>
+  <p>made with <a href="https://mayfly.site">Mayfly</a> 🪰</p>
+</footer>
+
+<script>
+(function(){
+  var el=document.getElementById('expiry'), strong=el.querySelector('strong');
+  var t=Date.parse(el.getAttribute('data-expires'));
+  if(isNaN(t)) return;
+  function fmt(ms){var s=Math.floor(ms/1000),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);
+    if(d>0)return d+"d "+h+"h"; if(h>0)return h+"h "+m+"m"; return m+"m";}
+  function tick(){var ms=t-Date.now();
+    strong.textContent=ms>0?("this site vanishes in "+fmt(ms)):("this site has vanished");}
+  tick(); setInterval(tick,30000);
+})();
+</script>
+</body>
+</html>
