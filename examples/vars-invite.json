@@ -5,9 +5,7 @@
   "details_html": "<div class=\"slot\"><span class=\"time\">4:30 PM</span><span class=\"what\">Ceremony in the garden</span></div><div class=\"slot\"><span class=\"time\">5:30 PM</span><span class=\"what\">Cocktails on the terrace</span></div><div class=\"slot\"><span class=\"time\">6:30 PM</span><span class=\"what\">Dinner &amp; toasts</span></div><div class=\"slot\"><span class=\"time\">8:00 PM</span><span class=\"what\">Dancing under the tent</span></div>",
   "details2_html": "<details class=\"acc\"><summary>Dress code</summary><div class=\"ab\"><p>Garden formal. Heels sink in the lawn — block heels or flats recommended.</p></div></details><details class=\"acc\"><summary>Parking</summary><div class=\"ab\"><p>Valet at the Hermitage Road gate from 4 PM. Rideshares use the side entrance.</p></div></details><details class=\"acc\"><summary>Plus-ones</summary><div class=\"ab\"><p>Your invitation names your party. Kids are welcome at the ceremony, not the dance floor.</p></div></details>",
   "contact_html": "<p>June's mom Carol is wrangling RSVPs: <a href=\"mailto:rsvp@example.com\">rsvp@example.com</a></p>",
-  "gallery_html": "<figure><img src=\"/_img/invite/photo-2.jpg\" alt=\"The happy couple\" loading=\"lazy\"><figcaption>The happy couple</figcaption></figure><figure><img src=\"/_img/invite/photo-3.jpg\" alt=\"Golden hour\" loading=\"lazy\"><figcaption>Golden hour</figcaption></figure><figure><img src=\"/_img/invite/photo-4.jpg\" alt=\"The celebration\" loading=\"lazy\"><figcaption>The celebration</figcaption></figure>",
   "hero_image": "/_img/invite/photo-1.jpg",
-  "qr_svg": "",
   "event_iso": "2027-06-12T16:30:00-04:00",
   "venue_text": "The Duke Mansion, 400 Hermitage Rd, Charlotte NC",
   "rsvp_contact": "rsvp@example.com"

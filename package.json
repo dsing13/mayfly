@@ -1,0 +1,13 @@
+{
+  "name": "mayfly",
+  "private": true,
+  "type": "module",
+  "description": "Tests for the Mayfly worker. The worker itself has no dependencies.",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "dev": "node test/dev-server.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

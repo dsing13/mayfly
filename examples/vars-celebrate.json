@@ -4,9 +4,8 @@
   "cta_html": "<a class=\"btn-glow\" href=\"sms:+17045550137\">RSVP by text</a><a class=\"btn-ghost\" href=\"mailto:mia7@example.com\">Email Dana</a>",
   "details_html": "<div class=\"kv-row\"><span>When</span><span>Saturday, October 17 · 3–5 PM</span></div><div class=\"kv-row\"><span>Where</span><span>1418 Larkspur Lane, Charlotte NC — the backyard</span></div><div class=\"kv-row\"><span>Bring</span><span>Just yourselves. Swimsuits optional — the sprinkler's on</span></div><div class=\"kv-row\"><span>Cake</span><span>4 PM sharp, then the piñata</span></div>",
   "contact_html": "<p>Questions? Text Dana at <a href=\"sms:+17045550137\">(704) 555-0137</a></p><p>Please RSVP by October 12 so we have enough goody bags.</p>",
-  "gallery_html": "<figure><img src=\"/_img/celebrate/photo-2.jpg\" alt=\"The birthday crew\" loading=\"lazy\"><figcaption>The birthday crew</figcaption></figure><figure><img src=\"/_img/celebrate/photo-3.jpg\" alt=\"Balloons: deployed\" loading=\"lazy\"><figcaption>Balloons: deployed</figcaption></figure><figure><img src=\"/_img/celebrate/photo-4.jpg\" alt=\"Gifts incoming\" loading=\"lazy\"><figcaption>Gifts incoming</figcaption></figure>",
+  "gallery_html": "<figure><img src=\"/_img/celebrate/photo-2.jpg\" alt=\"The birthday crew\" loading=\"lazy\"><figcaption>The birthday crew</figcaption></figure><figure><img src=\"/_img/celebrate/photo-3.jpg\" alt=\"Gifts incoming\" loading=\"lazy\"><figcaption>Gifts incoming</figcaption></figure>",
   "hero_image": "/_img/celebrate/photo-1.jpg",
-  "qr_svg": "",
   "event_iso": "2026-10-17T15:00:00-04:00",
   "venue_text": "1418 Larkspur Lane, Charlotte NC",
   "rsvp_contact": "+17045550137"

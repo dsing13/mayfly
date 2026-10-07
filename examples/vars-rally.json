@@ -7,8 +7,8 @@
   "contact_html": "<p>Organized by the Freedom Park neighbors. <a href=\"sms:+17045550164\">Text to sign up</a>.</p>",
   "gallery_html": "<figure><img src=\"/_img/rally/photo-2.jpg\" alt=\"Crew at work\" loading=\"lazy\"><figcaption>Crew at work</figcaption></figure><figure><img src=\"/_img/rally/photo-3.jpg\" alt=\"Bags filled\" loading=\"lazy\"><figcaption>Bags filled</figcaption></figure><figure><img src=\"/_img/rally/photo-4.jpg\" alt=\"Team effort\" loading=\"lazy\"><figcaption>Team effort</figcaption></figure>",
   "hero_image": "/_img/rally/photo-1.jpg",
-  "qr_svg": "",
   "event_iso": "2026-10-24T09:00:00-04:00",
   "venue_text": "Freedom Park bandshell, Charlotte NC",
-  "rsvp_contact": "+17045550164"
+  "rsvp_contact": "+17045550164",
+  "details_heading": "Crews signed up"
 }
