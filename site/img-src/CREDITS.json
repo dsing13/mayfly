@@ -1,25 +1,5 @@
 [
   {
-    "file": "hero.jpg",
-    "unsplash_id": "uXJ1dgzYeRA",
-    "photographer": "Randy Laybourne",
-    "photographer_username": "randylaybourne",
-    "photo_page_url": "https://unsplash.com/photos/long-coated-white-puppy-poster-on-tree-trunk-uXJ1dgzYeRA",
-    "description": "Homemade lost-dog style flyer with a black-and-white puppy photo stapled to a tree trunk on a sunny street (film photo)",
-    "width": 1600,
-    "height": 1061
-  },
-  {
-    "file": "hero-alt.jpg",
-    "unsplash_id": "CO23oqbJDGY",
-    "photographer": "Jonathan Kemper",
-    "photographer_username": "jupp",
-    "photo_page_url": "https://unsplash.com/photos/text-CO23oqbJDGY",
-    "description": "Paper flyer with tear-off tabs taped to a street tree, asking 'Was liebst Du an Deinem Kiez?' (German: what do you love about your neighborhood?); portrait",
-    "width": 1600,
-    "height": 2000
-  },
-  {
     "file": "sell.jpg",
     "unsplash_id": "mSh85EE8FK4",
     "photographer": "Naturalist Boat",
