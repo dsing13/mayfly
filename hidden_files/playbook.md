@@ -4,6 +4,51 @@ Ephemeral website service. Customer emails an idea → Nova asks follow-ups →
 builds a one-page site from a theme → customer pays → site published at
 `<sub>.<domain>` → evaporates after the purchased duration.
 
+## Hardening pass (2026-10-07, branch `polish`)
+What changed, and what to do after it merges. Details in README.md.
+- **Deploy script now binds AI.** The old `deploy-mayfly.py` sent only the KV
+  binding; re-running it would have dropped `AI` and broken /start. It now
+  sends KV + AI + Analytics Engine (`EVENTS`, dataset `mayfly_events`) and
+  uploads `site/start.html` and `site/img/` too. If the account rejects the
+  Analytics Engine binding, run with `--no-analytics`.
+- **Scripts run outside the hatch VM.** Shared helper `scripts/mayfly_ops.py`
+  uses the hatch credential surrogate when present, else
+  `CLOUDFLARE_API_TOKEN`. pin-examples.py no longer hardcodes /home/hatch.
+- **Orders**: one `order:<id>` key each, status in key metadata; no more
+  read-modify-write on `orders:pending` (two orders at once could drop one).
+  `GET /api/orders/pending` returns the 50 most recent (it used to return the
+  oldest 50, so order #51 onward was invisible), still reads the legacy list,
+  and takes `?since=<ms>`. New `PATCH /api/orders/:id {status, sub?}`.
+- **Order photos** are re-saved with a 30-day TTL when the order completes
+  (they used to expire 24h after upload, before a slow build).
+- **Stripe links** carry `?client_reference_id=<order id>`.
+- **Rate limits** moved off KV (session record + edge cache): each chat
+  message used to cost 2 extra KV writes against the 1,000/day free limit.
+- **AI quota exhaustion** returns a clear "busy" message instead of an
+  endless "try again".
+- **Themes v4**: rebuilt on a shared base (`_widgets.html`, injector uses
+  markers). Fixed: the expiry badge text was hardcoded per theme (its script
+  was lost in an earlier injector run), the footer linked to mayfly.site
+  (someone else's domain), the memorial theme showed a seconds countdown, and
+  the hero card overlapped the countdown on phones. Section labels now have
+  overridable defaults (`{{details_heading|The details}}`).
+- **build-site.py**: rotates photos upright (EXIF), strips EXIF/GPS, hashed
+  image names (cached forever), escapes non-HTML vars, fixes the
+  double-escaped `<title>` (`&amp;ldquo;` in the remember example tab), adds
+  link-preview tags, `--pin`, `--out` for local preview.
+- **Example photos**: removed the mismatched ones (Star of David/barbed-wire
+  memorial and yahrzeit candles on a Presbyterian memorial, three different
+  couples on one wedding, two different dogs on the lost-dog page, a "5"
+  balloon on a 7th birthday, a duplicate baby photo).
+- **Landing page** redesigned with Unsplash photos (credits in
+  `site/img-src/CREDITS.json`, regenerate with `scripts/build-landing-images.py`).
+
+### After merge
+1. `worker/deploy-mayfly.py` (worker, pages, images).
+2. Rebuild each example on the new themes, pinned:
+   `scripts/build-site.py --theme <t> --sub <t> --ttl-days 366 --pin --title "..." --vars examples/vars-<t>.json --images examples/photos/<t>/`
+3. Give the Cloudflare token Account Analytics: Read, then `scripts/stats.py`.
+
 ## Infra (all live as of 2026-09-26)
 - Worker `mayfly-router` (account 2e7e19a2b269db15edd76c98799515bd), uploaded
   via `worker/deploy-mayfly.py` (Cloudflare v4 REST + surrogate auth, same
@@ -68,9 +113,11 @@ builds a one-page site from a theme → customer pays → site published at
 1. Inbox watch flags new mail → Nova reads it.
 2. Content check: refuse lewd/vulgar/racist/dangerous/gross/vice. Otherwise reply
    with clarifying questions (theme, duration, photos, details).
-3. Send the Stripe payment link for the chosen tier ($1/$12/$29; free tier needs
-   no payment) — links in the Pricing section above.
-4. On payment: `build-site.py` → publish → email customer the URL.
+3. Paid tiers: the chat already sent the Stripe link with the order id as
+   client_reference_id. Match the payment in Stripe, then
+   `PATCH /api/orders/<id> {"status":"paid"}`.
+4. On payment: `build-site.py` → publish → email customer the URL →
+   `PATCH /api/orders/<id> {"status":"built","sub":"<sub>"}`.
 5. Site evaporates automatically. Offer renewal before expiry (manual for now).
 
 ## Domain (PENDING — David's move)
