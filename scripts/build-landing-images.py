@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Build the landing page's images from site/img-src/ into site/img/.
 
-  hero.jpg            -> hero-720.webp, hero-1280.webp (4:3), og.jpg (link previews)
+  SOURCES['hero']     -> hero-720.webp, hero-1280.webp (4:3), og.jpg (link previews)
   <theme>.jpg         -> <theme>-600.webp (4:5 crop) for the examples grid
-  demos/inform.jpg    -> phone-inform.webp (the phone in the hero)
+  demos/celebrate.jpg -> phone-celebrate.webp (the phone in the hero)
 
 Also writes the photographer credits from site/img-src/CREDITS.json into the
 landing page footer. Re-run after swapping a photo; then deploy with
@@ -24,7 +24,9 @@ from mayfly_ops import ROOT, THEMES  # noqa: E402
 SRC = os.path.join(ROOT, "site", "img-src")
 OUT = os.path.join(ROOT, "site", "img")
 # Where to anchor the crop for each photo, as (x, y) fractions; default is centered.
-FOCUS = {"hero": (0.4, 0.5), "rally": (0.35, 0.5), "announce": (0.4, 0.5)}
+# Which source photo feeds each slot, when it isn't <slot>.jpg.
+SOURCES = {"hero": "celebrate.jpg", "celebrate": "celebrate-alt.jpg"}
+FOCUS = {"hero": (0.62, 0.5), "rally": (0.35, 0.5), "announce": (0.4, 0.5)}
 
 
 def save(im, name, quality=74):
@@ -43,7 +45,7 @@ def main():
     def load(name):
         return ImageOps.exif_transpose(Image.open(os.path.join(SRC, name))).convert("RGB")
 
-    hero = load("hero.jpg")
+    hero = load(SOURCES["hero"])
     for w in (720, 1280):
         save(fit(hero, w, w * 3 // 4, "hero"), "hero-%d.webp" % w)
     # Link previews: JPEG at the 1.91:1 size every chat app and social site expects.
@@ -51,25 +53,26 @@ def main():
     og.save(os.path.join(OUT, "og.jpg"), "JPEG", quality=80, optimize=True, progressive=True)
     print("%-22s %4d KB" % ("og.jpg", os.path.getsize(os.path.join(OUT, "og.jpg")) // 1024))
     for t in THEMES:
-        if os.path.exists(os.path.join(SRC, t + ".jpg")):
-            save(fit(load(t + ".jpg"), 600, 750, t), "%s-600.webp" % t)
+        if os.path.exists(os.path.join(SRC, SOURCES.get(t, t + ".jpg"))):
+            save(fit(load(SOURCES.get(t, t + ".jpg")), 600, 750, t), "%s-600.webp" % t)
         else:
             print("missing site/img-src/%s.jpg" % t)
 
-    shot = os.path.join(ROOT, "demos", "inform.jpg")
+    shot = os.path.join(ROOT, "demos", "celebrate.jpg")
     if os.path.exists(shot):
         im = Image.open(shot).convert("RGB")
         im = im.crop((0, 0, im.width, int(im.width * 18.5 / 9)))
-        save(im.resize((390, int(390 * 18.5 / 9)), Image.LANCZOS), "phone-inform.webp", quality=80)
+        save(im.resize((390, int(390 * 18.5 / 9)), Image.LANCZOS), "phone-celebrate.webp", quality=80)
     else:
         print("run scripts/render-demos.py first for the phone screenshot")
 
     credits_path = os.path.join(SRC, "CREDITS.json")
     if os.path.exists(credits_path):
         credits = json.load(open(credits_path))
+        used = {SOURCES.get(t, t + ".jpg") for t in THEMES} | {SOURCES["hero"]}
         seen, links = set(), []
         for c in credits:
-            if not c["file"].endswith("-alt.jpg") and c["photographer"] not in seen:
+            if c["file"] in used and c["photographer"] not in seen:
                 seen.add(c["photographer"])
                 links.append('<a href="%s">%s</a>' % (html.escape(c["photo_page_url"]), html.escape(c["photographer"])))
         page = os.path.join(ROOT, "site", "index.html")
