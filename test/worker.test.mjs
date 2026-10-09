@@ -222,3 +222,37 @@ test('unhandled errors return a friendly 500 page', async () => {
   assert.equal(r.status, 500);
   assert.match(await r.text(), /Something broke on our end/);
 });
+
+// The loop David hit: the model keeps writing order JSON the worker can't
+// parse, and the user is told to reply "yes" forever.
+test('broken order JSON from the model is repaired, not looped', async () => {
+  const sid = 'session-gggg-7777';
+  await call('https://trymayfly.com/api/intake/chat', { method: 'POST', body: { sessionId: sid, message: 'yard sale' } });
+  env.AI.replies.push("```json\n{done: 'true', “theme”: “sell”, tier: \"free\", email: \"d@example.com\", photos: \"none\", " +
+    "fields: {items: \"Dresser $120\", location: \"2214 Morningside Dr\", contact: \"704-555-0198\",}, " +
+    "details: \"A yard sale on Saturday morning with a dresser.\"");
+  const j = await (await call('https://trymayfly.com/api/intake/chat', { method: 'POST', body: { sessionId: sid, message: 'yes' } })).json();
+  assert.equal(j.done, true, j.reply);
+});
+
+test('when the model says it is done without JSON, the worker finishes from collected facts', async () => {
+  const sid = 'session-hhhh-8888';
+  await call('https://trymayfly.com/api/intake/chat', { method: 'POST', body: { sessionId: sid, message: 'yard sale' } });
+  const sess = JSON.parse(await env.SITES.get('intake:' + sid));
+  sess.collected = { theme: 'sell', tier: 'free', email: 'd@example.com', photos: 'none',
+    items: 'Dresser $120, bikes $35', location: '2214 Morningside Dr', contact: '704-555-0198' };
+  await env.SITES.put('intake:' + sid, JSON.stringify(sess));
+  env.AI.replies.push("I'll send you the site link once it's built.");
+  const j = await (await call('https://trymayfly.com/api/intake/chat', { method: 'POST', body: { sessionId: sid, message: 'yes' } })).json();
+  assert.equal(j.done, true, j.reply);
+  assert.equal(JSON.parse(await env.SITES.get('order:' + sid)).fields.items, 'Dresser $120, bikes $35');
+});
+
+test('an early order attempt gets one plain question for the missing fact', async () => {
+  const sid = 'session-iiii-9999';
+  await call('https://trymayfly.com/api/intake/chat', { method: 'POST', body: { sessionId: sid, message: 'yard sale' } });
+  env.AI.replies.push('{"done": true, "theme": "sell", "tier": "free", "photos": "none", "fields": {"items": "Dresser $120", "location": "2214 Morningside Dr", "contact": "704-555-0198"}, "details": "A yard sale on Saturday with a dresser."}');
+  const j = await (await call('https://trymayfly.com/api/intake/chat', { method: 'POST', body: { sessionId: sid, message: 'yes' } })).json();
+  assert.equal(j.done, undefined);
+  assert.equal(j.reply, 'What email should I send the link to?');
+});

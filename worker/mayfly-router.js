@@ -642,15 +642,77 @@ async function isRejected(env, sid) {
   return !!(await env.SITES.get('rejected:' + sid));
 }
 
+// The 8B model often gets the order JSON slightly wrong: code fences, smart
+// quotes, trailing commas, a cut-off closing brace, "done": "true". Parse
+// leniently; anything still unreadable falls back to orderFromCollected().
+const ORDER_HINT_RE = /["']?done["']?\s*:/;
 function tryParseOrder(text) {
-  const a = text.indexOf('{'), b = text.lastIndexOf('}');
-  if (a < 0 || b <= a) return null;
-  try {
-    const o = JSON.parse(text.slice(a, b + 1));
-    if (o && o.done === true && o.theme && o.fields
-        && typeof o.fields === 'object') return o;
-  } catch {}
-  return null;
+  const a = text.indexOf('{');
+  if (a < 0) return null;
+  const all = text.slice(a).replace(/```[a-z]*/gi, '').trim();
+  const b = all.lastIndexOf('}');
+  // Either the JSON ends at the last brace, or it was cut off after it.
+  const bases = [b >= 0 ? all.slice(0, b + 1) : all, all, all + '}'];
+  const clean = t => t
+    .replace(/[\u201C\u201D]/g, '"').replace(/[\u2018\u2019]/g, "'")
+    .replace(/,\s*([}\]])/g, '$1')
+    .replace(/([{,]\s*)([A-Za-z_]\w*)\s*:/g, '$1"$2":');
+  // Single-quoted values ('true') last: that rewrite can mangle apostrophes.
+  const quotes = t => t.replace(/([:\[,]\s*)'([^'\n]*)'(?=\s*[,}\]])/g, '$1"$2"');
+  // Keep the reading that recovers the most keys (a cut-off object can also
+  // parse cleanly at an inner brace and silently lose its tail).
+  let best = null;
+  for (const base of bases) {
+    for (const t of [base, clean(base), quotes(clean(base))]) {
+      for (const candidate of [t, t + '}']) {
+        try {
+          const o = JSON.parse(candidate);
+          if (o && (o.done === true || o.done === 'true') && o.theme &&
+              (!best || Object.keys(o).length > Object.keys(best).length)) best = o;
+        } catch {}
+      }
+    }
+  }
+  if (best) {
+    best.done = true;
+    if (!best.fields || typeof best.fields !== 'object') best.fields = {};
+  }
+  return best;
+}
+
+// Build the order from what the worker has already extracted, for when the
+// model believes it's done but can't produce usable JSON.
+function orderFromCollected(sess) {
+  const c = sess.collected || {};
+  const fields = {};
+  for (const [k, v] of Object.entries(c)) if (!ORDER_TOP_KEYS.includes(k)) fields[k] = v;
+  const details = c.details && String(c.details).length >= 20 ? c.details
+    : Object.values(fields).join('. ').slice(0, 2000);
+  return { done: true, theme: c.theme, tier: c.tier, email: c.email, tone: c.tone || '',
+    photos: sess.uploads.length ? 'uploaded' : (c.photos === 'none' ? 'none' : ''), details, fields };
+}
+
+// One plain question per missing fact, asked by the worker itself so a
+// confused model can't loop the user.
+const MISSING_QUESTIONS = {
+  theme: 'What’s the page for: a party, an event, a sale, an announcement, a memorial, or something else?',
+  occasion: 'What’s the occasion?', event: 'What’s the event called?', subject: 'Who or what is the page about?',
+  datetime: 'What’s the date and time?', date: 'What date did it happen?', when: 'When is it?', dates: 'What are the dates (born and died)?',
+  location: 'Where is it? An address works best.', venue: 'Where is it? An address works best.',
+  meetup: 'Where and when should people meet?', host: 'Who’s hosting?',
+  contact: 'What’s the best phone number or email for people to reach you?',
+  rsvp: 'How should people RSVP, and by when?', items: 'What’s for sale, and roughly what does it cost?',
+  facts: 'What are two or three things people should know?', keyfacts: 'What are the key facts people should know?',
+  name: 'What’s their full name?', service: 'When and where is the service?', cause: 'What’s the cause?',
+  activity: 'What’s the game or activity?', howtojoin: 'How do people join in?',
+  'tier(duration)': 'How long should the page stay up: 1 day free, 2 days for $1, 7 days for $1.50, 30 days for $5, or a year for $50?',
+  email: 'What email should I send the link to?',
+  photos: 'Can you add a photo or two with the camera button? If you don’t have any, just say “no photos”.',
+  details: 'Anything else the page should say?',
+};
+function missingQuestion(missing) {
+  const k = missing[0];
+  return MISSING_QUESTIONS[k] || `What should the page say for “${k}”?`;
 }
 
 // Returns {ok:true} or {ok:false, missing:[...]}. Deterministic: the worker,
@@ -727,7 +789,8 @@ async function askModel(env, sess, maxTokens) {
 // The extraction prompt is transient — never saved into the conversation.
 const EXTRACT_PROMPT = 'From the conversation above, extract facts the user has stated as a flat JSON object. ' +
   'Use these keys when known: theme (one of celebrate, invite, announce, sell, remember, rally, inform, play), ' +
-  'occasion, event, subject, items, name, datetime, location, host, contact, tone, details, ' +
+  'occasion, event, subject, items, name, dates, datetime, date, when, location, venue, host, contact, rsvp, ' +
+  'facts, keyfacts, service, cause, meetup, activity, howtojoin, tone, details, ' +
   'tier (one of free, twoday, week, month, year), email, photos ("have" if they mentioned uploading or having photos, "none" if they said they have none). ' +
   'Only include facts the user actually stated — never guess. If they corrected something, use the latest. ' +
   'Reply with ONLY the JSON object, nothing else.';
@@ -853,31 +916,22 @@ async function handleIntakeChat(request, env) {
   if (!text) return fail(503, 'retry', MSG.retry);
 
   let order = tryParseOrder(text);
-  if (!order && text.includes('"done"')) {
-    // Model tried to emit the order JSON but it was malformed/cut off.
-    sess.messages.push({ role: 'assistant', content: text });
-    sess.messages.push({ role: 'user', content: '[system: your last message was meant to be the order JSON but it was invalid. Output ONLY the complete, valid JSON object now — nothing else.]' });
-    try { text = await aiRetry(() => askModelWith(env,
-      [{ role: 'system', content: NOVA_SYSTEM }, ...sess.messages, ...knownNote(sess)], 320)); }
-    catch { text = ''; }
-    order = text ? tryParseOrder(text) : null;
-  }
+  const triedOrder = !order && ORDER_HINT_RE.test(text);
+  // The model thinks the order is done (it said so, or wrote broken JSON):
+  // finish it from the facts the worker has collected.
+  const modelThinksDone = triedOrder || /send (you )?the (site )?link|once it'?s (built|ready)|queu(e|ed|ing) your/i.test(text);
+  if (!order && modelThinksDone) order = orderFromCollected(sess);
   if (order) {
     mergeCollected(order, sess); // worker state fills anything the model's JSON dropped
     const check = checkOrderComplete(order, sess);
     if (!check.ok) {
-      // Deterministic gate: send the model back for the missing facts.
-      sess.messages.push({ role: 'user', content:
-        '[system: the order is incomplete — still missing: ' + check.missing.join(', ') +
-        '. Ask the user for the next missing item now, one short question. Do not output JSON yet.]' });
-      try { text = await aiRetry(() => askModel(env, sess)); }
-      catch (e) { return aiFailure(env, request, e, 'missing'); }
-      if (!text || tryParseOrder(text)) {
-        text = 'A couple more details and I can queue your site.';
-      }
-      sess.messages.push({ role: 'assistant', content: text });
+      // Only reached when the model tried to finish early. Ask for the next
+      // missing fact directly.
+      track(env, request, 'order_incomplete', { theme: order.theme || '', detail: check.missing.join(',') });
+      const ask = missingQuestion(check.missing);
+      sess.messages.push({ role: 'assistant', content: ask });
       await saveSession(env, sid, sess);
-      return json({ reply: text });
+      return json({ reply: ask });
     }
     const rec = await finalizeOrder(env, sid, sess, order);
     const reply = doneReply(sid, order);
@@ -888,11 +942,6 @@ async function handleIntakeChat(request, env) {
     track(env, request, 'order', { theme: rec.theme, tier: rec.tier, value: t ? t.price : 0,
       detail: rec.images.length + ' photos' });
     return json({ done: true, orderId: sid, reply });
-  }
-  if (text.includes('"done"')) {
-    // Last resort: never show a raw order blob. Nudge the user to confirm
-    // once more; the next turn re-attempts the order.
-    text = 'Reply "yes" and I’ll queue your order.';
   }
   sess.messages.push({ role: 'assistant', content: text });
   await saveSession(env, sid, sess);
@@ -1047,4 +1096,4 @@ export default {
 };
 
 // Exposed for tests.
-export const _test = { splitHost, sniffImage, tierOf, checkOrderComplete, doneReply, sweep, TIERS };
+export const _test = { tryParseOrder, splitHost, sniffImage, tierOf, checkOrderComplete, doneReply, sweep, TIERS };
