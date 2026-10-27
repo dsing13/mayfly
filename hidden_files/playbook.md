@@ -235,12 +235,57 @@ Then update the landing page CTA email to the real domain.
   David+Sarah, romantic, 1 photo) was un-rejected server-side (marker deleted,
   status→active) after the false "lets giddy up" kill — reloading /start and
   sending any message resumes it with all progress intact.
-- **GitHub 2026-10-06**: local git repo initialized and committed (85 files,
-  `941b778`; `hidden_files/mayfly.env` excluded via .gitignore; README added).
-  Push to `dsing13/mayfly` BLOCKED: the API refuses creation ("name already
-  exists on this account") while the repo 404s everywhere — likely a stale
-  name reservation on GitHub's side. David to create the empty private repo
-  himself, then Nova pushes.
+- **GitHub 2026-10-06**: local git repo initialized and committed (85 files;
+  `hidden_files/mayfly.env` excluded via .gitignore; README added). Pushed to
+  `dsing13/mayfly` (public) via the git database API — commit `0854e74`.
+  Notes: the name was stuck ("already exists" though 404) until David
+  restored/created the repo himself; the API token needed Contents write +
+  mayfly in its repo scope; empty repos 409 on blob create until initialized
+  (seeded README via contents API first); base64 payloads must go via
+  --data-binary @file (arg list too long otherwise). Local remote = origin.
+- **Deploy 2026-10-07 (David: "Deploy it")**: Claude's PR #1 deployed live via
+  `worker/deploy-mayfly.py --no-analytics` (Analytics Engine isn't enabled on
+  the account; the worker doesn't reference it, so the flag is safe). Live:
+  hardened worker (v2026-10-07), new landing + chat pages, 12 landing images
+  in KV. Verified: /api/health ok, / and /start 200, example site 200, all
+  routes preserved. NOTE: chat currently returns "busy" — the 10k/day free
+  neuron allowance is exhausted again (resets 00:00 UTC / 7pm CDT). Free tier
+  only covers ~30 turns/day; a real order needs more. Workers Paid ($5/mo +
+  $0.011/1k neurons ≈ $0.03/order) is needed for real service — David's call.
+- **GitHub push notes**: git-over-HTTPS with the connector surrogate does NOT
+  work ("Password authentication is not supported") — pushes must go through
+  the REST git-database API (blobs→tree→commit→ref), as done for `0854e74`.
+  Local playbook/merge commits can stay local; only project content needs
+  pushing.
+- **PR #2 pulled 2026-10-07**: "Landing hero: a kid's birthday party instead of
+  a lost-dog flyer" — new headline "The party invite on the fridge, as a
+  website.", phone shows the birthday example, cake photo on the birthday
+  card, flyer photos/credits dropped. Regenerated hero/og/celebrate/phone
+  images.
+- **PR #2 deployed 2026-10-07 (David: "deploy it")**: birthday-hero landing
+  live via `deploy-mayfly.py --pages-only --no-analytics` (worker untouched).
+  Verified: new headline on trymayfly.com, hero image 200, health ok.
+- **PR #3 deployed 2026-10-08 (David: "update to production")**: "Fix the chat
+  looping on 'Reply yes'" — lenient order JSON parsing, fallback order built
+  from worker-extracted facts when model JSON is unusable, worker asks plain
+  questions for missing facts instead of re-prompting the model, extraction
+  prompt covers all themes' required fields. 21 tests pass. Deployed via
+  `deploy-mayfly.py --no-analytics`; verified health ok, /start 200, intake
+  chat responding (AI quota reset at 00:00 UTC).
+- **Camp Planner monorepo 2026-10-07 (David: "one repo")**: created
+  `~/workspace/camp-planner/` (triangle/ + charlotte/) and GitHub repo
+  `dsing13/camp-planner`. Push BLOCKED: token lacks camp-planner scope —
+  David to add it. The `trianglecamps`/`charlottecamps` repos are empty;
+  David can delete them (Nova cannot per standing rule).
+- **First real order fulfilled 2026-10-08**: David's test order `ead219be`
+  (sell theme, free tier) → built https://wilmoreyardsale.trymayfly.com
+  (24h TTL), order marked `built` via PATCH /api/orders/:id. Valid statuses:
+  pending/paid/built/rejected/refunded.
+- **Camp AI thrift 2026-10-07 (David approved)**: both planners now
+  RANK_KEEP 50 (was 200), 8B primary with 70B fallback on empty plans,
+  KV-cached repeat generations (7-day TTL). New KV namespaces
+  `trianglecamps-plan-cache` / `charlottecamps-plan-cache` bound as
+  PLAN_CACHE. Both workers deployed and responding.
 
 ## Theme widgets (interactive, 2026-10-06)
 - Shared block `site/themes/_widgets.html` injected by `scripts/inject-widgets.py`
@@ -255,6 +300,32 @@ Then update the landing page CTA email to the real domain.
   "She said yes. Obviously." was removed 2026-10-06).
 - `{{hero_image}}` is NOT auto-filled from --images: set explicitly in vars.json
   to /_img/<sub>/photo-N.jpg (publisher prints the mapping).
+
+## Form intake + freemium + Plus pack + Rush (built 2026-10-27)
+Spec: `hidden_files/form-pack-spec.md` (David approved all of it 2026-10-27).
+- **Chat intake REPLACED at /start** by a Typeform-style progressive form
+  (theme cards → per-theme REQUIRED fields → details → photos → tone →
+  email → duration → add-ons → review). Same `site/start.html` KV key
+  (`page:_start`). Chat endpoints remain live in the worker but unused.
+- **Freemium credits** (worker, keyed by email): first 5 published sites free
+  (any duration), then 1 free site per calendar month; credits tracked at
+  `credits:<sha256(email)>`, consumed only on a successful order.
+  `POST /api/intake/eligibility` {email} is read-only; `POST
+  /api/intake/submit` validates via checkOrderComplete, moderates ONCE
+  (AI errors → order accepted with moderation:'unreviewed', never blocked),
+  computes amount due and consumes the credit. Order records now carry
+  pack/rush/creditKind/amountDue/paymentLinks/moderation/delivery.
+- **Plus pack $5**: printable QR poster/sign/card (theme-flavored), no
+  Mayfly badge, up to 12 photos (MAX_UPLOADS raised 6→12; >6 requires the
+  pack), one free edit round. Publisher: `build-site.py --no-badge --poster`
+  (poster = 1748×2480 PNG via segno + PIL, `<sub>-poster.png`; email it to
+  the customer with the site link). Pack orders → build with both flags.
+- **Rush $3**: front of the build line — live in ~10 minutes. Standard
+  delivery promise is 2 hours (`delivery` field on the order:
+  'rush-10min' vs 'standard-2h').
+- **Payment for add-ons**: EXTRA_LINKS (pack/rush/both) in the worker near
+  TIERS. Fill from Stripe before add-on orders can be paid; worker skips
+  empty links. Base tiers keep their existing links.
 
 ## Permanent examples (LIVE 2026-10-06)
 - 8 example sites, one per theme, at `<theme>.trymayfly.com`

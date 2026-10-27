@@ -256,3 +256,124 @@ test('an early order attempt gets one plain question for the missing fact', asyn
   assert.equal(j.done, undefined);
   assert.equal(j.reply, 'What email should I send the link to?');
 });
+
+// ---- Freemium credits + form intake (/api/intake/submit, /api/intake/eligibility) ----
+
+test('creditFor: starter, monthly, and paid boundaries', () => {
+  const day = new Date('2026-10-27T12:00:00Z');
+  // Fresh email: all 5 starter credits available.
+  assert.deepEqual(_test.creditFor(null, day), { kind: 'starter', starterLeft: 5, monthlyAvailable: true });
+  // Partway through the starter batch.
+  assert.deepEqual(_test.creditFor({ starterUsed: 4, monthlyUsed: null }, day),
+    { kind: 'starter', starterLeft: 1, monthlyAvailable: true });
+  // Starter exhausted, monthly not yet used this month.
+  assert.deepEqual(_test.creditFor({ starterUsed: 5, monthlyUsed: null }, day),
+    { kind: 'monthly', starterLeft: 0, monthlyAvailable: true });
+  assert.deepEqual(_test.creditFor({ starterUsed: 5, monthlyUsed: '2026-09' }, day),
+    { kind: 'monthly', starterLeft: 0, monthlyAvailable: true });
+  // Starter exhausted, this month's free site already used: paid only.
+  assert.deepEqual(_test.creditFor({ starterUsed: 5, monthlyUsed: '2026-10' }, day),
+    { kind: null, starterLeft: 0, monthlyAvailable: false });
+});
+
+const SUBMIT_ORDER = {
+  theme: 'sell', tier: 'week', email: 'submit-free@example.com', photos: 'none', pack: false, rush: false,
+  fields: { items: 'Dresser $120, bikes $35', location: '2214 Morningside Dr', contact: '704-555-0198' },
+  details: 'A three-household yard sale on Saturday with furniture and bikes.', tone: 'friendly',
+};
+
+test('submit: happy path consumes a starter credit, amountDue 0, no payment links', async () => {
+  const sid = 'session-submit-0001';
+  const r = await call('https://trymayfly.com/api/intake/submit', { method: 'POST',
+    body: { sessionId: sid, ...SUBMIT_ORDER } });
+  const j = await r.json();
+  assert.equal(r.status, 200);
+  assert.equal(j.ok, true);
+  assert.equal(j.free, true);
+  assert.equal(j.creditKind, 'starter');
+  assert.equal(j.amountDue, 0);
+  assert.deepEqual(j.paymentLinks, []);
+
+  const order = JSON.parse(await env.SITES.get('order:' + sid));
+  assert.equal(order.amountDue, 0);
+  assert.equal(order.creditKind, 'starter');
+  assert.equal(order.delivery, 'standard-2h');
+
+  const hash = await _test.emailHash(SUBMIT_ORDER.email);
+  const rec = JSON.parse(await env.SITES.get('credits:' + hash));
+  assert.equal(rec.starterUsed, 1);
+
+  // Resubmitting the same session returns the same order, not a new charge.
+  const r2 = await call('https://trymayfly.com/api/intake/submit', { method: 'POST',
+    body: { sessionId: sid, ...SUBMIT_ORDER } });
+  const j2 = await r2.json();
+  assert.equal(j2.amountDue, 0);
+  assert.equal(j2.creditKind, 'starter');
+});
+
+test('submit: pack + rush on a free credit totals $8, with an extras link when EXTRA_LINKS.both is set', async () => {
+  const prevBoth = _test.EXTRA_LINKS.both;
+  _test.EXTRA_LINKS.both = 'https://buy.stripe.com/test-both-link';
+  try {
+    const sid = 'session-submit-0002';
+    const r = await call('https://trymayfly.com/api/intake/submit', { method: 'POST',
+      body: { sessionId: sid, ...SUBMIT_ORDER, email: 'submit-packrush@example.com', pack: true, rush: true } });
+    const j = await r.json();
+    assert.equal(j.ok, true);
+    assert.equal(j.free, true);
+    assert.equal(j.amountDue, 8);
+    assert.equal(j.delivery, 'rush-10min');
+    assert.ok(j.paymentLinks.some(p => p.url.startsWith('https://buy.stripe.com/test-both-link')));
+  } finally {
+    _test.EXTRA_LINKS.both = prevBoth;
+  }
+});
+
+test('submit: more than 6 photos without the Plus pack is rejected', async () => {
+  const sid = 'session-submit-0003';
+  for (let i = 0; i < 7; i++) {
+    const r = await call('https://trymayfly.com/api/intake/upload', { method: 'POST',
+      body: { sessionId: sid, name: 'p' + i + '.jpg', b64: JPEG } });
+    assert.equal(r.status, 200);
+  }
+  const r = await call('https://trymayfly.com/api/intake/submit', { method: 'POST',
+    body: { sessionId: sid, ...SUBMIT_ORDER, email: 'submit-photos@example.com', photos: 'uploaded' } });
+  assert.equal(r.status, 400);
+  const j = await r.json();
+  assert.equal(j.error, 'pack_required_for_photos');
+});
+
+test('submit: an AI moderation error still creates the order, marked unreviewed', async () => {
+  const sid = 'session-submit-0004';
+  env.AI.fail = 'temporary AI outage';
+  const r = await call('https://trymayfly.com/api/intake/submit', { method: 'POST',
+    body: { sessionId: sid, ...SUBMIT_ORDER, email: 'submit-aierror@example.com' } });
+  const j = await r.json();
+  assert.equal(r.status, 200);
+  assert.equal(j.ok, true);
+  const order = JSON.parse(await env.SITES.get('order:' + sid));
+  assert.equal(order.moderation, 'unreviewed');
+});
+
+test('eligibility reports free credit and does not write KV', async () => {
+  const writesBefore = env.SITES.writes;
+  const r = await call('https://trymayfly.com/api/intake/eligibility', { method: 'POST',
+    body: { email: 'eligible@example.com' } });
+  const j = await r.json();
+  assert.equal(j.ok, true);
+  assert.equal(j.free, true);
+  assert.equal(j.kind, 'starter');
+  assert.equal(j.starterLeft, 5);
+  assert.equal(env.SITES.writes, writesBefore, 'eligibility check is read-only');
+});
+
+test('submit: incomplete fields return 400 with the missing list', async () => {
+  const sid = 'session-submit-0005';
+  const r = await call('https://trymayfly.com/api/intake/submit', { method: 'POST',
+    body: { sessionId: sid, theme: 'sell', tier: 'week', email: 'incomplete@example.com', photos: 'none',
+      fields: {}, details: '', tone: '' } });
+  assert.equal(r.status, 400);
+  const j = await r.json();
+  assert.equal(j.error, 'incomplete');
+  assert.ok(Array.isArray(j.missing) && j.missing.length > 0);
+});

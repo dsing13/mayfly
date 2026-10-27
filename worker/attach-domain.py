@@ -54,7 +54,13 @@ def main():
     if (pattern2, SCRIPT_NAME) not in have:
         res = cf("POST", "/zones/%s/workers/routes" % zid,
                      {"pattern": pattern2, "script": SCRIPT_NAME})
-        print(("route created: " if res.get("success") else "ROUTE FAILED: ") + pattern2)
+        if res.get("success"):
+            print("route created:", pattern2)
+        else:
+            # Was: printed ROUTE FAILED but exited 0, so a half-attached
+            # domain (wildcard works, apex doesn't) looked fully done.
+            print("ROUTE FAILED:", pattern2, res.get("errors"))
+            sys.exit(1)
     print("done. https://%s/ should serve Mayfly once DNS propagates." % domain)
 
 

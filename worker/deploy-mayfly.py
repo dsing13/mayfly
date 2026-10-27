@@ -23,10 +23,11 @@ import mimetypes
 import os
 import secrets
 import sys
+import time
 import uuid
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "scripts"))
-from mayfly_ops import ACCOUNT, ROOT, cf, kv_url, load_env, save_env_value  # noqa: E402
+from mayfly_ops import ACCOUNT, ROOT, cf, curl, kv_url, load_env, save_env_value, worker_url  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SCRIPT_NAME = "mayfly-router"
@@ -165,7 +166,26 @@ def main():
         set_secret(env["MAYFLY_ADMIN_TOKEN"])
         set_schedule()
     upload_pages(env)
-    print("done. Check: curl -s https://trymayfly.com/api/health")
+    verify_health(env)
+    print("done.")
+
+
+def verify_health(env):
+    """Post-deploy verification (was: a printed suggestion to curl by hand,
+    with exit 0 either way). Polls /api/health until it answers ok:true —
+    a fresh worker upload can take a few seconds to propagate — and exits
+    nonzero if it never does, so a broken deploy can't look successful."""
+    url = worker_url(env) + "/api/health"
+    for attempt in range(10):
+        try:
+            code, text = curl("GET", url, timeout=30)
+            if code == 200 and json.loads(text).get("ok") is True:
+                print("health verified:", url)
+                return
+        except Exception:
+            pass
+        time.sleep(6)
+    sys.exit("HEALTH CHECK FAILED: %s did not return ok:true after ~60s" % url)
 
 
 if __name__ == "__main__":

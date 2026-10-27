@@ -23,6 +23,7 @@ NEW_BADGE = '<div class="badge" id="expiry" data-expires=""><strong>Example page
 
 def main():
     env = load_env()
+    failures = 0
     for sub in sys.argv[1:] or THEMES:
         key = "site:" + sub
         rec = None
@@ -34,12 +35,21 @@ def main():
             time.sleep(20)
         if not rec or not rec.get("html"):
             print("FAILED to read", key)
+            failures += 1
             continue
         rec["pinned"] = True
         rec["html"] = OLD_BADGE.sub(NEW_BADGE, rec["html"])
         meta = json.dumps({"exp": rec.get("expiresAt", 0), "pinned": True})
         res = cf("PUT", kv_url(key, env), form=[("value", json.dumps(rec).encode()), ("metadata", meta)])
-        print(("pinned " if res.get("success") else "WRITE FAILED ") + key)
+        if res.get("success"):
+            print("pinned " + key)
+        else:
+            print("WRITE FAILED " + key)
+            failures += 1
+    if failures:
+        # Was: exit 0 even when every pin failed — an unpinned "permanent"
+        # example would then be silently deleted by the expiry sweep.
+        sys.exit("pin-examples: %d failure(s)" % failures)
 
 
 if __name__ == "__main__":

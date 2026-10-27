@@ -36,6 +36,12 @@ from mayfly_ops import APEX, ROOT, THEMES, admin_api, load_env
 SUB_RE = re.compile(r"^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$")
 PLACEHOLDER_RE = re.compile(r"\{\{([a-z0-9_]+)(?:\|([^}]*))?\}\}")
 IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".webp")
+BADGE_RE = re.compile(r'<footer class="mf-foot">.*?</footer>\n?', re.S)
+
+POSTER_W, POSTER_H = 1748, 2480  # A4 @ 150dpi
+FONT_DIR = "/usr/share/fonts/truetype"
+TITLE_FONT = FONT_DIR + "/dejavu/DejaVuSerif-Bold.ttf"
+BODY_FONT = FONT_DIR + "/liberation/LiberationSans-Regular.ttf"
 
 
 def is_raw(key):
@@ -64,6 +70,76 @@ def qr_svg(url):
         buf, kind="svg", xmldecl=False, svgns=True, scale=1, border=0, dark="#151412", omitsize=True
     )
     return buf.getvalue().decode()
+
+
+def remove_badge(html):
+    """Strip the "made with Mayfly" footer, anchored on its real class."""
+    return BADGE_RE.sub("", html)
+
+
+def when_where_line(varmap):
+    """One line of when/where from vars, when present."""
+    when = ""
+    iso = varmap.get("event_iso", "")
+    if iso:
+        try:
+            when = datetime.fromisoformat(str(iso)).strftime("%A, %B %-d, %Y · %-I:%M %p")
+        except ValueError:
+            when = ""
+    where = plain_text(str(varmap.get("venue_text", "")))
+    parts = [p for p in (when, where) if p]
+    return " · ".join(parts)
+
+
+def build_poster(out_path, title, line, url):
+    """A print-ready poster: title, an optional when/where line, a QR code, and the URL."""
+    try:
+        import segno
+        from PIL import Image, ImageDraw, ImageFont
+    except ImportError:
+        print("note: pip install segno Pillow to generate the poster — skipping")
+        return None
+
+    img = Image.new("RGB", (POSTER_W, POSTER_H), "#F3F1EC")
+    draw = ImageDraw.Draw(img)
+    margin = 140
+
+    def fit_font(path, text, max_width, start_size, min_size=28):
+        size = start_size
+        while size > min_size:
+            font = ImageFont.truetype(path, size)
+            w = draw.textbbox((0, 0), text, font=font)[2]
+            if w <= max_width:
+                return font
+            size -= 4
+        return ImageFont.truetype(path, min_size)
+
+    max_w = POSTER_W - 2 * margin
+    title_font = fit_font(TITLE_FONT, title, max_w, 150)
+    y = margin
+    draw.text((POSTER_W / 2, y), title, font=title_font, fill="#151412", anchor="ma", align="center")
+    y += title_font.size + 50
+
+    if line:
+        line_font = fit_font(BODY_FONT, line, max_w, 54)
+        draw.text((POSTER_W / 2, y), line, font=line_font, fill="#5E5A52", anchor="ma", align="center")
+        y += line_font.size + 60
+
+    buf = io.BytesIO()
+    segno.make(url, error="m").save(buf, kind="png", scale=14, border=2, dark="#151412", light="#FBFAF7")
+    buf.seek(0)
+    qr = Image.open(buf).convert("RGB")
+    qr_size = min(POSTER_W - 2 * margin, POSTER_H - y - margin - 160)
+    qr = qr.resize((qr_size, qr_size), Image.LANCZOS)
+    qr_x = (POSTER_W - qr_size) // 2
+    qr_y = y + 30
+    img.paste(qr, (qr_x, qr_y))
+
+    url_font = fit_font(BODY_FONT, url, max_w, 44)
+    draw.text((POSTER_W / 2, qr_y + qr_size + 40), url, font=url_font, fill="#151412", anchor="ma", align="center")
+
+    img.save(out_path, "PNG")
+    return out_path
 
 
 def prep_images(imgdir):
@@ -125,6 +201,8 @@ def main():
     ap.add_argument("--images", default="")
     ap.add_argument("--pin", action="store_true", help="permanent example; never expires")
     ap.add_argument("--out", default="", help="write locally instead of publishing")
+    ap.add_argument("--no-badge", action="store_true", help="remove the \"made with Mayfly\" footer badge")
+    ap.add_argument("--poster", action="store_true", help="also generate a print poster PNG with a QR code")
     ap.add_argument("--worker-url", default="", help="override MAYFLY_WORKER_URL")
     args = ap.parse_args()
 
@@ -159,8 +237,18 @@ def main():
     html, missing = render(args.theme, varmap)
     if missing:
         print("note: no value for %s (left blank)" % ", ".join(missing))
+    if args.no_badge:
+        html = remove_badge(html)
 
     images = prep_images(args.images)
+
+    if args.poster:
+        poster_dir = os.path.dirname(os.path.abspath(args.out)) if args.out else os.getcwd()
+        os.makedirs(poster_dir, exist_ok=True)
+        poster_path = os.path.join(poster_dir, "%s-poster.png" % sub)
+        written = build_poster(poster_path, page_title, when_where_line(varmap), site_url)
+        if written:
+            print("poster:", written)
 
     if args.out:
         outdir = os.path.dirname(os.path.abspath(args.out))

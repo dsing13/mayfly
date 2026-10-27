@@ -9,9 +9,11 @@
 //
 // Public API
 //   GET  /api/health
-//   POST /api/intake/chat      {sessionId, message, tier?}
-//   POST /api/intake/upload    {sessionId, name, b64}
-//   POST /api/intake/history   {sessionId}
+//   POST /api/intake/chat        {sessionId, message, tier?}   (legacy chat, kept live but unused by /start)
+//   POST /api/intake/upload      {sessionId, name, b64}
+//   POST /api/intake/history     {sessionId}
+//   POST /api/intake/eligibility {email}
+//   POST /api/intake/submit      {sessionId, theme, fields, details, tone, tier, email, photos, pack, rush}
 //
 // Admin API (Authorization: Bearer ADMIN_TOKEN)
 //   POST   /api/sites                {sub, html, ttlDays, tier, title, images[], pinned?}
@@ -48,6 +50,10 @@ const TIERS = {
   year:   { days: 365, price: 50,  label: '$50 for a year',   link: 'https://buy.stripe.com/bJefZjbYy1Ya3i38nk0kE07' },
 };
 const tierOf = t => (typeof t === 'string' && Object.hasOwn(TIERS, t)) ? TIERS[t] : null;
+
+// Add-on payment links, filled in by Nova pre-deploy. Empty strings are
+// skipped (never invent a URL).
+const EXTRA_LINKS = { pack: '', rush: '', both: '' };
 
 // ---- Responses ----
 
@@ -374,15 +380,19 @@ async function publishSite(request, env) {
   const expiresAt = now + ttlDays * 86400000;
 
   // Images first, so the page never goes live pointing at missing photos.
-  const stored = [], skipped = [];
-  for (const im of Array.isArray(body.images) ? body.images : []) {
-    const name = safeFileName(im && im.name);
-    const buf = decodeB64(im && im.b64);
-    const ct = sniffImage(buf);
-    if (!name || !ct || buf.length > 8 * 1024 * 1024) { skipped.push(name || '(unnamed)'); continue; }
-    await env.SITES.put('img:' + sub + '/' + name, buf, { metadata: { ct, exp: pinned ? 0 : expiresAt } });
-    stored.push(name);
-  }
+  // Puts run in parallel (was serial — a 6-photo publish paid 6 sequential
+  // KV round trips); result order still matches the input order.
+  const imageResults = await Promise.all(
+    (Array.isArray(body.images) ? body.images : []).map(async (im) => {
+      const name = safeFileName(im && im.name);
+      const buf = decodeB64(im && im.b64);
+      const ct = sniffImage(buf);
+      if (!name || !ct || buf.length > 8 * 1024 * 1024) return { skipped: name || '(unnamed)' };
+      await env.SITES.put('img:' + sub + '/' + name, buf, { metadata: { ct, exp: pinned ? 0 : expiresAt } });
+      return { stored: name };
+    }));
+  const stored = imageResults.filter(r => r.stored).map(r => r.stored);
+  const skipped = imageResults.filter(r => r.skipped).map(r => r.skipped);
 
   let createdAt = now;
   try { const prev = JSON.parse(await env.SITES.get('site:' + sub) || 'null'); if (prev) createdAt = prev.createdAt || now; } catch {}
@@ -446,15 +456,18 @@ async function listPendingOrders(env, url) {
   } catch {}
   known.sort((a, b) => a.createdAt - b.createdAt);
   const ids = [...unknown, ...known.slice(-50).map(o => o.id)];
+  // Parallel KV gets (was a serial loop of up to 50+ round trips on every
+  // pending-orders poll); the sort below restores chronological order.
+  const raws = await Promise.all(ids.map(id => env.SITES.get('order:' + id)));
   const orders = [];
-  for (const id of ids) {
-    const raw = await env.SITES.get('order:' + id);
-    if (!raw) continue;
+  ids.forEach((id, i) => {
+    const raw = raws[i];
+    if (!raw) return;
     try {
       const rec = JSON.parse(raw);
       if ((rec.status || 'pending') === 'pending' && (rec.createdAt || 0) > since) orders.push({ id, ...rec });
     } catch {}
-  }
+  });
   orders.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
   const out = orders.slice(-50);
   return json({ ok: true, count: out.length, orders: out });
@@ -485,7 +498,7 @@ const AI_GUARD = '@cf/meta/llama-guard-3-8b';
 const AI_VISION = '@cf/meta/llama-3.2-11b-vision-instruct';
 const INTAKE_TTL = 86400;              // sessions + uploads expire after 24h...
 const ORDER_PHOTO_TTL = 30 * 86400;    // ...unless the order completes: then 30 days for the build
-const MAX_UPLOADS = 6;
+const MAX_UPLOADS = 12;
 const MAX_FILE = 5 * 1024 * 1024;
 const SESSION_RE = /^[A-Za-z0-9-]{8,64}$/;
 const REJECT_LINE = 'I can’t make a site about that. If you have something else in mind, I’m happy to start over.';
@@ -743,17 +756,165 @@ function checkOrderComplete(order, sess) {
   return missing.length ? { ok: false, missing } : { ok: true };
 }
 
+// ---- Freemium credits ----
+// First 5 published sites are free (any duration), then one free site per
+// calendar month. Tracked per email, keyed by a hash so the KV key never
+// holds the address in the clear.
+async function emailHash(email) {
+  const data = new TextEncoder().encode(String(email || '').trim().toLowerCase());
+  const d = new Uint8Array(await crypto.subtle.digest('SHA-256', data));
+  return Array.from(d, b => b.toString(16).padStart(2, '0')).join('');
+}
+
+const yyyymm = (d) => d.toISOString().slice(0, 7);
+
+// Pure: {kind: 'starter'|'monthly'|null, starterLeft, monthlyAvailable}.
+function creditFor(record, nowDate) {
+  const r = record || {};
+  const starterUsed = Number(r.starterUsed) || 0;
+  const starterLeft = Math.max(0, 5 - starterUsed);
+  const month = yyyymm(nowDate || new Date());
+  const monthlyAvailable = r.monthlyUsed !== month;
+  if (starterUsed < 5) return { kind: 'starter', starterLeft, monthlyAvailable };
+  return { kind: monthlyAvailable ? 'monthly' : null, starterLeft: 0, monthlyAvailable };
+}
+
+async function getCreditRecord(env, hash) {
+  try { return JSON.parse(await env.SITES.get('credits:' + hash) || 'null'); } catch { return null; }
+}
+
+async function handleEligibility(request, env) {
+  const body = await readJson(request, 2048);
+  if (!body) return fail(400, 'bad_request', MSG.bad);
+  const email = String(body.email || '').trim();
+  if (!EMAIL_RE.test(email)) return fail(400, 'bad_request', 'Bad email.');
+  const hash = await emailHash(email);
+  const record = await getCreditRecord(env, hash);
+  const c = creditFor(record, new Date());
+  return json({ ok: true, free: c.kind !== null, kind: c.kind,
+    starterLeft: c.starterLeft, monthlyAvailable: c.monthlyAvailable });
+}
+
+async function handleIntakeSubmit(request, env) {
+  const body = await readJson(request, 64 * 1024);
+  if (!body) return fail(400, 'bad_request', MSG.bad);
+  const sid = String(body.sessionId || '');
+  if (!SESSION_RE.test(sid)) return fail(400, 'bad_request', MSG.bad);
+  if (await isRejected(env, sid)) return fail(409, 'session_closed', MSG.closed);
+
+  let sess = await getSession(env, sid);
+  if (!sess) sess = newSession();
+
+  // Already finalized? Return the same result instead of double-charging.
+  const existingRaw = await env.SITES.get('order:' + sid);
+  if (existingRaw) {
+    const existing = JSON.parse(existingRaw);
+    return json({ ok: true, orderId: sid, free: existing.amountDue === 0, creditKind: existing.creditKind,
+      amountDue: existing.amountDue, paymentLinks: existing.paymentLinks, delivery: existing.delivery });
+  }
+
+  const theme = String(body.theme || '');
+  const fields = {};
+  for (const [k, v] of Object.entries((body.fields && typeof body.fields === 'object') ? body.fields : {}))
+    fields[String(k)] = String(v);
+  let details = String(body.details || '').trim();
+  if (details.length < 20) {
+    const joined = Object.values(fields).join('. ').trim();
+    if (joined.length > details.length) details = joined;
+  }
+  const order = {
+    theme, fields, details,
+    tone: String(body.tone || ''),
+    tier: String(body.tier || ''),
+    email: String(body.email || '').trim(),
+    photos: body.photos === 'none' ? 'none' : 'uploaded',
+  };
+  const pack = body.pack === true;
+  const rush = body.rush === true;
+
+  const check = checkOrderComplete(order, sess);
+  if (!check.ok) return json({ error: 'incomplete', missing: check.missing }, 400);
+
+  if (sess.uploads.length > 6 && !pack)
+    return json({ error: 'pack_required_for_photos', message: 'More than 6 photos needs the Plus pack.' }, 400);
+
+  const modText = [theme, ...Object.values(fields), details, order.tone].join(' ');
+  let moderation = 'ok';
+  try {
+    const mod = await moderateText(env, modText);
+    if (mod === 'reject') {
+      sess.status = 'rejected';
+      await saveSession(env, sid, sess);
+      await markRejected(env, sid);
+      track(env, request, 'chat_rejected');
+      return json({ ok: false, rejected: true, message: REJECT_LINE });
+    }
+    moderation = mod === 'unclear' ? 'unclear' : 'ok';
+  } catch (e) {
+    moderation = 'unreviewed';
+  }
+
+  const hash = await emailHash(order.email);
+  const record = await getCreditRecord(env, hash);
+  const credit = creditFor(record, new Date());
+  const creditKind = credit.kind;
+
+  const t = tierOf(order.tier);
+  const basePrice = creditKind ? 0 : (t ? t.price : 0);
+  const extras = (pack ? 5 : 0) + (rush ? 3 : 0);
+  const amountDue = basePrice + extras;
+
+  const paymentLinks = [];
+  if (basePrice > 0 && t && t.link)
+    paymentLinks.push({ label: t.label, url: t.link + '?client_reference_id=' + encodeURIComponent(sid) });
+  if (extras > 0) {
+    const key = pack && rush ? 'both' : (pack ? 'pack' : 'rush');
+    const url = EXTRA_LINKS[key];
+    if (url) {
+      const label = key === 'both' ? 'Plus pack + Rush' : (key === 'pack' ? 'Plus pack' : 'Rush');
+      paymentLinks.push({ label, url: url + '?client_reference_id=' + encodeURIComponent(sid) });
+    }
+  }
+
+  if (creditKind === 'starter') {
+    const next = record || { starterUsed: 0, monthlyUsed: null };
+    next.starterUsed = (Number(next.starterUsed) || 0) + 1;
+    await env.SITES.put('credits:' + hash, JSON.stringify(next));
+  } else if (creditKind === 'monthly') {
+    const next = record || { starterUsed: 5, monthlyUsed: null };
+    next.monthlyUsed = yyyymm(new Date());
+    await env.SITES.put('credits:' + hash, JSON.stringify(next));
+  }
+
+  const rec = await finalizeOrder(env, sid, sess, order);
+  rec.pack = pack;
+  rec.rush = rush;
+  rec.creditKind = creditKind;
+  rec.amountDue = amountDue;
+  rec.paymentLinks = paymentLinks;
+  rec.moderation = moderation;
+  rec.delivery = rush ? 'rush-10min' : 'standard-2h';
+  await putOrder(env, sid, rec);
+
+  sess.status = 'complete';
+  await saveSession(env, sid, sess);
+  track(env, request, 'order', { theme: rec.theme, tier: rec.tier, value: amountDue,
+    detail: rec.images.length + ' photos' });
+
+  return json({ ok: true, orderId: sid, free: basePrice === 0, creditKind, amountDue, paymentLinks, delivery: rec.delivery });
+}
+
 // Intake photos expire with the chat session (24h). Once an order is in,
 // re-save them with a 30-day TTL so a slow build never loses them.
 async function keepUploads(env, sess) {
-  const kept = [];
-  for (const u of sess.uploads) {
+  // Parallel get+put per upload (was serial); order of kept keys preserved.
+  const kept = await Promise.all(sess.uploads.map(async (u) => {
     const obj = await env.SITES.getWithMetadata(u.key, { type: 'arrayBuffer' });
-    if (!obj || !obj.value) continue;
+    if (!obj || !obj.value) return null;
     await env.SITES.put(u.key, obj.value, { metadata: obj.metadata || { ct: u.ct }, expirationTtl: ORDER_PHOTO_TTL });
-    kept.push(u.key);
-  }
-  return kept;
+    return u.key;
+  }));
+  return kept.filter(Boolean);
 }
 
 async function finalizeOrder(env, sid, sess, order) {
@@ -955,8 +1116,11 @@ async function handleIntakeUpload(request, env) {
   if (!body) return fail(413, 'too_big', 'That photo is too big. Try one under 5 MB.');
   const sid = String(body.sessionId || '');
   if (!SESSION_RE.test(sid)) return fail(400, 'bad_request', MSG.bad);
-  const sess = await getSession(env, sid);
-  if (!sess || sess.status !== 'active' || await isRejected(env, sid))
+  // The form uploads photos before any chat turn happens, so an unseen
+  // sessionId just starts a fresh (empty) session instead of failing.
+  let sess = await getSession(env, sid);
+  if (!sess) sess = newSession();
+  if (sess.status !== 'active' || await isRejected(env, sid))
     return fail(409, 'session_closed', 'Say hello in the chat first, then add photos.');
   if (!(await ipAllowed(request, 'upload', 120))) return fail(429, 'rate_limited', MSG.rate);
   if (sess.uploads.length >= MAX_UPLOADS) return fail(409, 'too_many_photos', `That's the limit of ${MAX_UPLOADS} photos.`);
@@ -1053,6 +1217,8 @@ async function route(request, env) {
       if (path === '/api/intake/chat') return handleIntakeChat(request, env);
       if (path === '/api/intake/upload') return handleIntakeUpload(request, env);
       if (path === '/api/intake/history') return handleIntakeHistory(request, env);
+      if (path === '/api/intake/eligibility') return handleEligibility(request, env);
+      if (path === '/api/intake/submit') return handleIntakeSubmit(request, env);
     }
     return handleAdmin(request, env, url);
   }
@@ -1096,4 +1262,5 @@ export default {
 };
 
 // Exposed for tests.
-export const _test = { tryParseOrder, splitHost, sniffImage, tierOf, checkOrderComplete, doneReply, sweep, TIERS };
+export const _test = { tryParseOrder, splitHost, sniffImage, tierOf, checkOrderComplete, doneReply, sweep, TIERS,
+  creditFor, EXTRA_LINKS, emailHash };

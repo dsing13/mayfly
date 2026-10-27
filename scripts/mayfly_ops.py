@@ -15,6 +15,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -107,8 +108,17 @@ def curl(method, url, headers=None, data=None, form=None, timeout=120):
     return int(code or 0), body
 
 
+RETRYABLE_CODES = (429, 500, 502, 503, 504)
+
+
 def cf(method, path, body=None, raw=None, content_type="application/json", form=None):
-    """Call the Cloudflare v4 API. Returns parsed JSON (or {} on empty body)."""
+    """Call the Cloudflare v4 API. Returns parsed JSON (or {} on empty body).
+
+    GETs retry up to 3 times with backoff on transient failures (curl error
+    or HTTP 429/5xx) — they are read-only, so a retry can't double-apply
+    anything. Writes are NOT retried here: several POST/PUT callers are not
+    idempotent (zone/namespace creation), and they already check success.
+    """
     headers = {"Authorization": "Bearer " + cf_token()}
     data = None
     if body is not None:
@@ -117,7 +127,19 @@ def cf(method, path, body=None, raw=None, content_type="application/json", form=
     elif raw is not None:
         headers["Content-Type"] = content_type
         data = raw
-    code, text = curl(method, CF_BASE + path, headers=headers, data=data, form=form)
+    attempts = 3 if method.upper() == "GET" else 1
+    for attempt in range(attempts):
+        try:
+            code, text = curl(method, CF_BASE + path, headers=headers, data=data, form=form)
+        except RuntimeError:
+            if attempt == attempts - 1:
+                raise
+            time.sleep(2 ** attempt)  # 1s, 2s
+            continue
+        if code in RETRYABLE_CODES and attempt < attempts - 1:
+            time.sleep(2 ** attempt)
+            continue
+        break
     try:
         return json.loads(text) if text.strip() else {}
     except ValueError:
@@ -148,7 +170,21 @@ def admin_api(env, method, path, body=None):
     if body is not None:
         headers["Content-Type"] = "application/json"
         data = json.dumps(body)
-    code, text = curl(method, worker_url(env) + path, headers=headers, data=data)
+    # GETs retry on transient 429/5xx (read-only). Writes don't: keep a
+    # failed write visible rather than guessing whether it was applied.
+    attempts = 3 if method.upper() == "GET" else 1
+    for attempt in range(attempts):
+        try:
+            code, text = curl(method, worker_url(env) + path, headers=headers, data=data)
+        except RuntimeError:
+            if attempt == attempts - 1:
+                raise
+            time.sleep(2 ** attempt)
+            continue
+        if code in RETRYABLE_CODES and attempt < attempts - 1:
+            time.sleep(2 ** attempt)
+            continue
+        break
     try:
         return json.loads(text)
     except ValueError:
