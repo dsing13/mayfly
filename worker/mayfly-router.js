@@ -20,6 +20,11 @@
 //   GET    /api/sites/:sub[?preview=1]
 //   DELETE /api/sites/:sub
 //   GET    /api/orders/pending[?since=<ms>]
+//
+// Dashboard (read-only; Bearer DASHBOARD_KEY or ADMIN_TOKEN)
+//   GET    /api/dashboard            pages, build queue, averages, AI usage
+//   <apex>/admin is the page that shows it (the page itself holds no data)
+//
 //   PATCH  /api/orders/:id           {status, sub?}
 //
 // Bindings: SITES (KV), AI (Workers AI), EVENTS (Analytics Engine, optional),
@@ -166,14 +171,18 @@ function splitHost(hostname) {
 
 // ---- Auth ----
 
-async function authed(request, env) {
+function tokenMatches(request, secret) {
   const h = request.headers.get('Authorization') || '';
   const token = h.startsWith('Bearer ') ? h.slice(7) : '';
-  if (!token || !env.ADMIN_TOKEN) return false;
+  if (!token || !secret) return false;
   const a = new TextEncoder().encode(token);
-  const b = new TextEncoder().encode(env.ADMIN_TOKEN);
+  const b = new TextEncoder().encode(secret);
   if (a.length !== b.length) return false;
   return crypto.subtle.timingSafeEqual(a, b);
+}
+
+async function authed(request, env) {
+  return tokenMatches(request, env.ADMIN_TOKEN);
 }
 
 // ---- Analytics (Workers Analytics Engine, dataset mayfly_events) ----
@@ -1179,6 +1188,122 @@ async function handleIntakeHistory(request, env) {
   return json({ status, uploads: sess.uploads.length, max: MAX_UPLOADS, messages });
 }
 
+// ---- Dashboard (read-only) ----
+
+const CF_ACCOUNT = '2e7e19a2b269db15edd76c98799515bd';
+const AI_DAILY_NEURONS = 10000; // Workers AI free allocation, resets 00:00 UTC
+
+async function listKeys(env, prefix, cap) {
+  const out = [];
+  let cursor;
+  do {
+    const page = await env.SITES.list({ prefix, cursor });
+    out.push(...page.keys.map(k => k.name));
+    cursor = page.list_complete ? undefined : page.cursor;
+  } while (cursor && out.length < cap);
+  return out.slice(0, cap);
+}
+
+async function readAll(env, keys) {
+  const raws = await Promise.all(keys.map(k => env.SITES.get(k)));
+  return raws.map((raw, i) => {
+    try { return { key: keys[i], rec: JSON.parse(raw) }; } catch { return null; }
+  }).filter(x => x && x.rec);
+}
+
+function tally(list, pick) {
+  const out = {};
+  for (const x of list) { const k = pick(x) || 'unknown'; out[k] = (out[k] || 0) + 1; }
+  return out;
+}
+const mean = list => list.length ? list.reduce((a, b) => a + b, 0) / list.length : null;
+
+function orderRow(id, o) {
+  const t = tierOf(o.tier);
+  return { id, theme: o.theme, tier: o.tier, days: t ? t.days : null, status: o.status || 'pending',
+    email: o.email || '', photos: (o.images || []).length, pack: !!o.pack, rush: !!o.rush,
+    amountDue: o.amountDue || 0, delivery: o.delivery || '', moderation: o.moderation || '',
+    sub: o.sub || '', details: String(o.details || '').slice(0, 200), createdAt: o.createdAt || 0,
+    updatedAt: o.updatedAt || 0 };
+}
+
+function orderStats(orders, now) {
+  const real = orders.filter(o => o.status !== 'rejected');
+  const built = real.filter(o => o.status === 'built' && o.updatedAt > o.createdAt);
+  const count = f => real.filter(f).length;
+  return {
+    total: real.length,
+    rejected: orders.length - real.length,
+    last7Days: count(o => now - o.createdAt < 7 * 86400000),
+    byDesign: tally(real, o => o.theme),
+    byLifespan: tally(real, o => o.tier),
+    byStatus: tally(real, o => o.status),
+    avgPhotos: mean(real.map(o => o.photos)),
+    avgLifespanDays: mean(real.filter(o => o.days).map(o => o.days)),
+    avgBuildMinutes: mean(built.map(o => (o.updatedAt - o.createdAt) / 60000)),
+    plusPacks: count(o => o.pack),
+    rushes: count(o => o.rush),
+    paidOrders: count(o => o.amountDue > 0),
+    amountDueTotal: real.reduce((a, o) => a + o.amountDue, 0),
+  };
+}
+
+// Workers AI usage for the account. Needs CF_ANALYTICS_TOKEN (Account
+// Analytics: Read); the dashboard says so when it's missing.
+async function aiUsage(env, now) {
+  if (!env.CF_ANALYTICS_TOKEN) return { configured: false };
+  const since = new Date(now - 6 * 86400000).toISOString().slice(0, 10);
+  const query = `{viewer{accounts(filter:{accountTag:"${CF_ACCOUNT}"}){aiInferenceAdaptiveGroups(` +
+    `limit:500,filter:{date_geq:"${since}"},orderBy:[date_ASC]){count sum{totalNeurons} dimensions{date modelId}}}}}`;
+  try {
+    const r = await fetch('https://api.cloudflare.com/client/v4/graphql', { method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + env.CF_ANALYTICS_TOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }) });
+    const d = await r.json();
+    const rows = d?.data?.viewer?.accounts?.[0]?.aiInferenceAdaptiveGroups;
+    if (!rows) return { configured: true, error: 'Cloudflare returned no usage data.' };
+    const days = {}, models = {};
+    for (const g of rows) {
+      const date = g.dimensions.date, model = g.dimensions.modelId.replace('@cf/meta/', '');
+      days[date] = days[date] || { date, neurons: 0, requests: 0 };
+      days[date].neurons += g.sum.totalNeurons; days[date].requests += g.count;
+      models[model] = models[model] || { model, neurons: 0, requests: 0 };
+      models[model].neurons += g.sum.totalNeurons; models[model].requests += g.count;
+    }
+    const today = new Date(now).toISOString().slice(0, 10);
+    return { configured: true, dailyLimit: AI_DAILY_NEURONS, todayNeurons: days[today]?.neurons || 0,
+      days: Object.values(days), models: Object.values(models).sort((a, b) => b.neurons - a.neurons) };
+  } catch {
+    return { configured: true, error: 'Could not reach Cloudflare.' };
+  }
+}
+
+async function handleDashboard(request, env) {
+  if (!(await ipAllowed(request, 'dash', 240))) return fail(429, 'rate_limited', MSG.rate);
+  if (!tokenMatches(request, env.DASHBOARD_KEY) && !(await authed(request, env)))
+    return fail(401, 'unauthorized', 'Unauthorized.');
+  const now = Date.now();
+  const [orderRecs, siteRecs, ai] = await Promise.all([
+    listKeys(env, 'order:', 500).then(k => readAll(env, k)),
+    listKeys(env, 'site:', 500).then(k => readAll(env, k)),
+    aiUsage(env, now),
+  ]);
+  const orders = orderRecs.map(o => orderRow(o.key.slice(6), o.rec)).sort((a, b) => b.createdAt - a.createdAt);
+  const pages = siteRecs
+    .map(s => ({ sub: s.key.slice(5), title: s.rec.title, tier: s.rec.tier, pinned: !!s.rec.pinned,
+      createdAt: s.rec.createdAt, expiresAt: s.rec.expiresAt }))
+    .filter(p => p.pinned || p.expiresAt > now);
+  const customer = pages.filter(p => !p.pinned).sort((a, b) => a.expiresAt - b.expiresAt);
+  return json({ ok: true, now,
+    queue: orders.filter(o => o.status === 'pending' || o.status === 'paid').reverse(),
+    recentOrders: orders.slice(0, 20),
+    livePages: customer, examples: pages.filter(p => p.pinned).map(p => p.sub).sort(),
+    stats: orderStats(orders, now),
+    pageStats: { live: customer.length,
+      avgLifespanDays: mean(customer.map(p => (p.expiresAt - p.createdAt) / 86400000)) },
+    ai });
+}
+
 // ---- Expiry sweep ----
 
 async function sweep(env) {
@@ -1217,6 +1342,7 @@ async function route(request, env) {
       if (path === '/api/intake/eligibility') return handleEligibility(request, env);
       if (path === '/api/intake/submit') return handleIntakeSubmit(request, env);
     }
+    if (path === '/api/dashboard' && request.method === 'GET') return handleDashboard(request, env);
     return handleAdmin(request, env, url);
   }
 
@@ -1237,6 +1363,7 @@ async function route(request, env) {
   if (own) return serveImage('mayfly', own[1], env);
   if (path === '/' || path === '/index.html') return servePage(request, env, 'page:_landing', 'landing');
   if (path === '/start' || path === '/start/') return servePage(request, env, 'page:_start', 'start');
+  if (path === '/admin' || path === '/admin/') return servePage(request, env, 'page:_admin', 'admin');
   return htmlPage(notFoundPage(null, apex), 404);
 }
 

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mayfly dashboard</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+:root{--paper:#F7F3EC;--card:#FFFDF9;--ink:#2A1840;--muted:#6A5D78;--line:#E4DDD2;--warn:#BE2E14;--ok:#1C7A4C;--bar:#FFB25B;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 15px/1.45 var(--sans)}
+main{max-width:1040px;margin:0 auto;padding:18px 14px 48px}
+a{color:inherit}
+h1{font-size:22px;margin:0}
+h2{font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:26px 0 8px}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.muted{color:var(--muted);font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(142px,1fr));gap:10px;margin-top:14px}
+.kpi,.box{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.kpi b{display:block;font-size:26px;line-height:1.15;font-variant-numeric:tabular-nums}
+.kpi span{font-size:13px;color:var(--muted)}
+.two{display:grid;gap:10px}
+@media (min-width:760px){.two{grid-template-columns:1fr 1fr}}
+.scroll{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:12px;font-weight:600;color:var(--muted);padding:8px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.nw{white-space:nowrap}
+td.about{min-width:240px}
+.tag{display:inline-block;padding:1px 7px;border-radius:9px;background:var(--line);font-size:12px;white-space:nowrap}
+.tag.warn{background:#FBE1DA;color:var(--warn)}.tag.ok{background:#DDF1E5;color:var(--ok)}
+.row{display:grid;grid-template-columns:7.5rem 1fr 2rem;gap:8px;align-items:center;padding:3px 0;font-size:14px}
+.row i{display:block;height:9px;min-width:2px;background:var(--bar);border-radius:3px}
+.row em{font-style:normal;text-align:right;font-variant-numeric:tabular-nums}
+.empty{padding:12px 14px;color:var(--muted)}
+.login{max-width:340px;margin:18vh auto;padding:0 14px}
+input{width:100%;min-height:46px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;font:inherit;margin:10px 0}
+button{min-height:42px;padding:8px 16px;border:0;border-radius:6px;background:var(--ink);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+.err{color:var(--warn)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function(){
+  "use strict";
+  var KEY = 'mayfly_dash_key', app = document.getElementById('app'), timer = null;
+  function store(v){ try { if (v === undefined) return localStorage.getItem(KEY) || ''; if (v) localStorage.setItem(KEY, v); else localStorage.removeItem(KEY); } catch (e) {} return v || ''; }
+  // A link ending in #key=... signs this browser in. The part after # never reaches the server.
+  var m = /^#key=(.+)$/.exec(location.hash);
+  if (m) { store(decodeURIComponent(m[1])); history.replaceState(null, '', location.pathname); }
+
+  function h(tag, attrs){
+    var e = document.createElement(tag), a = attrs || {};
+    Object.keys(a).forEach(function(k){ if (k === 'text') e.textContent = a[k]; else e.setAttribute(k, a[k]); });
+    for (var i = 2; i < arguments.length; i++) { var c = arguments[i]; if (c != null) e.appendChild(typeof c === 'object' ? c : document.createTextNode(String(c))); }
+    return e;
+  }
+  function ago(ms){ var s = Math.max(0, ms) / 1000; return s < 60 ? 'just now' : s < 3600 ? Math.round(s / 60) + ' min' : s < 172800 ? Math.round(s / 3600) + ' hr' : Math.round(s / 86400) + ' days'; }
+  function when(ms){ return ms ? new Date(ms).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : ''; }
+  function num(n, d){ return n == null ? '–' : (+n).toFixed(d == null ? 1 : d).replace(/\.0$/, ''); }
+  function kpi(v, label){ return h('div', { 'class': 'kpi' }, h('b', { text: v }), h('span', { text: label })); }
+  function table(cols, rows, empty){
+    if (!rows.length) return h('div', { 'class': 'box empty', text: empty });
+    var tb = h('tbody');
+    rows.forEach(function(r){ var tr = h('tr'); r.forEach(function(c){ tr.appendChild(c instanceof Node ? c : h('td', { 'class': 'nw', text: c == null ? '' : c })); }); tb.appendChild(tr); });
+    var hr = h('tr'); cols.forEach(function(c){ hr.appendChild(h('th', { text: c })); });
+    return h('div', { 'class': 'scroll' }, h('table', {}, h('thead', {}, hr), tb));
+  }
+  function bars(title, counts){
+    var keys = Object.keys(counts).sort(function(a, b){ return counts[b] - counts[a]; });
+    var max = Math.max.apply(null, keys.map(function(k){ return counts[k]; }).concat(1)), box = h('div', { 'class': 'box' }, h('div', { 'class': 'muted', text: title }));
+    if (!keys.length) box.appendChild(h('div', { 'class': 'muted', text: 'Nothing yet' }));
+    keys.forEach(function(k){
+      var bar = h('i'); bar.style.width = (counts[k] / max * 100) + '%';
+      box.appendChild(h('div', { 'class': 'row' }, h('span', { text: k }), h('div', {}, bar), h('em', { text: counts[k] })));
+    });
+    return box;
+  }
+  function login(msg){
+    clearInterval(timer);
+    var input = h('input', { type: 'password', placeholder: 'Dashboard key', autocomplete: 'current-password', 'aria-label': 'Dashboard key' });
+    var form = h('form', { 'class': 'login' }, h('h1', { text: 'Mayfly dashboard' }), msg ? h('p', { 'class': 'err', text: msg }) : null, input, h('button', { text: 'Open' }));
+    form.addEventListener('submit', function(e){ e.preventDefault(); store(input.value.trim()); load(); });
+    app.textContent = ''; app.appendChild(form);
+  }
+  // Promised times: about 2 hours, or about 10 minutes with Rush.
+  function overdue(o, now){ return now - o.createdAt > (o.rush ? 10 : 120) * 60000; }
+
+  function render(d){
+    var s = d.stats, ai = d.ai, now = d.now, late = d.queue.filter(function(o){ return overdue(o, now); }).length;
+    var root = h('main');
+    root.appendChild(h('div', { 'class': 'top' }, h('h1', { text: 'Mayfly dashboard' }), h('span', { 'class': 'muted', text: 'Updated ' + when(now) })));
+    var k = h('div', { 'class': 'kpis' });
+    k.appendChild(kpi(d.pageStats.live, 'Live customer pages'));
+    k.appendChild(kpi(d.queue.length, 'To build' + (late ? ' (' + late + ' late)' : '')));
+    k.appendChild(kpi(s.total, 'Orders, all time'));
+    k.appendChild(kpi(s.last7Days, 'Orders, last 7 days'));
+    k.appendChild(kpi(num(s.avgPhotos), 'Avg photos per order'));
+    k.appendChild(kpi(s.avgLifespanDays == null ? '–' : num(s.avgLifespanDays) + ' days', 'Avg lifespan ordered'));
+    k.appendChild(kpi(s.avgBuildMinutes == null ? '–' : num(s.avgBuildMinutes, 0) + ' min', 'Avg order to built'));
+    k.appendChild(kpi(ai.configured && ai.days ? num(ai.todayNeurons, 0) : '–', 'AI neurons today'));
+    root.appendChild(k);
+
+    root.appendChild(h('h2', { text: 'Being built' }));
+    root.appendChild(table(['Waiting', 'Design', 'Lifespan', 'Photos', 'Extras', 'Status', 'About', 'Email'],
+      d.queue.map(function(o){
+        var st = overdue(o, now) ? h('span', { 'class': 'tag warn', text: 'Late' }) : h('span', { 'class': 'tag', text: o.status === 'paid' ? 'Paid' : o.amountDue > 0 ? 'Awaiting payment' : 'In queue' });
+        return [ago(now - o.createdAt), o.theme, o.tier, o.photos, [o.pack && 'Plus', o.rush && 'Rush'].filter(Boolean).join(', ') || '–', h('td', {}, st), h('td', { 'class': 'about', text: o.details }), o.email];
+      }), 'Nothing waiting to be built.'));
+
+    root.appendChild(h('h2', { text: 'Live pages' }));
+    root.appendChild(table(['Page', 'Title', 'Lifespan', 'Published', 'Comes down'],
+      d.livePages.map(function(p){
+        return [h('td', { 'class': 'nw' }, h('a', { href: 'https://' + p.sub + '.trymayfly.com', target: '_blank', rel: 'noopener', text: p.sub })), p.title, p.tier, when(p.createdAt), 'in ' + ago(p.expiresAt - now)];
+      }), 'No customer pages are live right now.'));
+    root.appendChild(h('p', { 'class': 'muted', text: d.examples.length + ' permanent examples are also up: ' + d.examples.join(', ') }));
+
+    root.appendChild(h('h2', { text: 'Types of pages' }));
+    root.appendChild(h('div', { 'class': 'two' }, bars('By design', s.byDesign), bars('By lifespan', s.byLifespan)));
+    root.appendChild(h('p', { 'class': 'muted', text: s.plusPacks + ' Plus packs, ' + s.rushes + ' Rush, ' + s.paidOrders + (s.paidOrders === 1 ? ' order' : ' orders') + ' with money due ($' + num(s.amountDueTotal, 2) + ' total). ' + s.rejected + ' rejected orders left out of these numbers.' }));
+
+    root.appendChild(h('h2', { text: 'AI usage (whole Cloudflare account)' }));
+    if (!ai.configured) root.appendChild(h('div', { 'class': 'box empty', text: 'Not connected yet. Needs a Cloudflare token with Account Analytics: Read.' }));
+    else if (ai.error) root.appendChild(h('div', { 'class': 'box empty', text: ai.error }));
+    else {
+      var pct = ai.todayNeurons / ai.dailyLimit * 100;
+      root.appendChild(h('p', { 'class': 'muted', text: num(ai.todayNeurons, 0) + ' of ' + ai.dailyLimit.toLocaleString() + ' free neurons used today (' + num(pct) + '%). Resets at midnight UTC.' }));
+      root.appendChild(h('div', { 'class': 'two' },
+        table(['Day', 'Requests', 'Neurons'], ai.days.slice().reverse().map(function(x){ return [x.date, x.requests, num(x.neurons, 0)]; }), 'No AI calls in the last 7 days.'),
+        table(['Model', 'Requests', 'Neurons'], ai.models.map(function(x){ return [x.model, x.requests, num(x.neurons, 0)]; }), 'No AI calls in the last 7 days.')));
+    }
+
+    root.appendChild(h('h2', { text: 'Recent orders' }));
+    root.appendChild(table(['Placed', 'Design', 'Lifespan', 'Status', 'Page'],
+      d.recentOrders.map(function(o){ return [when(o.createdAt), o.theme, o.tier, o.status, o.sub]; }), 'No orders yet.'));
+    app.textContent = ''; app.appendChild(root);
+  }
+
+  function load(){
+    var key = store();
+    if (!key) return login();
+    fetch('/api/dashboard', { headers: { Authorization: 'Bearer ' + key } }).then(function(r){
+      if (r.status === 401) { store(null); login('That key didn’t work.'); return null; }
+      return r.json();
+    }).then(function(d){
+      if (!d) return;
+      if (d.ok) { render(d); clearInterval(timer); timer = setInterval(function(){ if (!document.hidden) load(); }, 60000); }
+      else app.textContent = d.message || 'Could not load.';
+    }).catch(function(){ app.textContent = 'Could not reach the server. Reload to try again.'; });
+  }
+  load();
+})();
+</script>
+</body>
+</html>
