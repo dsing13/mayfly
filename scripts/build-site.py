@@ -226,6 +226,7 @@ def main():
         "og_image": (site_url.rstrip("/") + hero) if hero.startswith("/") else hero,
         "site_url": site_url,
         "expires_at_iso": "" if args.pin else expires.isoformat(),
+        "born_at_iso": datetime.now(timezone.utc).isoformat(),
         "expires_label": expiry_label(args.ttl_days, args.pin),
     }
     for k, v in computed.items():

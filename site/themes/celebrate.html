@@ -32,7 +32,7 @@
   expires_at_iso, expires_label, qr_svg.
 -->
 <style>
-/* mayfly:shared v4 */
+/* mayfly:shared v6 */
 :root{
   --f-oldstyle:"Iowan Old Style","Palatino Linotype",Palatino,"URW Palladio L",P052,"Book Antiqua",Georgia,serif;
   --f-transitional:Charter,"Bitstream Charter","Sitka Text",Cambria,Georgia,serif;
@@ -57,9 +57,11 @@ button{font:inherit;cursor:pointer}
 [hidden]{display:none!important}
 .wrap{max-width:680px;margin:0 auto;padding:0 20px}
 
-/* expiry badge */
-.mf-badge{font:500 12px/1.35 var(--f-mono);letter-spacing:.03em;text-align:center;padding:9px 16px;
-  background:var(--ink);color:var(--paper)}
+/* expiry badge: a sun rises when the page is published and sets when it comes down */
+.mf-badge{display:flex;align-items:center;justify-content:center;gap:9px;font:500 12px/1.35 var(--f-mono);letter-spacing:.03em;
+  text-align:center;padding:8px 16px;background:var(--ink);color:var(--paper)}
+.mf-badge.sky{color:#2A1840;font-weight:600;transition:background-color 1s}
+.mf-badge svg{width:38px;height:19px;flex:none;overflow:visible}
 
 /* hero: photo on top, words underneath */
 .hero{background:var(--paper)}
@@ -139,6 +141,18 @@ details.acc .ab{padding:0 0 16px;color:var(--muted)}
 .mf-foot{margin-top:24px;padding:22px 20px 40px;text-align:center;border-top:2px dashed var(--line)}
 .mf-foot p{font:500 12px/1.4 var(--f-mono);letter-spacing:.03em;color:var(--muted);margin:0}
 .mf-foot a{color:inherit}
+/* the mayfly in the footer: tap it and it leaves */
+.mf-fly{display:block;width:60px;height:45px;margin:0 auto 6px;padding:0;border:0;background:none;cursor:pointer;color:var(--ink)}
+.mf-fly svg{width:100%;height:100%;overflow:visible}
+.mf-fly .wing{transform-box:view-box;transform-origin:47px 34px;animation:mf-flap 1.5s ease-in-out infinite alternate}
+.mf-fly.off .wing{animation-duration:.11s;animation-timing-function:linear}
+.mf-fly.off svg{animation:mf-off 1.5s cubic-bezier(.4,.1,.7,.5) forwards}
+@keyframes mf-flap{to{transform:rotate(26deg) scaleY(.62)}}
+@keyframes mf-off{30%{transform:translate(50px,-46px) rotate(-8deg)}60%{transform:translate(10px,-110px) scaleX(-1)}
+  to{transform:translate(120px,-340px) rotate(-14deg);opacity:0}}
+/* paper confetti on a yes */
+.mf-bit{position:fixed;z-index:90;width:9px;height:14px;pointer-events:none;animation:mf-bit 1.2s cubic-bezier(.2,.6,.5,1) forwards}
+@keyframes mf-bit{to{transform:translate(var(--x),var(--y)) rotate(var(--a));opacity:0}}
 
 /* photo viewer */
 .lb{position:fixed;inset:0;z-index:100;background:rgba(10,10,10,.94);display:none;align-items:center;justify-content:center;touch-action:pan-y}
@@ -154,7 +168,7 @@ details.acc .ab{padding:0 0 16px;color:var(--muted)}
   section{padding:44px 0}
   .hero-text{padding-top:40px}
 }
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 /* /mayfly:shared */
 :root{--paper:#FFFFFF;--ink:#1C1917;--muted:#6B605A;--line:#EEE6E1;--line-strong:#D8CDC6;--soft:#FFE6DE;
   --accent:#E0402A;--accent-ink:#FFFFFF;--display:var(--f-rounded);--display-weight:800;--text:var(--f-ui);
@@ -169,7 +183,7 @@ details.acc .ab{padding:0 0 16px;color:var(--muted)}
 </style>
 </head>
 <body>
-<div class="mf-badge" id="expiry" data-expires="{{expires_at_iso}}">{{expires_label|This page comes down in 7 days}}</div>
+<div class="mf-badge" id="expiry" data-expires="{{expires_at_iso}}" data-born="{{born_at_iso}}">{{expires_label|This page comes down in 7 days}}</div>
 
 <header class="hero">
   <img class="hero-photo" src="{{hero_image}}" alt="" fetchpriority="high">
@@ -229,7 +243,7 @@ details.acc .ab{padding:0 0 16px;color:var(--muted)}
 </footer>
 
 <script>
-/* mayfly:widgets v4 */
+/* mayfly:widgets v6 */
 (function(){
 "use strict";
 function $(s,r){return (r||document).querySelector(s);}
@@ -255,17 +269,66 @@ $all('img.hero-photo').forEach(function(im){
   if(!im.getAttribute('src')) drop(); else im.addEventListener('error',drop);
 });
 
-/* expiry badge */
+/* quiet pages (memorials, lost pets) get the plain badge and no play */
+var quiet=document.body.hasAttribute('data-quiet');
+var still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* expiry badge: the sun's path spans the page's whole lifespan, however long that is */
 (function(){
   var el=$('#expiry'); if(!el) return;
   var t=Date.parse(el.getAttribute('data-expires')||'');
   if(isNaN(t)) return;
+  var born=Date.parse(el.getAttribute('data-born')||'');
+  var arc=!quiet&&!isNaN(born)&&t>born, orb=null;
+  var txt=document.createElement('span');
+  el.textContent='';
+  if(arc){
+    el.insertAdjacentHTML('afterbegin','<svg viewBox="0 0 38 19" aria-hidden="true"><path d="M1 18Q19-16 37 18" fill="none" stroke="#2A1840" stroke-opacity=".45" stroke-width="1.6" stroke-dasharray="1 3.5" stroke-linecap="round"/><circle r="4" fill="#EE4B2B"/></svg>');
+    orb=$('circle',el);
+    el.classList.add('sky');
+  }
+  el.appendChild(txt);
+  var SKY=[[255,216,190],[189,231,243],[255,227,110],[255,178,91],[196,164,236]];
   function tick(){
     var ms=t-Date.now();
-    el.textContent=ms>0?'This page comes down in '+until(ms):'This page has expired';
+    if(ms<=0){txt.textContent='This page has expired';return;}
+    txt.textContent='This page comes down in '+until(ms);
+    if(!arc) return;
+    var f=Math.min(1,Math.max(0,(Date.now()-born)/(t-born)));
+    orb.setAttribute('cx',(1+36*f).toFixed(2));
+    orb.setAttribute('cy',(18-34*2*f*(1-f)).toFixed(2));
+    var p=f*(SKY.length-1), i=Math.min(SKY.length-2,Math.floor(p)), k=p-i;
+    el.style.backgroundColor='rgb('+SKY[i].map(function(c,j){return Math.round(c+(SKY[i+1][j]-c)*k);}).join(',')+')';
   }
   tick(); setInterval(tick,60000);
 })();
+
+/* a mayfly sits by the footer credit; tap it and it leaves */
+(function(){
+  var foot=$('.mf-foot'); if(!foot||quiet) return;
+  var b=document.createElement('button');
+  b.type='button';b.className='mf-fly';b.setAttribute('aria-label','Mayfly');
+  b.innerHTML='<svg viewBox="0 0 80 60" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round"><path stroke-width="1.5" d="M28 31C18 26 10 18 4 6M28 31C16 28 8 24 1 16M28 31c-10-1-18-1-26-4M58 36l4 8M52 37l1 8M46 37l-2 7M61 33l11-6"/><path stroke-width="4.5" d="M62 33c-10 5-22 5-34-2"/></g><circle cx="64" cy="32" r="4.4" fill="currentColor"/><g class="wing" fill="#fff" fill-opacity=".9" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M42 34c-4-6-9-12-14-14 0 7 4 13 9 17z"/><path d="M50 34C45 18 37 7 30 3c-3 10 2 24 12 32z"/></g></svg>';
+  b.addEventListener('click',function(){b.classList.add('off');});
+  foot.insertBefore(b,foot.firstChild);
+})();
+
+/* paper confetti when someone says yes */
+function confetti(from){
+  if(quiet||still) return;
+  var r=from.getBoundingClientRect(), css=getComputedStyle(document.documentElement);
+  var cols=[css.getPropertyValue('--accent'),'#FFD400','#FFF7EA','#BDE7F3'];
+  for(var i=0;i<26;i++){
+    var d=document.createElement('i');d.className='mf-bit';
+    d.style.left=(r.left+r.width/2)+'px';d.style.top=(r.top+r.height/2)+'px';
+    d.style.background=cols[i%cols.length];
+    d.style.setProperty('--x',(Math.random()*320-160)+'px');
+    d.style.setProperty('--y',(Math.random()*-260+60)+'px');
+    d.style.setProperty('--a',(Math.random()*720-360)+'deg');
+    document.body.appendChild(d);
+    setTimeout(d.remove.bind(d),1300);
+  }
+}
 
 /* when & where: date line, time left, calendar file, directions */
 (function(){
@@ -328,6 +391,7 @@ $all('img.hero-photo').forEach(function(im){
     var yes=b.getAttribute('data-answer')==='yes';
     var subj=(yes?'RSVP yes: ':'RSVP no: ')+document.title;
     var body=yes?'Count me in.':'Sorry, I can\u2019t make it.';
+    if(yes) b.addEventListener('click',function(){confetti(b);});
     b.href=isMail?'mailto:'+c+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body)
       :'sms:'+digits+(ios?'&':'?')+'body='+encodeURIComponent(subj+'. '+body);
   });
@@ -355,7 +419,7 @@ $all('[data-share]').forEach(function(b){
   if(!v||!txt) return;
   v.hidden=false;
   var yes=$('.yes',v), no=$('.no',v);
-  if(yes) yes.addEventListener('click',function(){a.textContent=txt;a.hidden=false;yes.setAttribute('aria-pressed','true');});
+  if(yes) yes.addEventListener('click',function(){confetti(yes);a.textContent=txt;a.hidden=false;yes.setAttribute('aria-pressed','true');});
   if(no) no.addEventListener('click',function(){no.textContent='Try the other button';});
 })();
 
