@@ -1,3 +1,4 @@
 Pillow>=10
 # Optional: QR codes on published pages (build-site.py skips them without it)
 segno>=1.6
+fonttools[woff]>=4.50  # scripts/build-font.py

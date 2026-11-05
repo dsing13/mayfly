@@ -29,11 +29,30 @@ are deleted.
   sell, remember, rally, inform, play. They share a base stylesheet and widget
   script (`_widgets.html`: calendar file, directions, RSVP by text or email,
   share, photo viewer, expiry badge) copied in by `scripts/inject-widgets.py`.
-  All type is system fonts, so pages load with no font downloads.
+  Theme type is system fonts, so customer pages load with no font downloads.
 - **Analytics** are cookieless and account-free (Workers Analytics Engine).
   No IP addresses or user IDs are stored; unique visitors use a hash that
   changes every day. `scripts/stats.py` prints the funnel, top pages, orders,
   and referrers.
+
+## Design
+
+- **Sun on the page's real lifespan.** On a customer page, a small sun rises when
+  the page is published, peaks halfway through, and sets when it comes down, on
+  that page's own timeline (1 day, a week, a year). The badge color moves with it.
+- **Sunrise to night.** The home page's color bands run from dawn at the top to a
+  night sky in the footer, with no labels. Expired and missing pages are night.
+- **Paper.** Taped prints, notes, and a flyer whose tabs tear off. Tapping a tab
+  opens the form with that lifespan picked.
+- **The mayfly.** It wanders, lands on `data-perch` elements, and scatters if you
+  tap near it. It carries the order away at the end of the form. On customer
+  pages it sits in the footer, and a yes on an RSVP throws paper confetti.
+- **Quiet pages.** `<body data-quiet>` (remember, inform) turns all of this off:
+  plain badge, no mayfly, no confetti.
+
+Headlines on the home page and form use Fredoka (SIL OFL, `site/fonts/`), one
+weight subset to 13 KB and inlined by `scripts/build-font.py`. Reduced-motion
+settings stop all of the movement.
 
 ## Security and privacy
 
@@ -69,6 +88,7 @@ Python scripts need Pillow (`pip install -r requirements.txt`).
 | Mark an order paid or built | `PATCH /api/orders/<id>` with `{"status": "paid"}` |
 | Traffic and orders | `scripts/stats.py --days 30` |
 | Rebuild landing images | `scripts/build-landing-images.py` |
+| Rebuild the inlined font | `scripts/build-font.py` |
 
 Credentials: the scripts use the hatch VM's credential helper when it's
 present, otherwise `CLOUDFLARE_API_TOKEN`. The admin token and KV id live in
@@ -81,7 +101,7 @@ Free for 1 day · $1 for 2 days · $1.50 for 7 days · $5 for 30 days · $50 for
 ## Layout
 
 - `worker/`: the Worker, its deploy script, and domain setup
-- `site/`: landing page, chat page, themes, landing images (`img/`, sources and credits in `img-src/`)
+- `site/`: landing page, form, themes, font, landing images (`img/`, sources and credits in `img-src/`)
 - `scripts/`: publisher, widget injector, stats, demo renderer
 - `examples/`: vars and photos for the eight permanent example sites
 - `demos/`: phone screenshots of the examples

@@ -107,21 +107,18 @@ function systemPage(kicker, heading, bodyHtml) {
 <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
 <title>${esc(heading)} · Mayfly</title><link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <style>
-:root{--paper:#F3F1EC;--ink:#151412;--muted:#5E5A52;--blue:#1F3FD1;--line:#CFCAC0}
-@media (prefers-color-scheme:dark){:root{--paper:#151412;--ink:#F3F1EC;--muted:#A9A397;--blue:#9DB0FF;--line:#3A3631}}
+:root{--paper:#1F1747;--ink:#FFF7EA;--muted:#D9CFF0;--link:#FFE36E}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px 16px;background:var(--paper);
+body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px 16px;background:var(--paper);overflow:hidden;
   color:var(--ink);font:17px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-main{width:100%;max-width:30rem}
-.k{font:500 12px/1.4 ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.06em;color:var(--muted);overflow-wrap:anywhere}
-h1{font:600 clamp(30px,7vw,40px)/1.12 "Iowan Old Style","Palatino Linotype",Palatino,P052,Georgia,serif;margin:10px 0 14px}
+main{position:relative;width:100%;max-width:30rem}
+.k{font-size:14px;letter-spacing:.02em;color:var(--muted);overflow-wrap:anywhere}
+h1{font:700 clamp(34px,8vw,46px)/1.08 "Arial Rounded MT Bold",ui-rounded,system-ui,sans-serif;margin:10px 0 14px}
 p{margin:0 0 12px;color:var(--muted)}
-a{color:var(--blue);text-underline-offset:3px}
-.tabs{display:flex;gap:6px;margin-top:32px;height:46px}
-.tabs i{flex:1;border:1.5px dashed var(--line);border-top:0}
-.tabs i.gone{border-color:transparent}
-</style></head><body><main><div class="k">${esc(kicker)}</div><h1>${esc(heading)}</h1>${bodyHtml}
-<div class="tabs" aria-hidden="true"><i class="gone"></i><i></i><i class="gone"></i><i></i><i></i><i class="gone"></i></div>
+a{color:var(--link);text-underline-offset:3px}
+.stars{position:fixed;left:0;top:0;width:2px;height:2px;border-radius:50%;box-shadow:107px 89px 0 0 #FFF7EA,244px 178px 0 0 #FFF7EA,381px 267px 0 0 #FFF7EA,518px 356px 0 0 #FFF7EA,655px 445px 0 0 #FFF7EA,792px 534px 0 1px #FFF7EA,929px 623px 0 0 #FFF7EA,1066px 712px 0 0 #FFF7EA,1203px 801px 0 0 #FFF7EA,1340px 890px 0 0 #FFF7EA,-23px 79px 0 0 #FFF7EA,114px 168px 0 1px #FFF7EA,251px 257px 0 0 #FFF7EA,388px 346px 0 0 #FFF7EA,525px 435px 0 0 #FFF7EA,662px 524px 0 0 #FFF7EA,799px 613px 0 0 #FFF7EA,936px 702px 0 1px #FFF7EA,1073px 791px 0 0 #FFF7EA,1210px 880px 0 0 #FFF7EA,1347px 69px 0 0 #FFF7EA,-16px 158px 0 0 #FFF7EA,121px 247px 0 0 #FFF7EA,258px 336px 0 1px #FFF7EA,395px 425px 0 0 #FFF7EA,532px 514px 0 0 #FFF7EA,669px 603px 0 0 #FFF7EA,806px 692px 0 0 #FFF7EA,943px 781px 0 0 #FFF7EA,1080px 870px 0 1px #FFF7EA,1217px 59px 0 0 #FFF7EA,1354px 148px 0 0 #FFF7EA,-9px 237px 0 0 #FFF7EA,128px 326px 0 0 #FFF7EA,265px 415px 0 0 #FFF7EA,402px 504px 0 1px #FFF7EA,539px 593px 0 0 #FFF7EA,676px 682px 0 0 #FFF7EA,813px 771px 0 0 #FFF7EA,950px 860px 0 0 #FFF7EA,1087px 49px 0 0 #FFF7EA,1224px 138px 0 1px #FFF7EA,1361px 227px 0 0 #FFF7EA,-2px 316px 0 0 #FFF7EA,135px 405px 0 0 #FFF7EA,272px 494px 0 0 #FFF7EA,409px 583px 0 0 #FFF7EA,546px 672px 0 1px #FFF7EA,683px 761px 0 0 #FFF7EA}
+.moon{position:fixed;right:12%;top:9%;width:84px;height:84px;border-radius:50%;background:#FFF7EA;box-shadow:inset -16px -6px 0 #E7D9BF}
+</style></head><body><i class="stars"></i><i class="moon"></i><main><div class="k">${esc(kicker)}</div><h1>${esc(heading)}</h1>${bodyHtml}
 </main></body></html>`;
 }
 

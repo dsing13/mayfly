@@ -4,243 +4,286 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mayfly · One-page websites with an end date</title>
-<meta name="description" content="Answer a few quick questions and get a one-page website at yourname.trymayfly.com. First 5 pages free, then one free every month. It comes down on the date you pick.">
+<meta name="description" content="One-page sites at yourname.trymayfly.com that come down on the date you pick. Your first 5 are free.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Mayfly · One-page websites with an end date">
-<meta property="og:description" content="The party invite on the fridge, as a website. First 5 pages free, then one free every month.">
+<meta property="og:description" content="One-page sites that come down on the date you pick. Your first 5 are free.">
 <meta property="og:image" content="https://trymayfly.com/img/og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:url" content="https://trymayfly.com/">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#F3F1EC" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#151412" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#FFD8BE">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="preload" as="image" href="img/hero-1280.webp" imagesrcset="img/hero-720.webp 720w, img/hero-1280.webp 1280w" imagesizes="(min-width: 900px) 55vw, 100vw" fetchpriority="high">
+<link rel="preload" as="image" href="img/hero-1280.webp" imagesrcset="img/hero-720.webp 720w, img/hero-1280.webp 1280w" imagesizes="(min-width: 900px) 50vw, 100vw" fetchpriority="high">
 <style>
+/* mayfly:font */@font-face{font-family:Fredoka;font-weight:600;font-display:block;src:url(data:font/woff2;base64,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) format("woff2")}/* /mayfly:font */
 :root{
-  --paper:#F3F1EC;--card:#FBFAF7;--ink:#151412;--muted:#5E5A52;--line:#D9D5CC;--line-strong:#A9A397;
-  --blue:#1F3FD1;--blue-ink:#FFFFFF;--marker:#F2D64B;
-  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"URW Palladio L",P052,"Book Antiqua",Georgia,serif;
+  --ink:#2A1840;--soft:#5A4A6E;--cream:#FFF7EA;--tomato:#EE4B2B;--tomato-deep:#BE2E14;
+  --dawn:#FFD8BE;--morning:#BDE7F3;--noon:#FFE36E;--golden:#FFB25B;--dusk:#C4A4EC;--night:#1F1747;
+  --head:Fredoka,"Arial Rounded MT Bold",ui-rounded,system-ui,sans-serif;
   --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
-  color-scheme:light dark;
-}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){--paper:#151412;--card:#1E1C19;--ink:#F3F1EC;--muted:#A9A397;--line:#34312C;
-    --line-strong:#5A554D;--blue:#9DB0FF;--blue-ink:#10153A;--marker:#C9AE2C}
+  color-scheme:light;
 }
 *,*::before,*::after{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.6 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:clip}
+html{background:var(--night);-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:80px}
+body{margin:0;background:var(--dawn);color:var(--ink);font:400 17px/1.55 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:clip}
 img{display:block;max-width:100%;height:auto}
-a{color:var(--blue);text-underline-offset:.2em;text-decoration-thickness:1px}
-h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.08;margin:0;text-wrap:balance}
+a{color:inherit;text-underline-offset:.2em;text-decoration-thickness:2px}
+h1,h2,h3{font-family:var(--head);font-weight:600;line-height:1.04;margin:0;text-wrap:balance}
 p{margin:0 0 .8em}
-:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:4px}
 .wrap{max-width:1120px;margin:0 auto;padding:0 16px}
 @media (min-width:600px){.wrap{padding:0 28px}}
-.label{font:500 12px/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:12px 24px;
-  border-radius:999px;font:600 16px/1.2 var(--sans);text-decoration:none;border:1.5px solid var(--ink);
-  background:var(--ink);color:var(--paper);transition:transform .08s}
-.btn:active{transform:scale(.97)}
-.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line-strong)}
-.btn.small{min-height:42px;padding:9px 18px;font-size:15px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:54px;padding:12px 28px;border-radius:999px;
+  font:600 19px/1.1 var(--head);text-decoration:none;background:var(--ink);color:var(--cream);border:0;
+  box-shadow:0 5px 0 rgba(42,24,64,.28);transition:transform .1s,box-shadow .1s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 7px 0 rgba(42,24,64,.28)}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(42,24,64,.28)}
+.btn.ghost{background:var(--cream);color:var(--ink)}
+.btn.small{min-height:40px;padding:8px 16px;font-size:16px;white-space:nowrap;box-shadow:0 3px 0 rgba(42,24,64,.28)}
+@media (max-width:430px){.btn.small .more{display:none}}
 
-/* payment banner (Stripe redirects to /#thanks) */
-.thanks{display:none;background:var(--marker);color:#151412;padding:14px 16px;text-align:center;font-weight:500}
+.thanks{display:none;background:var(--noon);padding:14px 16px;text-align:center;font-weight:500}
 .thanks.on{display:block}
 
-/* top bar */
-.top{display:flex;align-items:center;justify-content:space-between;padding-top:16px;padding-bottom:16px}
-.brand{display:inline-flex;align-items:center;gap:10px;font:600 24px/1 var(--serif);color:var(--ink);text-decoration:none}
-.brand svg{width:26px;height:26px}
+/* sticky bar */
+.top{position:sticky;top:0;z-index:20;padding:10px 12px 0}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:8px;max-width:1096px;margin:0 auto;padding:7px 8px 7px 14px;
+  background:var(--cream);border-radius:999px;box-shadow:0 3px 0 rgba(42,24,64,.16)}
+.brand{display:inline-flex;align-items:center;gap:8px;font:600 22px/1 var(--head);color:var(--ink);text-decoration:none}
+.brand svg{width:25px;height:25px}
 
-/* hero */
-.hero{display:grid;gap:28px;padding-top:20px;padding-bottom:56px}
-.hero h1{font-size:clamp(42px,10.5vw,80px);letter-spacing:-.02em;line-height:1.02}
-.hero h1 mark{background:linear-gradient(transparent 58%,var(--marker) 58%,var(--marker) 92%,transparent 92%);color:inherit}
-.lede{font-size:clamp(18px,4.6vw,21px);line-height:1.5;color:var(--muted);margin:20px 0 0;max-width:30em}
-.lede strong{color:var(--ink);font-weight:600}
-.cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
-.facts{margin-top:18px}
-.stage{position:relative}
-.stage .photo{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px;background:var(--line)}
-.phone{position:absolute;right:4%;bottom:-36px;width:min(38%,200px);aspect-ratio:9/18.5;border-radius:22px;padding:5px;
-  background:#151412;box-shadow:0 18px 40px rgba(0,0,0,.28)}
+/* hero: dawn */
+.hero{position:relative;overflow:clip;padding-bottom:64px}
+.sun{position:absolute;right:-70px;top:90px;width:300px;height:300px;border-radius:50%;background:#FFA36E;will-change:transform}
+.hero .grid{position:relative;display:grid;gap:30px;padding-top:40px}
+h1{font-size:clamp(46px,12.6vw,88px);letter-spacing:-.012em}
+h1 span{display:block;color:var(--tomato-deep)}
+.lede{font-size:clamp(18px,4.6vw,21px);line-height:1.45;margin:20px 0 0;max-width:29em}
+.lede strong{font-weight:600}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.facts{font:600 15px/1.3 var(--head);margin:18px 0 0;color:var(--soft)}
+.stage{position:relative;margin:6px 8px 34px 0}
+.snap{display:block;background:var(--cream);padding:10px 10px 30px;transform:rotate(-2deg);box-shadow:0 8px 0 rgba(42,24,64,.12);position:relative}
+.snap img{width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--soft)}
+.tape{position:absolute;left:50%;top:-12px;width:96px;height:26px;margin-left:-48px;background:rgba(255,227,110,.82);transform:rotate(2deg)}
+.phone{position:absolute;right:-4px;bottom:-30px;width:min(35%,190px);aspect-ratio:9/18.5;border-radius:22px;padding:5px;background:var(--ink);
+  transform:rotate(3deg);box-shadow:0 8px 0 rgba(42,24,64,.18);transition:transform .25s}
+.phone:hover{transform:rotate(0) translateY(-6px)}
 .phone img{width:100%;height:100%;object-fit:cover;object-position:top;border-radius:17px;background:#fff}
+.hills{position:absolute;left:0;bottom:0;display:block;width:100%;height:70px}
 @media (min-width:900px){
-  .hero{grid-template-columns:1fr 1.1fr;align-items:center;gap:56px;padding-top:40px;padding-bottom:96px}
-  .phone{right:-18px;bottom:-40px;width:42%;max-width:230px}
+  .hero .grid{grid-template-columns:1.05fr 1fr;align-items:center;gap:52px;padding-top:56px}
+  .sun{width:460px;height:460px;right:6%;top:60px}
 }
 
-/* sections */
-section{padding:56px 0;border-top:1px solid var(--line)}
-.head{max-width:40rem;margin-bottom:28px}
-.head h2{font-size:clamp(32px,7vw,52px);letter-spacing:-.015em;margin-top:10px}
-.head p{color:var(--muted);margin-top:14px;font-size:18px}
+/* cut-paper edges: each band's top edge overlaps the band before it */
+section{position:relative;padding:44px 0 72px}
+.edge{position:absolute;left:0;right:0;bottom:calc(100% - 1px);width:100%;height:56px;display:block}
+.morning{background:var(--morning)}.noon{background:var(--noon)}.golden{background:var(--golden)}
+.dusk{background:var(--dusk)}.night{background:var(--night);color:var(--cream)}
+.head{max-width:38rem;margin-bottom:30px}
+.head h2{font-size:clamp(36px,8.4vw,60px)}
+.head p{margin-top:14px;font-size:18px}
 
-/* uses grid */
-.uses{display:grid;grid-template-columns:1fr 1fr;gap:18px 14px}
-@media (min-width:900px){.uses{grid-template-columns:repeat(4,1fr);gap:28px 22px}}
-.use{color:inherit;text-decoration:none;display:block}
-.use img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:5px;background:var(--line);transition:transform .25s}
-.use h3{font-size:21px;margin:12px 0 4px}
-.use p{font-size:15px;line-height:1.45;color:var(--muted);margin:0}
-.use .go{display:inline-block;margin-top:8px;font:500 12px/1.4 var(--mono);color:var(--blue)}
-@media (hover:hover){.use:hover img{transform:translateY(-3px)}.use:hover .go{text-decoration:underline}}
+/* morning: taped prints */
+.uses{display:grid;grid-template-columns:1fr 1fr;gap:30px 16px}
+@media (min-width:900px){.uses{grid-template-columns:repeat(4,1fr);gap:40px 26px}}
+.use{display:block;text-decoration:none;--r:-1.6deg}
+.use:nth-child(3n+2){--r:1.4deg}.use:nth-child(3n){--r:-.7deg}
+.print{display:block;position:relative;background:var(--cream);padding:7px 7px 22px;transform:rotate(var(--r));
+  box-shadow:0 5px 0 rgba(42,24,64,.12);transition:transform .22s cubic-bezier(.3,1.6,.5,1)}
+.print::before{content:"";position:absolute;left:50%;top:-9px;width:62px;height:19px;margin-left:-31px;background:rgba(255,227,110,.8);transform:rotate(var(--r))}
+.print img{width:100%;aspect-ratio:4/5;object-fit:cover;background:var(--dawn)}
+.use:hover .print,.use:focus-visible .print{transform:rotate(0) translateY(-6px) scale(1.02)}
+.use:active .print{transform:rotate(0) scale(.98)}
+.use h3{font-size:23px;margin:14px 0 4px}
+.use p{font-size:15px;line-height:1.4;margin:0}
+.go{display:inline-block;margin-top:7px;font-size:13px;font-weight:600;color:#17566B;overflow-wrap:anywhere}
 
-/* steps */
-.steps{list-style:none;margin:0;padding:0;display:grid;gap:28px;counter-reset:s}
-@media (min-width:900px){.steps{grid-template-columns:repeat(3,1fr);gap:40px}}
-.steps li{counter-increment:s;border-top:2px solid var(--ink);padding-top:16px}
-.steps li::before{content:"0" counter(s);font:500 13px/1 var(--mono);color:var(--muted)}
-.steps h3{font-size:26px;margin:12px 0 8px}
-.steps p{color:var(--muted);margin:0}
+/* noon: three notes */
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:18px}
+@media (min-width:900px){.steps{grid-template-columns:repeat(3,1fr);gap:26px}}
+.steps li{background:var(--cream);padding:20px 20px 24px;box-shadow:0 5px 0 rgba(42,24,64,.1);transform:rotate(-.6deg)}
+.steps li:nth-child(2){transform:rotate(.7deg)}
+.steps b{display:block;font:600 46px/1 var(--head);color:var(--tomato)}
+.steps h3{font-size:25px;margin:8px 0 8px}
+.steps p{margin:0}
 
-/* pricing: bar length is the lifespan on a log scale */
-.prices{display:grid;gap:10px;max-width:46rem}
-.price{display:grid;grid-template-columns:5.5rem 1fr auto;align-items:center;gap:14px;padding:14px 16px;border:1.5px solid var(--line);
-  border-radius:8px;background:var(--card);color:inherit;text-decoration:none;transition:border-color .15s}
-.price:hover{border-color:var(--ink)}
-.price .life{font:600 18px/1.2 var(--serif)}
-.price .bar{height:8px;border-radius:4px;background:var(--line);position:relative;overflow:hidden}
-.price .bar i{position:absolute;inset:0 auto 0 0;background:var(--ink);border-radius:4px}
-.price .amt{font:600 20px/1 var(--sans);min-width:3.5rem;text-align:right}
-.price.pop{border-color:var(--ink)}
-.price .tag{grid-column:1/-1;font:500 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:-4px}
-.fine{color:var(--muted);font-size:15px;margin-top:16px;max-width:46rem}
+/* golden hour: the flyer with tear-off tabs */
+.flyer{position:relative;max-width:44rem;margin:0 auto;background:var(--cream);transform:rotate(-.7deg);box-shadow:0 8px 0 rgba(42,24,64,.14)}
+.flyer .sheet{padding:30px 22px 22px;text-align:center}
+.flyer .sheet::before,.flyer .sheet::after{content:"";position:absolute;top:12px;width:30px;height:3px;background:#A79F97;border-radius:2px}
+.flyer .sheet::before{left:18px;transform:rotate(-14deg)}.flyer .sheet::after{right:18px;transform:rotate(11deg)}
+.flyer h2{font-size:clamp(34px,8vw,54px)}
+.flyer p{margin:12px auto 0;max-width:30em}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);border-top:2px dashed var(--ink)}
+.tab{display:flex;justify-content:center;height:148px;padding:12px 0;text-decoration:none;background:var(--cream);transform-origin:top center;
+  border-left:2px dashed var(--ink);transition:transform .16s,background .16s}
+.tab:first-child{border-left:0}
+.tab span{writing-mode:vertical-rl;font:600 20px/1.15 var(--head);white-space:nowrap}
+.tab b{font-weight:600;color:var(--tomato-deep)}
+.tab:hover,.tab:focus-visible{transform:rotate(-3deg);background:var(--noon)}
+.tab.torn{animation:tear .5s cubic-bezier(.5,0,.8,.4) forwards;background:var(--noon);border-color:transparent;z-index:2}
+@keyframes tear{20%{transform:translateY(8px) rotate(-5deg)}to{transform:translateY(240px) rotate(24deg);opacity:0}}
+.fine{max-width:44rem;margin:28px auto 0}
+.fine p{margin-bottom:10px}
 
-/* promises + faq */
-.two{display:grid;gap:40px}
-@media (min-width:900px){.two{grid-template-columns:1fr 1fr;gap:64px}}
-.promise{display:grid;gap:18px}
-.promise div{border-left:3px solid var(--marker);padding-left:16px}
-.promise h3{font-size:22px;margin-bottom:4px}
-.promise p{color:var(--muted);margin:0}
-details{border-top:1px solid var(--line)}
-details:last-child{border-bottom:1px solid var(--line)}
-summary{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:56px;padding:14px 0;cursor:pointer;
-  list-style:none;font:600 19px/1.3 var(--serif)}
+/* dusk */
+.two{display:grid;gap:42px}
+@media (min-width:900px){.two{grid-template-columns:1fr 1fr;gap:60px}}
+.promise{display:grid;gap:12px}
+.promise div{background:var(--cream);padding:15px 18px;transform:rotate(-.4deg)}
+.promise div:nth-child(2){transform:rotate(.5deg)}
+.promise h3{font-size:21px;margin-bottom:3px}
+.promise p{margin:0;font-size:16px}
+details{background:var(--cream);margin-bottom:10px;padding:0 18px}
+summary{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:58px;padding:12px 0;cursor:pointer;list-style:none;font:600 19px/1.2 var(--head)}
 summary::-webkit-details-marker{display:none}
-summary::after{content:"+";font:400 24px/1 var(--sans);color:var(--muted)}
-details[open] summary::after{content:"\2212"}
-details p{color:var(--muted);margin:0 0 18px}
+summary::after{content:"+";font:600 26px/1 var(--head);color:var(--tomato);transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{margin:0 0 16px;font-size:16px}
 
-/* closing band */
-.close{background:var(--ink);color:var(--paper);border:0;padding:72px 0}
-.close h2{font-size:clamp(36px,8vw,64px);letter-spacing:-.02em;max-width:14em}
-.close p{color:var(--line-strong);margin:16px 0 28px;font-size:18px}
-.close .btn{background:var(--paper);color:var(--ink);border-color:var(--paper)}
-.close a:not(.btn){color:var(--paper)}
-
-footer{padding:28px 0 40px;font-size:14px;color:var(--muted)}
-footer .row{display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:space-between}
-footer a{color:inherit}
-footer details{border:0;margin-top:14px}
-footer summary{min-height:0;padding:0;font:500 13px/1.4 var(--sans);display:inline;color:var(--muted)}
+/* night */
+.night{padding:60px 0 44px;overflow:clip}
+.stars{position:absolute;left:0;top:0;width:2px;height:2px;border-radius:50%;box-shadow:97px 83px 0 0 #FFF7EA, 234px 166px 0 0 #FFF7EA, 371px 249px 0 0 #FFF7EA, 508px 332px 0 0 #FFF7EA, 645px 415px 0 1px #FFF7EA, 782px 78px 0 0 #FFF7EA, 919px 161px 0 0 #FFF7EA, 1056px 244px 0 0 #FFF7EA, 1193px 327px 0 0 #FFF7EA, 1330px 410px 0 1px #FFF7EA, 67px 73px 0 0 #FFF7EA, 204px 156px 0 0 #FFF7EA, 341px 239px 0 0 #FFF7EA, 478px 322px 0 0 #FFF7EA, 615px 405px 0 1px #FFF7EA, 752px 68px 0 0 #FFF7EA, 889px 151px 0 0 #FFF7EA, 1026px 234px 0 0 #FFF7EA, 1163px 317px 0 0 #FFF7EA, 1300px 400px 0 1px #FFF7EA, 37px 63px 0 0 #FFF7EA, 174px 146px 0 0 #FFF7EA, 311px 229px 0 0 #FFF7EA, 448px 312px 0 0 #FFF7EA, 585px 395px 0 1px #FFF7EA, 722px 58px 0 0 #FFF7EA, 859px 141px 0 0 #FFF7EA, 996px 224px 0 0 #FFF7EA, 1133px 307px 0 0 #FFF7EA, 1270px 390px 0 1px #FFF7EA, 7px 53px 0 0 #FFF7EA, 144px 136px 0 0 #FFF7EA, 281px 219px 0 0 #FFF7EA, 418px 302px 0 0 #FFF7EA, 555px 385px 0 1px #FFF7EA, 692px 48px 0 0 #FFF7EA, 829px 131px 0 0 #FFF7EA, 966px 214px 0 0 #FFF7EA, 1103px 297px 0 0 #FFF7EA, 1240px 380px 0 1px #FFF7EA, -23px 43px 0 0 #FFF7EA, 114px 126px 0 0 #FFF7EA, 251px 209px 0 0 #FFF7EA, 388px 292px 0 0 #FFF7EA, 525px 375px 0 1px #FFF7EA, 662px 38px 0 0 #FFF7EA, 799px 121px 0 0 #FFF7EA, 936px 204px 0 0 #FFF7EA, 1073px 287px 0 0 #FFF7EA, 1210px 370px 0 1px #FFF7EA, 1347px 33px 0 0 #FFF7EA, 84px 116px 0 0 #FFF7EA, 221px 199px 0 0 #FFF7EA, 358px 282px 0 0 #FFF7EA, 495px 365px 0 1px #FFF7EA, 632px 28px 0 0 #FFF7EA, 769px 111px 0 0 #FFF7EA, 906px 194px 0 0 #FFF7EA, 1043px 277px 0 0 #FFF7EA, 1180px 360px 0 1px #FFF7EA, 1317px 23px 0 0 #FFF7EA, 54px 106px 0 0 #FFF7EA, 191px 189px 0 0 #FFF7EA}
+.moon{position:absolute;right:16px;top:20px;width:58px;height:58px;border-radius:50%;background:var(--cream);box-shadow:inset -11px -4px 0 #E7D9BF}
+@media (min-width:760px){.moon{right:9%;top:46px;width:82px;height:82px}}
+.night .wrap{position:relative}
+.night h2{font-size:clamp(40px,9.6vw,72px);max-width:11em}
+.night p{margin:16px 0 28px;font-size:18px;max-width:30em;color:#D9CFF0}
+.night .btn{background:var(--noon);color:var(--ink);box-shadow:0 5px 0 rgba(0,0,0,.35)}
+.glow{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--noon);box-shadow:0 0 12px 4px rgba(255,227,110,.55);animation:glow 3.2s ease-in-out infinite}
+@keyframes glow{0%,100%{opacity:.15;transform:translate(0,0)}50%{opacity:1;transform:translate(14px,-16px)}}
+footer{background:var(--night);color:#BEB2DA;padding:0 0 38px;font-size:14px}
+footer .row{display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:space-between;border-top:2px dashed #4A3F78;padding-top:18px}
+footer details{background:none;padding:0;margin:12px 0 0}
+footer summary{min-height:0;padding:0;font:500 13px/1.4 var(--sans);display:inline}
 footer summary::after{content:none}
 footer details p{margin:8px 0 0;font-size:13px}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* the mayfly */
+#fly{position:fixed;left:0;top:0;width:58px;height:44px;z-index:30;pointer-events:none;will-change:transform}
+#fly svg{display:block;width:100%;height:100%;overflow:visible}
+#fly .wing{transform-box:view-box;transform-origin:47px 34px;animation:flap .11s linear infinite alternate}
+#fly.rest .wing{animation-duration:1.4s;animation-timing-function:ease-in-out}
+@keyframes flap{to{transform:rotate(26deg) scaleY(.62)}}
+.night-fly #fly .body{stroke:var(--cream)}
+.night-fly #fly .fhead{fill:var(--cream)}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}*{transition:none!important;animation:none!important}
+}
 </style>
 </head>
 <body>
 
 <div class="thanks" id="thanks" role="status">Payment received. We’re building your page now and will email the link within about 2 hours.</div>
 
-<header class="wrap top">
-  <a class="brand" href="/" aria-label="Mayfly home">
-    <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#1F3FD1"/><path d="M7 6h18v12H7zM7 20h4v6H7zM12.5 20h4v6h-4zM18 20h4v6h-4z" fill="#F3F1EC"/></svg>
-    Mayfly
-  </a>
-  <a class="btn small" href="/start">Start a page</a>
+<header class="top">
+  <div class="bar">
+    <a class="brand" href="/" aria-label="Mayfly home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#1F3FD1"/><path d="M7 6h18v12H7zM7 20h4v6H7zM12.5 20h4v6h-4zM18 20h4v6h-4z" fill="#F3F1EC"/></svg>
+      Mayfly
+    </a>
+    <a class="btn small" href="/start" aria-label="Start a page">Start<span class="more">&nbsp;a page</span></a>
+  </div>
 </header>
 
 <main>
-<div class="wrap hero">
-  <div>
-    <h1>The party invite on the fridge, <mark>as a website.</mark></h1>
-    <p class="lede">Answer a few quick questions about the birthday party or the yard sale. We build a one-page site at <strong>yourname.trymayfly.com</strong>, you share the link, and the page comes down on the date you picked.</p>
-    <div class="cta">
-      <a class="btn" href="/start">Start a page</a>
-      <a class="btn ghost" href="#uses">See examples</a>
+<div class="hero">
+  <div class="sun" id="sun"></div>
+  <div class="wrap grid">
+    <div>
+      <h1 data-perch>A website for as long <span>as you need it.</span></h1>
+      <p class="lede">Answer a few quick questions about the birthday party or the yard sale. We build a one-page site at <strong>yourname.trymayfly.com</strong>, you share the link, and it comes down on the date you pick.</p>
+      <div class="cta">
+        <a class="btn" href="/start" data-perch>Start a page</a>
+        <a class="btn ghost" href="#uses">See examples</a>
+      </div>
+      <p class="facts">First 5 pages free · then one free every month · no account</p>
     </div>
-    <p class="label facts">First 5 pages free · then one free every month · No account</p>
+    <div class="stage">
+      <span class="snap" data-perch><i class="tape"></i>
+        <img src="img/hero-1280.webp" srcset="img/hero-720.webp 720w, img/hero-1280.webp 1280w" sizes="(min-width: 900px) 50vw, 100vw" width="1280" height="960" alt="A little girl in a paper crown blowing out her birthday candles" fetchpriority="high">
+      </span>
+      <div class="phone"><img src="img/phone-celebrate.webp" width="390" height="800" alt="A Mayfly birthday party page, on a phone" loading="lazy"></div>
+    </div>
   </div>
-  <div class="stage">
-    <img class="photo" src="img/hero-1280.webp" srcset="img/hero-720.webp 720w, img/hero-1280.webp 1280w"
-      sizes="(min-width: 900px) 55vw, 100vw" width="1280" height="960" alt="A little girl in a paper crown blowing out her birthday candles" fetchpriority="high">
-    <div class="phone"><img src="img/phone-celebrate.webp" width="390" height="800" alt="A Mayfly birthday party page, on a phone" loading="lazy"></div>
-  </div>
+  <svg class="hills" viewBox="0 0 1440 70" preserveAspectRatio="none" aria-hidden="true"><path fill="#FFB892" d="M0 70V34C180 4 340 8 520 30s330 30 520 6 280-26 400-8v42z"/></svg>
 </div>
 
-<section id="uses">
+<section class="morning" id="uses">
+  <svg class="edge" viewBox="0 0 1440 56" preserveAspectRatio="none" aria-hidden="true"><path fill="#BDE7F3" d="M0 56V34Q65 -10 131 34Q201 -26 271 34Q319 -8 367 34Q446 -8 525 34Q593 -24 661 34Q709 -22 758 34Q816 -6 875 34Q925 -18 976 34Q1047 -8 1119 34Q1179 -8 1239 34Q1319 -18 1399 34Q1419 -24 1440 34V56z"/></svg>
   <div class="wrap">
     <div class="head">
-      <p class="label">Eight designs</p>
       <h2>For things with a date on them.</h2>
-      <p>Each design below is a live example page. Yours gets the same layout with your words and photos.</p>
+      <p>Tap any print to see a live example. Yours gets the same design with your words and photos.</p>
     </div>
     <div class="uses">
-      <a class="use" href="https://celebrate.trymayfly.com"><img src="img/celebrate-600.webp" width="600" height="750" alt="Someone holding a sprinkle cake with lit candles" loading="lazy"><h3>Birthday party</h3><p>The time and address, plus RSVP buttons that open a text to the host.</p><span class="go">celebrate.trymayfly.com</span></a>
-      <a class="use" href="https://sell.trymayfly.com"><img src="img/sell-600.webp" width="600" height="750" alt="A hand-painted yard sale sign on a wooden pole" loading="lazy"><h3>Yard sale</h3><p>What’s for sale and what it costs. The rain date goes up top.</p><span class="go">sell.trymayfly.com</span></a>
-      <a class="use" href="https://inform.trymayfly.com"><img src="img/inform-600.webp" width="600" height="750" alt="A golden retriever walking down a garden path" loading="lazy"><h3>Lost dog</h3><p>A big photo, where he was last seen, and a number anyone can tap to call.</p><span class="go">inform.trymayfly.com</span></a>
-      <a class="use" href="https://invite.trymayfly.com"><img src="img/invite-600.webp" width="600" height="750" alt="A wedding ceremony by a lake" loading="lazy"><h3>Wedding</h3><p>The schedule, parking and dress code in one link for every guest.</p><span class="go">invite.trymayfly.com</span></a>
-      <a class="use" href="https://announce.trymayfly.com"><img src="img/announce-600.webp" width="600" height="750" alt="A baby holding a parent’s finger" loading="lazy"><h3>New baby</h3><p>Weight, length, first photos, and when visitors are welcome.</p><span class="go">announce.trymayfly.com</span></a>
-      <a class="use" href="https://rally.trymayfly.com"><img src="img/rally-600.webp" width="600" height="750" alt="Volunteers collecting trash in a field" loading="lazy"><h3>Park cleanup</h3><p>Where to meet, what to bring, and how many people each crew has.</p><span class="go">rally.trymayfly.com</span></a>
-      <a class="use" href="https://remember.trymayfly.com"><img src="img/remember-600.webp" width="600" height="750" alt="Hands opening an old photo album" loading="lazy"><h3>Memorial</h3><p>Service details and a few paragraphs about the person, kept up for a year.</p><span class="go">remember.trymayfly.com</span></a>
-      <a class="use" href="https://play.trymayfly.com"><img src="img/play-600.webp" width="600" height="750" alt="Kids chasing bubbles in a garden" loading="lazy"><h3>Scavenger hunt</h3><p>The rules, the teams, and where the first clue is hidden.</p><span class="go">play.trymayfly.com</span></a>
+      <a class="use" href="https://celebrate.trymayfly.com"><span class="print"><img src="img/celebrate-600.webp" width="600" height="750" alt="Someone holding a sprinkle cake with lit candles" loading="lazy"></span><h3>Birthday party</h3><p>The time and address, plus RSVP buttons that open a text to the host.</p><span class="go">celebrate.trymayfly.com</span></a>
+      <a class="use" href="https://sell.trymayfly.com"><span class="print"><img src="img/sell-600.webp" width="600" height="750" alt="A hand-painted yard sale sign on a wooden pole" loading="lazy"></span><h3>Yard sale</h3><p>What’s for sale and what it costs. The rain date goes up top.</p><span class="go">sell.trymayfly.com</span></a>
+      <a class="use" href="https://inform.trymayfly.com"><span class="print"><img src="img/inform-600.webp" width="600" height="750" alt="A golden retriever walking down a garden path" loading="lazy"></span><h3>Lost dog</h3><p>A big photo, where he was last seen, and a number anyone can tap to call.</p><span class="go">inform.trymayfly.com</span></a>
+      <a class="use" href="https://invite.trymayfly.com"><span class="print"><img src="img/invite-600.webp" width="600" height="750" alt="A wedding ceremony by a lake" loading="lazy"></span><h3>Wedding</h3><p>The schedule, parking and dress code in one link for every guest.</p><span class="go">invite.trymayfly.com</span></a>
+      <a class="use" href="https://announce.trymayfly.com"><span class="print"><img src="img/announce-600.webp" width="600" height="750" alt="A baby holding a parent’s finger" loading="lazy"></span><h3>New baby</h3><p>Weight, length, first photos, and when visitors are welcome.</p><span class="go">announce.trymayfly.com</span></a>
+      <a class="use" href="https://rally.trymayfly.com"><span class="print"><img src="img/rally-600.webp" width="600" height="750" alt="Volunteers collecting trash in a field" loading="lazy"></span><h3>Park cleanup</h3><p>Where to meet, what to bring, and how many people each crew has.</p><span class="go">rally.trymayfly.com</span></a>
+      <a class="use" href="https://remember.trymayfly.com"><span class="print"><img src="img/remember-600.webp" width="600" height="750" alt="Hands opening an old photo album" loading="lazy"></span><h3>Memorial</h3><p>Service details and a few paragraphs about the person, kept up for a year.</p><span class="go">remember.trymayfly.com</span></a>
+      <a class="use" href="https://play.trymayfly.com"><span class="print"><img src="img/play-600.webp" width="600" height="750" alt="Kids chasing bubbles in a garden" loading="lazy"></span><h3>Scavenger hunt</h3><p>The rules, the teams, and where the first clue is hidden.</p><span class="go">play.trymayfly.com</span></a>
     </div>
   </div>
 </section>
 
-<section id="how">
+<section class="noon" id="how">
+  <svg class="edge" viewBox="0 0 1440 56" preserveAspectRatio="none" aria-hidden="true"><path fill="#FFE36E" d="M0 56V30c240-34 480-34 720 0s480 34 720 0v26z"/></svg>
   <div class="wrap">
     <div class="head">
-      <p class="label">How it works</p>
-      <h2>About five minutes of your time.</h2>
+      <h2 data-perch>About five minutes of your time.</h2>
     </div>
     <ol class="steps">
-      <li><h3>Answer a few quick questions</h3><p>The form at <a href="/start">trymayfly.com/start</a> asks for the date, the place, a few photos, and how long the page should stay up.</p></li>
-      <li><h3>We build it</h3><p>Every order is reviewed before it’s built from one of the eight designs. The link arrives by email within about 2 hours — or about 10 minutes with Rush.</p></li>
-      <li><h3>Share it, then let it go</h3><p>Text the link, post it, or print the QR code on a flyer. On the last day the page comes down and its photos are deleted.</p></li>
+      <li><b>1</b><h3>Answer a few quick questions</h3><p>The form at <a href="/start">trymayfly.com/start</a> asks for the date, the place, a few photos, and how long the page should stay up.</p></li>
+      <li><b>2</b><h3>We build it</h3><p>Every order is reviewed before it’s built from one of the eight designs. The link arrives by email within about 2 hours, or about 10 minutes with Rush.</p></li>
+      <li><b>3</b><h3>Share it, then let it go</h3><p>Text the link, post it, or print the QR code on a flyer. On the last day the page comes down and its photos are deleted.</p></li>
     </ol>
   </div>
 </section>
 
-<section id="pricing">
+<section class="golden" id="pricing">
+  <svg class="edge" viewBox="0 0 1440 56" preserveAspectRatio="none" aria-hidden="true"><path fill="#FFB25B" d="M0 56V40c160-44 300-44 460-10s260 26 420-4 340-30 560 14v16z"/></svg>
   <div class="wrap">
-    <div class="head">
-      <p class="label">Pricing</p>
-      <h2>Pay once for the time you need.</h2>
-      <p>Every lifespan gets all eight designs, photos, and a QR code. Nothing renews.</p>
+    <div class="flyer" data-perch>
+      <div class="sheet">
+        <h2>Tear off the time you need.</h2>
+        <p>Pay once. Nothing renews. Every tab gets all eight designs, photos, and a QR code. Most parties and yard sales take the 7-day tab.</p>
+      </div>
+      <div class="tabs">
+        <a class="tab" href="/start?tier=free"><span><b>1 day</b> Free</span></a>
+        <a class="tab" href="/start?tier=twoday"><span><b>2 days</b> $1</span></a>
+        <a class="tab" href="/start?tier=week"><span><b>7 days</b> $1.50</span></a>
+        <a class="tab" href="/start?tier=month"><span><b>30 days</b> $5</span></a>
+        <a class="tab" href="/start?tier=year"><span><b>1 year</b> $50</span></a>
+      </div>
     </div>
-    <div class="prices">
-      <a class="price" href="/start?tier=free"><span class="life">1 day</span><span class="bar"><i style="width:12%"></i></span><span class="amt">Free</span></a>
-      <a class="price" href="/start?tier=twoday"><span class="life">2 days</span><span class="bar"><i style="width:22%"></i></span><span class="amt">$1</span></a>
-      <a class="price pop" href="/start?tier=week"><span class="life">7 days</span><span class="bar"><i style="width:42%"></i></span><span class="amt">$1.50</span><span class="tag">The usual pick for a party or a sale</span></a>
-      <a class="price" href="/start?tier=month"><span class="life">30 days</span><span class="bar"><i style="width:64%"></i></span><span class="amt">$5</span></a>
-      <a class="price" href="/start?tier=year"><span class="life">1 year</span><span class="bar"><i style="width:100%"></i></span><span class="amt">$50</span></a>
+    <div class="fine">
+      <p>Your first 5 pages are free, any lifespan. After that, one page a month is still free, and these prices only apply to pages beyond it. You pay at the end of the form, by card through Stripe. Email us before a page expires to extend it at the same prices.</p>
+      <p>Add the <strong>Plus pack</strong> for $5 to get a printable QR poster or sign, no Mayfly badge, up to 12 photos, and one free round of edits. Add <strong>Rush</strong> for $3 and your page is live in about 10 minutes.</p>
     </div>
-    <p class="fine">Your first 5 pages are free, any duration — after that, one page a month is still free. These prices only kick in for extra pages beyond your free one. You pay at the end of the form, by card through Stripe. Need more time? Email us before your page expires and we’ll extend it at the same prices.</p>
-    <p class="fine">Want more? Add the <strong>Plus pack</strong> for $5 — a printable QR poster or sign, no Mayfly badge, up to 12 photos, and one free round of edits. Add <strong>Rush</strong> for $3 and your page is live in about 10 minutes instead of about 2 hours.</p>
   </div>
 </section>
 
-<section id="faq">
+<section class="dusk" id="faq">
+  <svg class="edge" viewBox="0 0 1440 56" preserveAspectRatio="none" aria-hidden="true"><path fill="#C4A4EC" d="M0 56V40L18 7L37 42L64 13L91 32L117 13L143 38L160 7L178 32L203 17L229 34L250 10L272 34L297 5L323 41L344 12L366 42L385 5L405 41L431 14L457 35L479 5L502 40L530 5L558 41L575 13L593 35L617 14L642 40L665 16L689 37L713 13L737 39L759 8L782 35L801 15L821 35L839 13L857 36L882 11L907 37L935 11L964 36L990 5L1017 33L1042 10L1067 34L1096 9L1125 34L1149 10L1174 32L1201 5L1229 40L1255 16L1281 37L1303 15L1325 37L1351 11L1378 41L1402 5L1426 33L1433 11L1440 42V56z"/></svg>
   <div class="wrap two">
     <div>
-      <div class="head"><p class="label">Privacy</p><h2>Built to leave nothing behind.</h2></div>
+      <div class="head" style="margin-bottom:20px"><h2>Built to leave nothing behind.</h2></div>
       <div class="promise">
         <div><h3>No accounts</h3><p>There’s nothing to sign up for. You answer a few questions, and the link comes by email.</p></div>
         <div><h3>No tracking cookies</h3><p>Mayfly pages set no cookies. We count visits without storing anyone’s IP address.</p></div>
-        <div><h3>Kept out of search results</h3><p>Search engines are told not to index customer pages, so a home address on a party page doesn’t end up in Google.</p></div>
+        <div><h3>Kept out of search results</h3><p>Search engines are told to skip customer pages, so a home address on a party page stays out of Google.</p></div>
       </div>
     </div>
     <div>
-      <div class="head"><p class="label">Questions</p><h2>Things people ask.</h2></div>
+      <div class="head" style="margin-bottom:20px"><h2 data-perch>Things people ask.</h2></div>
       <details open><summary>What happens when time runs out?</summary><p>The page and its photos are deleted. Anyone who opens the link after that sees a short note saying the page has expired.</p></details>
       <details><summary>Can I add more time?</summary><p>Yes. Email <a href="mailto:mayfly@agentmail.to">mayfly@agentmail.to</a> before the page expires and we’ll extend it at the same prices.</p></details>
       <details><summary>Who builds the page?</summary><p>You answer a few questions in the form. Every order is then reviewed before the page is built and published, which is why it takes about 2 hours (about 10 minutes with Rush).</p></details>
@@ -249,25 +292,99 @@ footer details p{margin:8px 0 0;font-size:13px}
   </div>
 </section>
 
-<section class="close">
+<section class="night" id="night">
+  <svg class="edge" viewBox="0 0 1440 56" preserveAspectRatio="none" aria-hidden="true"><path fill="#1F1747" d="M0 56V24c200 30 420 34 640 10s520-30 800 6v16z"/></svg>
+  <i class="stars" aria-hidden="true"></i><i class="moon" aria-hidden="true"></i>
+  <i class="glow" style="left:12%;top:68%" aria-hidden="true"></i><i class="glow" style="left:58%;top:78%;animation-delay:-1.1s" aria-hidden="true"></i><i class="glow" style="left:84%;top:58%;animation-delay:-2.2s" aria-hidden="true"></i>
   <div class="wrap">
-    <h2>Start with a free day.</h2>
+    <h2>Your first 5 pages are free.</h2>
     <p>Five minutes in the form. The link arrives by email within about 2 hours. Prefer email from the start? Write to <a href="mailto:mayfly@agentmail.to">mayfly@agentmail.to</a>.</p>
-    <a class="btn" href="/start">Start a page</a>
+    <a class="btn" href="/start" data-perch>Start a page</a>
   </div>
 </section>
 </main>
 
-<footer class="wrap">
-  <div class="row">
-    <span>© 2026 Mayfly</span>
-    <a href="mailto:mayfly@agentmail.to">mayfly@agentmail.to</a>
+<footer>
+  <div class="wrap">
+    <div class="row">
+      <span>© 2026 Mayfly</span>
+      <a href="mailto:mayfly@agentmail.to">mayfly@agentmail.to</a>
+    </div>
+    <details><summary>Photo credits</summary><p id="credits">Photos from Unsplash by <a href="https://unsplash.com/photos/yard-sale-sign-on-wooden-pole-mSh85EE8FK4">Naturalist Boat</a>, <a href="https://unsplash.com/photos/shallow-focus-photography-of-toddler-blowing-cake-candles-cK6ixOQx1fI">Jorge Ibanez</a>, <a href="https://unsplash.com/photos/person-holding-white-icing-covered-cake-2OAUj3l6zc4">Anna Vander Stel</a>, <a href="https://unsplash.com/photos/dog-standing-on-pavement-Crj3gU0aJsU">Berkay Gumustekin</a>, <a href="https://unsplash.com/photos/wedding-ceremony-by-a-lake-with-guests-seated-outdoors-EQxK5iCPnT8">Ben Atkins</a>, <a href="https://unsplash.com/photos/person-holding-babys-index-finger-5zp0jym2w9M">Aditya Romansa</a>, <a href="https://unsplash.com/photos/people-collecting-trash-in-coastal-field-Rrf2-eguKy0">Kim Ampie</a>, <a href="https://unsplash.com/photos/person-opening-photo-album-displaying-grayscale-photos-73OJLcahQHg">Laura Fuhrman</a>, <a href="https://unsplash.com/photos/children-playing-with-bubbles-in-garden-xaG8oaZD7ss">Katherine Hanlon</a>.</p></details>
   </div>
-  <details><summary>Photo credits</summary><p id="credits">Photos from Unsplash by <a href="https://unsplash.com/photos/yard-sale-sign-on-wooden-pole-mSh85EE8FK4">Naturalist Boat</a>, <a href="https://unsplash.com/photos/shallow-focus-photography-of-toddler-blowing-cake-candles-cK6ixOQx1fI">Jorge Ibanez</a>, <a href="https://unsplash.com/photos/person-holding-white-icing-covered-cake-2OAUj3l6zc4">Anna Vander Stel</a>, <a href="https://unsplash.com/photos/dog-standing-on-pavement-Crj3gU0aJsU">Berkay Gumustekin</a>, <a href="https://unsplash.com/photos/wedding-ceremony-by-a-lake-with-guests-seated-outdoors-EQxK5iCPnT8">Ben Atkins</a>, <a href="https://unsplash.com/photos/person-holding-babys-index-finger-5zp0jym2w9M">Aditya Romansa</a>, <a href="https://unsplash.com/photos/people-collecting-trash-in-coastal-field-Rrf2-eguKy0">Kim Ampie</a>, <a href="https://unsplash.com/photos/person-opening-photo-album-displaying-grayscale-photos-73OJLcahQHg">Laura Fuhrman</a>, <a href="https://unsplash.com/photos/children-playing-with-bubbles-in-garden-xaG8oaZD7ss">Katherine Hanlon</a>.</p></details>
 </footer>
 
+<div id="fly" aria-hidden="true"><svg viewBox="0 0 80 60"><g class="body" fill="none" stroke="#2A1840" stroke-linecap="round"><path stroke-width="1.5" d="M28 31C18 26 10 18 4 6M28 31C16 28 8 24 1 16M28 31c-10-1-18-1-26-4M58 36l4 8M52 37l1 8M46 37l-2 7M61 33l11-6"/><path stroke-width="4.5" d="M62 33c-10 5-22 5-34-2"/></g><circle class="fhead" cx="64" cy="32" r="4.4" fill="#2A1840"/><circle cx="65.6" cy="31" r="1.2" fill="#FFF7EA"/><g class="wing" fill="#FFF7EA" fill-opacity=".92" stroke="#2A1840" stroke-width="1.5" stroke-linejoin="round"><path d="M42 34c-4-6-9-12-14-14 0 7 4 13 9 17z"/><path d="M50 34C45 18 37 7 30 3c-3 10 2 24 12 32z"/><path fill="none" stroke-width="1" d="M46 31 34 9M43 32 31 14"/></g></svg></div>
+
 <script>
-if (location.hash === '#thanks') document.getElementById('thanks').classList.add('on');
+(function(){
+  "use strict";
+  if (location.hash === '#thanks') document.getElementById('thanks').classList.add('on');
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // The hero sun sinks as you scroll; the mayfly turns pale over the night sky.
+  var sun = document.getElementById('sun'), night = document.getElementById('night');
+  function tick(){
+    if (!reduce && scrollY < innerHeight * 1.5) sun.style.transform = 'translateY(' + (scrollY * .22) + 'px)';
+    document.body.classList.toggle('night-fly', night.getBoundingClientRect().top < innerHeight * .3);
+  }
+  var queued = false;
+  addEventListener('scroll', function(){ if (!queued) { queued = true; requestAnimationFrame(function(){ queued = false; tick(); }); } }, { passive: true });
+  addEventListener('resize', tick); tick();
+
+  // Tear-off tabs: the tab tears away, then the form opens with that lifespan.
+  [].forEach.call(document.querySelectorAll('.tab'), function(tab){
+    tab.addEventListener('click', function(e){
+      if (reduce) return;
+      e.preventDefault(); tab.classList.add('torn');
+      setTimeout(function(){ location.href = tab.href; }, 430);
+    });
+  });
+  addEventListener('pageshow', function(){ [].forEach.call(document.querySelectorAll('.tab.torn'), function(t){ t.classList.remove('torn'); }); });
+
+  // The mayfly wanders, lands on things for a moment, and scatters if you tap near it.
+  var fly = document.getElementById('fly'), size = 58, target = null, fx = .5;
+  var x = innerWidth * .7, y = 150, vx = 0, vy = 0, tx = x, ty = y, rest = 0, face = 1, n = 0;
+  function perches(){
+    return [].filter.call(document.querySelectorAll('[data-perch]'), function(e){ var r = e.getBoundingClientRect(); return r.width && r.top > 90 && r.top < innerHeight - 40; });
+  }
+  function pick(){
+    var p = perches();
+    target = p.length && Math.random() < .75 ? p[Math.floor(Math.random() * p.length)] : null;
+    fx = .15 + Math.random() * .7;
+    if (!target) { tx = 30 + Math.random() * (innerWidth - 90); ty = 90 + Math.random() * (innerHeight - 170); }
+  }
+  function place(){ fly.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0) scaleX(' + face + ')'; }
+  function spot(){ var r = target.getBoundingClientRect(); tx = r.left + r.width * fx - size / 2; ty = r.top - size * .66; return r; }
+  if (reduce) { pick(); if (target) { spot(); x = tx; y = ty; } fly.classList.add('rest'); fly.style.position = 'absolute'; place(); return; }
+  function frame(){
+    n++;
+    if (target) { var r = spot(); if (r.top < 70 || r.top > innerHeight - 20) { target = null; rest = 0; fly.classList.remove('rest'); pick(); } }
+    if (rest > 0) {
+      rest--; x = tx; y = ty; vx = vy = 0;
+      if (!rest) { fly.classList.remove('rest'); pick(); }
+    } else {
+      var dx = tx - x, dy = ty - y, d = Math.sqrt(dx * dx + dy * dy);
+      vx += dx * .0022 + Math.sin(n * .09) * .22; vy += dy * .0022 + Math.cos(n * .13) * .26;
+      vx *= .95; vy *= .95;
+      x += vx; y += vy;
+      if (Math.abs(vx) > .25) face = vx > 0 ? 1 : -1;
+      if (d < 12) {
+        if (target) { rest = 160 + Math.random() * 220 | 0; fly.classList.add('rest'); } else pick();
+      }
+    }
+    place();
+    requestAnimationFrame(frame);
+  }
+  addEventListener('pointerdown', function(e){
+    var dx = x + size / 2 - e.clientX, dy = y + size / 2 - e.clientY;
+    if (dx * dx + dy * dy < 8100) {
+      rest = 0; fly.classList.remove('rest'); target = null;
+      vx = (dx >= 0 ? 1 : -1) * 13; vy = -11; tx = Math.random() * (innerWidth - 90); ty = 90 + Math.random() * 200;
+    }
+  }, { passive: true });
+  pick(); requestAnimationFrame(frame);
+})();
 </script>
 </body>
 </html>
