@@ -133,12 +133,12 @@ async function chatToOrder(sid, tier = 'week') {
   return r;
 }
 
-test('a finished chat stores the order, keeps photos 30 days, and links payment to the order', async () => {
+test('a finished chat stores the order, keeps photos 30 days, and asks for no payment', async () => {
   const sid = 'session-aaaa-1111';
   const r = await chatToOrder(sid);
   const j = await r.json();
   assert.equal(j.done, true);
-  assert.match(j.reply, /client_reference_id=session-aaaa-1111/);
+  assert.doesNotMatch(j.reply, /stripe|payment/i);
 
   const photoKey = [...env.SITES.m.keys()].find(k => k.startsWith('intake:' + sid + '/'));
   assert.equal(env.SITES.m.get(photoKey).ttl, 30 * 86400);
@@ -149,7 +149,7 @@ test('a finished chat stores the order, keeps photos 30 days, and links payment 
   assert.match(hist.messages.at(-1).text, /That's everything I need/);
 
   const order = env.EVENTS.points.find(p => p.blobs[0] === 'order');
-  assert.equal(order.doubles[1], 1.5);
+  assert.equal(order.doubles[1], 0);
 });
 
 test('pending orders: newest 50, no shared-array race, status updates remove them', async () => {
@@ -257,7 +257,22 @@ test('an early order attempt gets one plain question for the missing fact', asyn
   assert.equal(j.reply, 'What email should I send the link to?');
 });
 
+// ---- Free for now: no payment anywhere ----
+test('billing off: paid add-ons and long lifespans cost nothing and spend no credits', async () => {
+  const sid = 'session-billoff-1';
+  const r = await call('https://trymayfly.com/api/intake/submit', { method: 'POST',
+    body: { sessionId: sid, ...SUBMIT_ORDER, tier: 'year', email: 'off@example.com', pack: true, rush: true } });
+  const j = await r.json();
+  assert.equal(j.ok, true);
+  assert.equal(j.amountDue, 0);
+  assert.deepEqual(j.paymentLinks, []);
+  assert.equal(j.delivery, 'standard-2h');
+  assert.ok(![...env.SITES.m.keys()].some(k => k.startsWith('credits:')));
+});
+
 // ---- Freemium credits + form intake (/api/intake/submit, /api/intake/eligibility) ----
+// These cover the paid path that stays in place behind BILLING.on.
+test('billing on for the paid-path tests below', () => { _test.BILLING.on = true; });
 
 test('creditFor: starter, monthly, and paid boundaries', () => {
   const day = new Date('2026-10-27T12:00:00Z');

@@ -68,18 +68,9 @@ textarea.input{min-height:120px;resize:vertical}
 .card.theme span{display:block;font-size:14px;line-height:1.3;color:var(--muted)}
 .card.tier{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
 .card.tier strong{font:600 21px/1.1 var(--head)}
-.card.tier .amt{font:600 18px/1.1 var(--head);color:var(--tomato-deep)}
-.card.tier .taglabel{font-size:12.5px;color:var(--muted)}
 .card.tier.picked{box-shadow:0 0 0 3px var(--ink)}
 @media (min-width:560px){.cardgrid.tiers{grid-template-columns:1fr 1fr 1fr}}
 
-.toggle{background:var(--card);padding:16px;margin-bottom:12px;cursor:pointer;box-shadow:0 4px 0 var(--line);transition:transform .15s}
-.toggle:active{transform:scale(.985)}
-.toggle.on{box-shadow:0 0 0 3px var(--ink)}
-.toggle .title{display:flex;align-items:center;justify-content:space-between;font:600 20px/1.2 var(--head)}
-.toggle .check{width:24px;height:24px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--ink);flex:none;transition:background-color .15s}
-.toggle.on .check{background:var(--sun)}
-.toggle ul{margin:10px 0 0;padding-left:18px;font-size:15px;line-height:1.45;color:var(--muted)}
 
 .chiprow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
 .chip{padding:10px 17px;border-radius:999px;border:0;background:var(--card);box-shadow:0 3px 0 var(--line);font:600 16px/1.1 var(--head);transition:transform .12s}
@@ -96,10 +87,7 @@ textarea.input{min-height:120px;resize:vertical}
 .summary{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0 0 20px;padding:16px;background:var(--card);box-shadow:0 4px 0 var(--line)}
 .summary dt{color:var(--muted);font-size:13px;max-width:9em}
 .summary dd{margin:0;font-size:15px;overflow-wrap:anywhere}
-.total{font:600 26px/1.2 var(--head);margin:0 0 18px}
 
-.pay{display:block;text-align:center;min-height:56px;line-height:56px;border-radius:999px;background:var(--sun);color:#fff;text-decoration:none;
-  font:600 19px/56px var(--head);margin-bottom:10px;box-shadow:0 5px 0 var(--line)}
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -181,22 +169,14 @@ textarea.input{min-height:120px;resize:vertical}
   var TONES = ['Warm & friendly', 'Playful', 'Elegant', 'Simple & direct', 'Somber'];
 
   var TIERS = [
-    { key: 'free', life: '1 day', price: 0, priceText: 'Free' },
-    { key: 'twoday', life: '2 days', price: 1, priceText: '$1' },
-    { key: 'week', life: '7 days', price: 1.5, priceText: '$1.50' },
-    { key: 'month', life: '30 days', price: 5, priceText: '$5' },
-    { key: 'year', life: '1 year', price: 50, priceText: '$50' },
+    { key: 'free', life: '1 day' },
+    { key: 'twoday', life: '2 days' },
+    { key: 'week', life: '7 days' },
+    { key: 'month', life: '30 days' },
+    { key: 'year', life: '1 year' },
   ];
 
-  var PACK_FIRST = {
-    celebrate: 'Printable QR poster', invite: 'Printable QR poster', play: 'Printable QR poster',
-    rally: 'Printable QR poster', inform: 'Printable QR poster',
-    sell: 'Printable QR yard sign',
-    remember: 'Printable QR card for the service',
-    announce: 'Printable QR announcement card',
-  };
-
-  var SID_KEY = 'mayfly_sid', DRAFT_KEY = 'mayfly_form_v1';
+  var SID_KEY = 'mayfly_sid', DRAFT_KEY = 'mayfly_form_v2';
 
   function newId() { return crypto.randomUUID ? crypto.randomUUID() : (Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12)); }
   var sid = '';
@@ -211,7 +191,7 @@ textarea.input{min-height:120px;resize:vertical}
       step: 0, theme: '', fields: {}, fieldsRaw: {}, details: '',
       photos: '', uploadCount: 0, photoNames: [],
       toneChip: '', toneText: '', tone: '',
-      email: '', eligibility: null, tier: '', pack: false, rush: false,
+      email: '', tier: '',
       submitted: false, result: null, rejectedMsg: '',
     };
   }
@@ -238,7 +218,6 @@ textarea.input{min-height:120px;resize:vertical}
     list.push({ id: 'tone' });
     list.push({ id: 'email' });
     list.push({ id: 'duration' });
-    list.push({ id: 'addons' });
     list.push({ id: 'review' });
     return list;
   }
@@ -273,20 +252,9 @@ textarea.input{min-height:120px;resize:vertical}
     return t ? t.name : key;
   }
   function tierOf(key) { return TIERS.filter(function (x) { return x.key === key; })[0] || null; }
-  function tierLabel(key, elig) {
+  function tierLabel(key) {
     var t = tierOf(key);
-    if (!t) return key;
-    if (elig && elig.free) return t.life + ' — Free';
-    return t.life + ' — ' + t.priceText;
-  }
-  function computeTotal() {
-    var base = (state.eligibility && state.eligibility.free) ? 0 : ((tierOf(state.tier) || {}).price || 0);
-    var extras = (state.pack ? 5 : 0) + (state.rush ? 3 : 0);
-    return base + extras;
-  }
-  function money(n) {
-    if (n === 0) return 'Free';
-    return '$' + n.toFixed(2).replace(/\.00$/, '');
+    return t ? t.life : key;
   }
 
   // ---- Photo upload: shrink to 2000px, strip EXIF, re-encode as JPEG. ----
@@ -378,9 +346,7 @@ textarea.input{min-height:120px;resize:vertical}
   function photosScreen() {
     var wrap = el('div', 'step');
     wrap.appendChild(el('h1', 'q', 'Add a few photos.'));
-    wrap.appendChild(el('p', 'sub', state.pack
-      ? 'Up to 12 photos are included with the Plus pack.'
-      : 'The first 6 photos are included free. The Plus pack (at the end) raises that to 12.'));
+    wrap.appendChild(el('p', 'sub', 'Up to 12 photos.'));
     var list = el('div', 'photolist');
     (state.photoNames || []).forEach(function (n) { list.appendChild(photoChip(n)); });
     wrap.appendChild(list);
@@ -484,16 +450,8 @@ textarea.input{min-height:120px;resize:vertical}
       var v = input.value.trim();
       if (!EMAIL_RE.test(v)) { err.textContent = 'That doesn’t look like an email address.'; return; }
       state.email = v;
-      btn.disabled = true; btn.textContent = 'Checking…';
-      post('/api/intake/eligibility', { email: v }).then(function (d) {
-        state.eligibility = (d && d.ok) ? d : null;
-      }).catch(function () {
-        state.eligibility = null;
-      }).then(function () {
-        btn.disabled = false; btn.textContent = 'Continue';
-        save();
-        goto(state.step + 1);
-      });
+      save();
+      goto(state.step + 1);
     }
     btn.addEventListener('click', submit);
     input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); submit(); } });
@@ -504,57 +462,16 @@ textarea.input{min-height:120px;resize:vertical}
   function durationScreen() {
     var wrap = el('div', 'step');
     wrap.appendChild(el('h1', 'q', 'How long should the page stay up?'));
+    wrap.appendChild(el('p', 'sub', 'Every length is free.'));
     var grid = el('div', 'cardgrid tiers');
-    var elig = state.eligibility;
     TIERS.forEach(function (t) {
       var c = el('button', 'card tier'); c.type = 'button';
       if (t.key === (state.tier || tornTier)) c.classList.add('picked');
       c.appendChild(el('strong', '', t.life));
-      if (elig && elig.free) {
-        c.appendChild(el('span', 'amt', 'Free'));
-        c.appendChild(el('span', 'taglabel', elig.kind === 'starter' ? 'Starter page — free' : 'This month’s free page'));
-      } else {
-        c.appendChild(el('span', 'amt', t.priceText));
-      }
       c.addEventListener('click', function () { state.tier = t.key; goto(state.step + 1); });
       grid.appendChild(c);
     });
     wrap.appendChild(grid);
-    return wrap;
-  }
-
-  function toggleCard(title, bullets, on, setter) {
-    var c = el('div', 'toggle' + (on ? ' on' : ''));
-    var head = el('div', 'title');
-    head.appendChild(el('span', '', title));
-    head.appendChild(el('span', 'check'));
-    c.appendChild(head);
-    var ul = document.createElement('ul');
-    bullets.forEach(function (b) { var li = document.createElement('li'); li.textContent = b; ul.appendChild(li); });
-    c.appendChild(ul);
-    c.addEventListener('click', function () {
-      var v = !c.classList.contains('on');
-      c.classList.toggle('on', v);
-      setter(v);
-      save();
-    });
-    return c;
-  }
-
-  function addonsScreen() {
-    var wrap = el('div', 'step');
-    wrap.appendChild(el('h1', 'q', 'Make it work harder.'));
-    var packFirst = PACK_FIRST[state.theme] || 'Printable QR poster';
-    wrap.appendChild(toggleCard('Plus pack — $5', [
-      packFirst, 'No Mayfly badge on your page', 'Up to 12 photos', 'One free round of edits', 'Priority help',
-    ], state.pack, function (v) { state.pack = v; }));
-    wrap.appendChild(toggleCard('Rush — $3', [
-      'Front of the line — your page is live in about 10 minutes.',
-      'Standard build: link by email within 2 hours.',
-    ], state.rush, function (v) { state.rush = v; }));
-    var btn = el('button', 'continue', 'Continue'); btn.type = 'button';
-    wrap.appendChild(btn);
-    btn.addEventListener('click', function () { goto(state.step + 1); });
     return wrap;
   }
 
@@ -575,12 +492,9 @@ textarea.input{min-height:120px;resize:vertical}
     row('Photos', state.photos === 'uploaded' ? (state.uploadCount + ' added') : 'None');
     row('Tone', state.tone || '—');
     row('Email', state.email);
-    row('Duration', tierLabel(state.tier, state.eligibility));
-    if (state.pack) row('Plus pack', '$5');
-    if (state.rush) row('Rush', '$3');
+    row('Duration', tierLabel(state.tier));
     wrap.appendChild(list);
 
-    wrap.appendChild(el('p', 'total', 'Total due: ' + money(computeTotal())));
     var err = el('p', 'err'); wrap.appendChild(err);
     var btn = el('button', 'continue', 'Submit'); btn.type = 'button';
     wrap.appendChild(btn);
@@ -594,16 +508,10 @@ textarea.input{min-height:120px;resize:vertical}
       sessionId: ensureSession(), theme: state.theme, fields: state.fields, details: state.details || '',
       tone: state.tone || '', tier: state.tier, email: state.email,
       photos: state.photos === 'uploaded' ? 'uploaded' : 'none',
-      pack: !!state.pack, rush: !!state.rush,
     };
     post('/api/intake/submit', payload).then(function (d) {
       if (d && d.ok) { state.result = d; state.submitted = true; clearDraft(); render(); return; }
       if (d && d.rejected) { state.rejectedMsg = d.message || ''; state.submitted = 'rejected'; render(); return; }
-      if (d && d.error === 'pack_required_for_photos') {
-        err.textContent = d.message || 'More than 6 photos needs the Plus pack.';
-        btn.disabled = false; btn.textContent = 'Submit';
-        return;
-      }
       if (d && d.error === 'incomplete') {
         err.textContent = 'A few answers still need to be filled in. Please check your steps and try again.';
         btn.disabled = false; btn.textContent = 'Submit';
@@ -615,14 +523,6 @@ textarea.input{min-height:120px;resize:vertical}
       err.textContent = 'Lost the connection for a second. Try again?';
       btn.disabled = false; btn.textContent = 'Submit';
     });
-  }
-
-  function linkAmountText(label) {
-    if (/^\$/.test(label)) return 'Pay ' + label.split(' ')[0];
-    if (label === 'Plus pack') return 'Pay $5 — Plus pack';
-    if (label === 'Rush') return 'Pay $3 — Rush';
-    if (label === 'Plus pack + Rush') return 'Pay $8 — Plus pack + Rush';
-    return 'Pay — ' + label;
   }
 
   function resetAll() {
@@ -644,22 +544,9 @@ textarea.input{min-height:120px;resize:vertical}
       screen.appendChild(wrap);
       return;
     }
-    var d = state.result || {};
     document.documentElement.style.backgroundColor = '#BDE7F3';
-    wrap.appendChild(el('h1', 'q', d.amountDue > 0 ? 'One step left: payment.' : 'Your page is on its way.'));
-    if (d.amountDue > 0) {
-      (d.paymentLinks || []).forEach(function (p) {
-        var a = document.createElement('a'); a.className = 'pay'; a.href = p.url; a.target = '_blank'; a.rel = 'noopener';
-        a.textContent = linkAmountText(p.label);
-        wrap.appendChild(a);
-      });
-      wrap.appendChild(el('p', 'sub', 'The page is built once payment lands.'));
-    } else {
-      wrap.appendChild(el('p', 'sub', 'No payment needed. It’s in the build queue now.'));
-    }
-    wrap.appendChild(el('p', 'sub', d.delivery === 'rush-10min'
-      ? 'Live in about 10 minutes.'
-      : 'Built and emailed within about 2 hours.'));
+    wrap.appendChild(el('h1', 'q', 'Your page is on its way.'));
+    wrap.appendChild(el('p', 'sub', 'Built and emailed within about 2 hours.'));
     wrap.appendChild(el('p', 'sub', 'The link arrives at ' + state.email + '.'));
     var again = el('button', 'continue', 'Make another page'); again.type = 'button';
     again.addEventListener('click', resetAll);
@@ -669,7 +556,7 @@ textarea.input{min-height:120px;resize:vertical}
 
   var RENDERERS = {
     theme: themeScreen, field: fieldScreen, details: detailsScreen, photos: photosScreen,
-    tone: toneScreen, email: emailScreen, duration: durationScreen, addons: addonsScreen, review: reviewScreen,
+    tone: toneScreen, email: emailScreen, duration: durationScreen, review: reviewScreen,
   };
 
   var screen = document.getElementById('screen'), barwrap = document.getElementById('barwrap');

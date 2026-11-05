@@ -56,6 +56,11 @@ const TIERS = {
 };
 const tierOf = t => (typeof t === 'string' && Object.hasOwn(TIERS, t)) ? TIERS[t] : null;
 
+// Mayfly is free while we find out whether people use it. With this off, every
+// order costs $0, carries no payment links, and skips the credit counters. The
+// paid path below stays in place; set on to true to bring it back.
+const BILLING = { on: false };
+
 // Add-on payment links, filled in by Nova pre-deploy. Empty strings are
 // skipped (never invent a URL).
 const EXTRA_LINKS = { pack: '', rush: '', both: '' };
@@ -140,7 +145,7 @@ function fmtDate(ms) {
 
 function expiredPage(sub, apex, rec) {
   const t = tierOf(rec.tier);
-  const life = t ? `It was paid up for ${t.days === 1 ? 'one day' : t.days + ' days'}, and` : 'Its time';
+  const life = t ? `It was up for ${t.days === 1 ? 'one day' : t.days + ' days'}, and` : 'Its time';
   return systemPage(`${sub}.${apex}`, 'This page has expired.',
     `<p>${esc(life)} ran out on ${esc(fmtDate(rec.expiresAt))}. Mayfly pages come down on the date their owner picks.</p>` +
     homeLink(apex));
@@ -526,9 +531,9 @@ Every theme has REQUIRED facts — you MUST collect every one, asking one short 
 Also always collect, for every theme:
 - Photos: ask for them every time — at least one, ideally 3 or more. If they truly have none, note that and move on.
 - Tone/vibe they want.
-- How long it should live: free for 1 day, $1 for 2 days, $1.50 for 7 days, $5 for a month, $50 for a year.
+- How long it should live: 1 day, 2 days, 7 days, a month, or a year. All of them are free.
 
-How this works (so you can answer "what happens next"): at the end of the chat, free sites go straight to the build queue; paid sites get a payment link first, then join the queue once paid. Either way the site gets built and the link is emailed to them — usually within a few hours. If they ask for the URL before it exists, say you'll email it once it's built. Never invent a URL.
+How this works (so you can answer "what happens next"): Mayfly is free, so there is nothing to pay. At the end of the chat the site joins the build queue, and the link is emailed to them — usually within a few hours. If they ask for the URL before it exists, say you'll email it once it's built. Never invent a URL.
 
 Rules: ask exactly ONE question per reply. Every reply under 40 words. No emoji. Talk like a person, not a form — never narrate your process, never say "already collected", "required info", "let me clarify", or "I've got everything". Just ask the next question naturally; confirmations stay short ("Next Saturday at 6pm, got it."). You will get private "[system: ...]" notes (e.g. facts already gathered) — these are invisible instructions: never mention, quote, or refer to them out loud, just use them. Never ask for a fact the notes say is already gathered, and never contradict them. Warm, human, plain words — no corporate speak, no exclamation overload. Don't summarize until every required fact is collected. Then summarize and ask "Sound good?" When the user confirms (yes, looks good, perfect, etc.), ask for the email address where we should send their site link — one short question. When they give an email, output ONLY this JSON and nothing else:
 {"done":true,"theme":"<one of the 8 themes>","fields":{"<required key>":"<value>", "...":"..."},"details":"<2-3 sentence summary of the site content>","tone":"<short vibe>","tier":"free|twoday|week|month|year","email":"<their email>","photos":"uploaded|none"}
@@ -724,7 +729,7 @@ const MISSING_QUESTIONS = {
   facts: 'What are two or three things people should know?', keyfacts: 'What are the key facts people should know?',
   name: 'What’s their full name?', service: 'When and where is the service?', cause: 'What’s the cause?',
   activity: 'What’s the game or activity?', howtojoin: 'How do people join in?',
-  'tier(duration)': 'How long should the page stay up: 1 day free, 2 days for $1, 7 days for $1.50, 30 days for $5, or a year for $50?',
+  'tier(duration)': 'How long should the page stay up: 1 day, 2 days, 7 days, 30 days, or a year? All of them are free.',
   email: 'What email should I send the link to?',
   photos: 'Can you add a photo or two with the camera button? If you don’t have any, just say “no photos”.',
   details: 'Anything else the page should say?',
@@ -794,6 +799,7 @@ async function handleEligibility(request, env) {
   if (!body) return fail(400, 'bad_request', MSG.bad);
   const email = String(body.email || '').trim();
   if (!EMAIL_RE.test(email)) return fail(400, 'bad_request', 'Bad email.');
+  if (!BILLING.on) return json({ ok: true, free: true, kind: null });
   const hash = await emailHash(email);
   const record = await getCreditRecord(env, hash);
   const c = creditFor(record, new Date());
@@ -835,13 +841,13 @@ async function handleIntakeSubmit(request, env) {
     email: String(body.email || '').trim(),
     photos: body.photos === 'none' ? 'none' : 'uploaded',
   };
-  const pack = body.pack === true;
-  const rush = body.rush === true;
+  const pack = BILLING.on && body.pack === true;
+  const rush = BILLING.on && body.rush === true;
 
   const check = checkOrderComplete(order, sess);
   if (!check.ok) return json({ error: 'incomplete', missing: check.missing }, 400);
 
-  if (sess.uploads.length > 6 && !pack)
+  if (BILLING.on && sess.uploads.length > 6 && !pack)
     return json({ error: 'pack_required_for_photos', message: 'More than 6 photos needs the Plus pack.' }, 400);
 
   const modText = [theme, ...Object.values(fields), details, order.tone].join(' ');
@@ -861,12 +867,11 @@ async function handleIntakeSubmit(request, env) {
   }
 
   const hash = await emailHash(order.email);
-  const record = await getCreditRecord(env, hash);
-  const credit = creditFor(record, new Date());
-  const creditKind = credit.kind;
+  const record = BILLING.on ? await getCreditRecord(env, hash) : null;
+  const creditKind = BILLING.on ? creditFor(record, new Date()).kind : null;
 
   const t = tierOf(order.tier);
-  const basePrice = creditKind ? 0 : (t ? t.price : 0);
+  const basePrice = !BILLING.on || creditKind ? 0 : (t ? t.price : 0);
   const extras = (pack ? 5 : 0) + (rush ? 3 : 0);
   const amountDue = basePrice + extras;
 
@@ -1002,7 +1007,7 @@ function mergeCollected(order, sess) {
 function doneReply(sid, order) {
   const em = String(order.email || '').trim();
   const t = tierOf(order.tier);
-  if (t && t.link) {
+  if (BILLING.on && t && t.link) {
     const link = t.link + '?client_reference_id=' + encodeURIComponent(sid);
     return `That's everything I need. The last step is payment, ${t.label}:\n${link}\n\n` +
       `Once it goes through, I'll build your site and email the link to ${em}, usually within a few hours.`;
@@ -1106,7 +1111,7 @@ async function handleIntakeChat(request, env) {
     sess.messages.push({ role: 'assistant', content: reply });
     await saveSession(env, sid, sess);
     const t = tierOf(rec.tier);
-    track(env, request, 'order', { theme: rec.theme, tier: rec.tier, value: t ? t.price : 0,
+    track(env, request, 'order', { theme: rec.theme, tier: rec.tier, value: BILLING.on && t ? t.price : 0,
       detail: rec.images.length + ' photos' });
     return json({ done: true, orderId: sid, reply });
   }
@@ -1387,4 +1392,4 @@ export default {
 
 // Exposed for tests.
 export const _test = { tryParseOrder, splitHost, sniffImage, tierOf, checkOrderComplete, doneReply, sweep, TIERS,
-  creditFor, EXTRA_LINKS, emailHash };
+  creditFor, EXTRA_LINKS, BILLING, emailHash };
