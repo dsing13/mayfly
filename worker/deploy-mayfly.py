@@ -36,10 +36,21 @@ ANALYTICS_DATASET = "mayfly_events"
 
 
 def ensure_token(env):
-    if "MAYFLY_ADMIN_TOKEN" not in env:
-        env["MAYFLY_ADMIN_TOKEN"] = secrets.token_urlsafe(32)
-        save_env_value("MAYFLY_ADMIN_TOKEN", env["MAYFLY_ADMIN_TOKEN"])
-        print("generated new MAYFLY_ADMIN_TOKEN")
+    """Return True if ADMIN_TOKEN should be (re)set from the local env file.
+
+    With no local token, an existing Worker keeps its live secret. Generating
+    a new one here would lock out everything that uses the current token.
+    """
+    if "MAYFLY_ADMIN_TOKEN" in env:
+        return True
+    live = cf("GET", "/accounts/%s/workers/scripts/%s/settings" % (ACCOUNT, SCRIPT_NAME))
+    if live.get("success"):
+        print("no local MAYFLY_ADMIN_TOKEN: keeping the live ADMIN_TOKEN secret")
+        return False
+    env["MAYFLY_ADMIN_TOKEN"] = secrets.token_urlsafe(32)
+    save_env_value("MAYFLY_ADMIN_TOKEN", env["MAYFLY_ADMIN_TOKEN"])
+    print("generated new MAYFLY_ADMIN_TOKEN")
+    return True
 
 
 def ensure_kv(env):
@@ -161,9 +172,10 @@ def main():
     env = load_env(required=False)
     kv = ensure_kv(env)
     if not args.pages_only:
-        ensure_token(env)
+        set_token = ensure_token(env)
         upload_worker(kv, analytics=not args.no_analytics)
-        set_secret(env["MAYFLY_ADMIN_TOKEN"])
+        if set_token:
+            set_secret(env["MAYFLY_ADMIN_TOKEN"])
         set_schedule()
     upload_pages(env)
     verify_health(env)
