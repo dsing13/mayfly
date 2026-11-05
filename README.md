@@ -99,7 +99,7 @@ present, otherwise `CLOUDFLARE_API_TOKEN`. The admin token and KV id live in
 
 ## Pricing
 
-Free for 1 day · $1 for 2 days · $1.50 for 7 days · $5 for 30 days · $50 for a year.
+Free for now, at every length: 1 day, 2 days, 7 days, 30 days, or a year. Payments are off (`BILLING.on` in the worker).
 
 ## Layout
 

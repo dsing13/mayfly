@@ -397,3 +397,12 @@ Photos on examples come from Unsplash, never AI-generated. Credits live in
 
 Republish all examples after a theme change, without the admin token:
 `scripts/build-site.py --theme <t> --sub <t> --ttl-days 366 --pin --kv --title "..." --vars examples/vars-<t>.json --images examples/photos/<t>/`
+
+## Payments are off (2026-11-05)
+
+Mayfly is free while we find out whether people use it. `BILLING.on` in
+worker/mayfly-router.js is false, so every order has amountDue 0 and no payment
+links, Plus pack and Rush are gone from the form, and the credit counters are
+not touched. Build every pending order. Never wait for payment and never send a
+Stripe link. The pricing and order notes above are history until BILLING.on
+comes back.
