@@ -164,14 +164,6 @@ footer summary{min-height:0;padding:0;font:500 13px/1.4 var(--sans);display:inli
 footer summary::after{content:none}
 footer details p{margin:8px 0 0;font-size:13px}
 
-/* the mayfly */
-#fly{position:fixed;left:0;top:0;width:58px;height:44px;z-index:30;pointer-events:none;will-change:transform}
-#fly svg{display:block;width:100%;height:100%;overflow:visible}
-#fly .wing{transform-box:view-box;transform-origin:47px 34px;animation:flap .11s linear infinite alternate}
-#fly.rest .wing{animation-duration:1.4s;animation-timing-function:ease-in-out}
-@keyframes flap{to{transform:rotate(26deg) scaleY(.62)}}
-.night-fly #fly .body{stroke:var(--cream)}
-.night-fly #fly .fhead{fill:var(--cream)}
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}*{transition:none!important;animation:none!important}
 }
@@ -196,16 +188,16 @@ footer details p{margin:8px 0 0;font-size:13px}
   <div class="sun" id="sun"></div>
   <div class="wrap grid">
     <div>
-      <h1 data-perch>A website for as long <span>as you need it.</span></h1>
+      <h1>A website for as long <span>as you need it.</span></h1>
       <p class="lede">Answer a few quick questions about the birthday party or the yard sale. We build a one-page site at <strong>yourname.trymayfly.com</strong>, you share the link, and it comes down on the date you pick.</p>
       <div class="cta">
-        <a class="btn" href="/start" data-perch>Start a page</a>
+        <a class="btn" href="/start">Start a page</a>
         <a class="btn ghost" href="#uses">See examples</a>
       </div>
       <p class="facts">First 5 pages free · then one free every month · no account</p>
     </div>
     <div class="stage">
-      <span class="snap" data-perch><i class="tape"></i>
+      <span class="snap"><i class="tape"></i>
         <img src="img/hero-1280.webp" srcset="img/hero-720.webp 720w, img/hero-1280.webp 1280w" sizes="(min-width: 900px) 50vw, 100vw" width="1280" height="960" alt="A little girl in a paper crown blowing out her birthday candles" fetchpriority="high">
       </span>
       <div class="phone"><img src="img/phone-celebrate.webp" width="390" height="800" alt="A Mayfly birthday party page, on a phone" loading="lazy"></div>
@@ -238,7 +230,7 @@ footer details p{margin:8px 0 0;font-size:13px}
   <svg class="edge" viewBox="0 0 1440 56" preserveAspectRatio="none" aria-hidden="true"><path fill="#FFE36E" d="M0 56V30c240-34 480-34 720 0s480 34 720 0v26z"/></svg>
   <div class="wrap">
     <div class="head">
-      <h2 data-perch>About five minutes of your time.</h2>
+      <h2>About five minutes of your time.</h2>
     </div>
     <ol class="steps">
       <li><b>1</b><h3>Answer a few quick questions</h3><p>The form at <a href="/start">trymayfly.com/start</a> asks for the date, the place, a few photos, and how long the page should stay up.</p></li>
@@ -251,7 +243,7 @@ footer details p{margin:8px 0 0;font-size:13px}
 <section class="golden" id="pricing">
   <svg class="edge" viewBox="0 0 1440 56" preserveAspectRatio="none" aria-hidden="true"><path fill="#FFB25B" d="M0 56V40c160-44 300-44 460-10s260 26 420-4 340-30 560 14v16z"/></svg>
   <div class="wrap">
-    <div class="flyer" data-perch>
+    <div class="flyer">
       <div class="sheet">
         <h2>Tear off the time you need.</h2>
         <p>Pay once. Nothing renews. Every tab gets all eight designs, photos, and a QR code. Most parties and yard sales take the 7-day tab.</p>
@@ -283,7 +275,7 @@ footer details p{margin:8px 0 0;font-size:13px}
       </div>
     </div>
     <div>
-      <div class="head" style="margin-bottom:20px"><h2 data-perch>Things people ask.</h2></div>
+      <div class="head" style="margin-bottom:20px"><h2>Things people ask.</h2></div>
       <details open><summary>What happens when time runs out?</summary><p>The page and its photos are deleted. Anyone who opens the link after that sees a short note saying the page has expired.</p></details>
       <details><summary>Can I add more time?</summary><p>Yes. Email <a href="mailto:mayfly@agentmail.to">mayfly@agentmail.to</a> before the page expires and we’ll extend it at the same prices.</p></details>
       <details><summary>Who builds the page?</summary><p>You answer a few questions in the form. Every order is then reviewed before the page is built and published, which is why it takes about 2 hours (about 10 minutes with Rush).</p></details>
@@ -299,7 +291,7 @@ footer details p{margin:8px 0 0;font-size:13px}
   <div class="wrap">
     <h2>Your first 5 pages are free.</h2>
     <p>Five minutes in the form. The link arrives by email within about 2 hours. Prefer email from the start? Write to <a href="mailto:mayfly@agentmail.to">mayfly@agentmail.to</a>.</p>
-    <a class="btn" href="/start" data-perch>Start a page</a>
+    <a class="btn" href="/start">Start a page</a>
   </div>
 </section>
 </main>
@@ -314,19 +306,16 @@ footer details p{margin:8px 0 0;font-size:13px}
   </div>
 </footer>
 
-<div id="fly" aria-hidden="true"><svg viewBox="0 0 80 60"><g class="body" fill="none" stroke="#2A1840" stroke-linecap="round"><path stroke-width="1.5" d="M28 31C18 26 10 18 4 6M28 31C16 28 8 24 1 16M28 31c-10-1-18-1-26-4M58 36l4 8M52 37l1 8M46 37l-2 7M61 33l11-6"/><path stroke-width="4.5" d="M62 33c-10 5-22 5-34-2"/></g><circle class="fhead" cx="64" cy="32" r="4.4" fill="#2A1840"/><circle cx="65.6" cy="31" r="1.2" fill="#FFF7EA"/><g class="wing" fill="#FFF7EA" fill-opacity=".92" stroke="#2A1840" stroke-width="1.5" stroke-linejoin="round"><path d="M42 34c-4-6-9-12-14-14 0 7 4 13 9 17z"/><path d="M50 34C45 18 37 7 30 3c-3 10 2 24 12 32z"/><path fill="none" stroke-width="1" d="M46 31 34 9M43 32 31 14"/></g></svg></div>
-
 <script>
 (function(){
   "use strict";
   if (location.hash === '#thanks') document.getElementById('thanks').classList.add('on');
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // The hero sun sinks as you scroll; the mayfly turns pale over the night sky.
-  var sun = document.getElementById('sun'), night = document.getElementById('night');
+  // The hero sun sinks as you scroll.
+  var sun = document.getElementById('sun');
   function tick(){
     if (!reduce && scrollY < innerHeight * 1.5) sun.style.transform = 'translateY(' + (scrollY * .22) + 'px)';
-    document.body.classList.toggle('night-fly', night.getBoundingClientRect().top < innerHeight * .3);
   }
   var queued = false;
   addEventListener('scroll', function(){ if (!queued) { queued = true; requestAnimationFrame(function(){ queued = false; tick(); }); } }, { passive: true });
@@ -341,49 +330,6 @@ footer details p{margin:8px 0 0;font-size:13px}
     });
   });
   addEventListener('pageshow', function(){ [].forEach.call(document.querySelectorAll('.tab.torn'), function(t){ t.classList.remove('torn'); }); });
-
-  // The mayfly wanders, lands on things for a moment, and scatters if you tap near it.
-  var fly = document.getElementById('fly'), size = 58, target = null, fx = .5;
-  var x = innerWidth * .7, y = 150, vx = 0, vy = 0, tx = x, ty = y, rest = 0, face = 1, n = 0;
-  function perches(){
-    return [].filter.call(document.querySelectorAll('[data-perch]'), function(e){ var r = e.getBoundingClientRect(); return r.width && r.top > 90 && r.top < innerHeight - 40; });
-  }
-  function pick(){
-    var p = perches();
-    target = p.length && Math.random() < .75 ? p[Math.floor(Math.random() * p.length)] : null;
-    fx = .15 + Math.random() * .7;
-    if (!target) { tx = 30 + Math.random() * (innerWidth - 90); ty = 90 + Math.random() * (innerHeight - 170); }
-  }
-  function place(){ fly.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0) scaleX(' + face + ')'; }
-  function spot(){ var r = target.getBoundingClientRect(); tx = r.left + r.width * fx - size / 2; ty = r.top - size * .66; return r; }
-  if (reduce) { pick(); if (target) { spot(); x = tx; y = ty; } fly.classList.add('rest'); fly.style.position = 'absolute'; place(); return; }
-  function frame(){
-    n++;
-    if (target) { var r = spot(); if (r.top < 70 || r.top > innerHeight - 20) { target = null; rest = 0; fly.classList.remove('rest'); pick(); } }
-    if (rest > 0) {
-      rest--; x = tx; y = ty; vx = vy = 0;
-      if (!rest) { fly.classList.remove('rest'); pick(); }
-    } else {
-      var dx = tx - x, dy = ty - y, d = Math.sqrt(dx * dx + dy * dy);
-      vx += dx * .0022 + Math.sin(n * .09) * .22; vy += dy * .0022 + Math.cos(n * .13) * .26;
-      vx *= .95; vy *= .95;
-      x += vx; y += vy;
-      if (Math.abs(vx) > .25) face = vx > 0 ? 1 : -1;
-      if (d < 12) {
-        if (target) { rest = 160 + Math.random() * 220 | 0; fly.classList.add('rest'); } else pick();
-      }
-    }
-    place();
-    requestAnimationFrame(frame);
-  }
-  addEventListener('pointerdown', function(e){
-    var dx = x + size / 2 - e.clientX, dy = y + size / 2 - e.clientY;
-    if (dx * dx + dy * dy < 8100) {
-      rest = 0; fly.classList.remove('rest'); target = null;
-      vx = (dx >= 0 ? 1 : -1) * 13; vy = -11; tx = Math.random() * (innerWidth - 90); ty = 90 + Math.random() * 200;
-    }
-  }, { passive: true });
-  pick(); requestAnimationFrame(frame);
 })();
 </script>
 </body>

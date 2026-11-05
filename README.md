@@ -44,11 +44,9 @@ are deleted.
   night sky in the footer, with no labels. Expired and missing pages are night.
 - **Paper.** Taped prints, notes, and a flyer whose tabs tear off. Tapping a tab
   opens the form with that lifespan picked.
-- **The mayfly.** It wanders, lands on `data-perch` elements, and scatters if you
-  tap near it. It carries the order away at the end of the form. On customer
-  pages it sits in the footer, and a yes on an RSVP throws paper confetti.
+- **Confetti.** A yes on a customer page's RSVP throws paper confetti.
 - **Quiet pages.** `<body data-quiet>` (remember, inform) turns all of this off:
-  plain badge, no mayfly, no confetti.
+  plain badge, no confetti.
 
 Headlines on the home page and form use Fredoka (SIL OFL, `site/fonts/`), one
 weight subset to 13 KB and inlined by `scripts/build-font.py`. Reduced-motion

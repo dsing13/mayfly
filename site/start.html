@@ -101,13 +101,6 @@ textarea.input{min-height:120px;resize:vertical}
 .pay{display:block;text-align:center;min-height:56px;line-height:56px;border-radius:999px;background:var(--sun);color:#fff;text-decoration:none;
   font:600 19px/56px var(--head);margin-bottom:10px;box-shadow:0 5px 0 var(--line)}
 
-/* done: the mayfly takes off with your order */
-.send{position:relative;height:120px;margin-bottom:6px}
-.send svg{position:absolute;left:0;bottom:10px;width:84px;height:63px;overflow:visible;animation:off 2.6s cubic-bezier(.3,.1,.5,1) .2s both}
-.send .wing{transform-box:view-box;transform-origin:47px 34px;animation:flap .11s linear infinite alternate}
-@keyframes flap{to{transform:rotate(26deg) scaleY(.62)}}
-@keyframes off{0%{transform:translate(0,0)}35%{transform:translate(32vw,-46px) rotate(-6deg)}60%{transform:translate(24vw,-16px) scaleX(-1)}
-  100%{transform:translate(min(70vw,560px),-80px) rotate(-8deg)}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -652,8 +645,6 @@ textarea.input{min-height:120px;resize:vertical}
     }
     var d = state.result || {};
     document.documentElement.style.backgroundColor = '#BDE7F3';
-    var send = el('div', 'send'); send.innerHTML = '<svg viewBox="0 0 80 60" aria-hidden="true"><g fill="none" stroke="#2A1840" stroke-linecap="round"><path stroke-width="1.5" d="M28 31C18 26 10 18 4 6M28 31C16 28 8 24 1 16M28 31c-10-1-18-1-26-4M58 36l4 8M52 37l1 8M46 37l-2 7M61 33l11-6"/><path stroke-width="4.5" d="M62 33c-10 5-22 5-34-2"/></g><circle cx="64" cy="32" r="4.4" fill="#2A1840"/><circle cx="65.6" cy="31" r="1.2" fill="#FFF7EA"/><g class="wing" fill="#FFF7EA" fill-opacity=".92" stroke="#2A1840" stroke-width="1.5" stroke-linejoin="round"><path d="M42 34c-4-6-9-12-14-14 0 7 4 13 9 17z"/><path d="M50 34C45 18 37 7 30 3c-3 10 2 24 12 32z"/><path fill="none" stroke-width="1" d="M46 31 34 9M43 32 31 14"/></g></svg>';
-    wrap.appendChild(send);
     wrap.appendChild(el('h1', 'q', d.amountDue > 0 ? 'One step left: payment.' : 'Your page is on its way.'));
     if (d.amountDue > 0) {
       (d.paymentLinks || []).forEach(function (p) {
