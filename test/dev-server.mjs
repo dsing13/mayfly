@@ -31,11 +31,12 @@ function script(messages) {
   return QUESTIONS[Math.min(userTurns - 1, QUESTIONS.length - 1)];
 }
 
-const env = { SITES: new FakeKV(), AI: new FakeAI(script), EVENTS: new FakeEvents(), ADMIN_TOKEN: 'dev-token' };
+const env = { SITES: new FakeKV(), AI: new FakeAI(script), EVENTS: new FakeEvents(), ADMIN_TOKEN: 'dev-token', DASHBOARD_KEY: 'dev' };
 
 async function syncSite() {
   await env.SITES.put('page:_landing', fs.readFileSync(path.join(ROOT, 'site/index.html'), 'utf8'));
   await env.SITES.put('page:_start', fs.readFileSync(path.join(ROOT, 'site/start.html'), 'utf8'));
+  await env.SITES.put('page:_admin', fs.readFileSync(path.join(ROOT, 'site/admin.html'), 'utf8'));
   const dir = path.join(ROOT, 'site/img');
   if (fs.existsSync(dir)) {
     for (const f of fs.readdirSync(dir)) {
@@ -44,6 +45,14 @@ async function syncSite() {
     }
   }
 }
+
+// Sample data so /admin has something to show (key: dev).
+const now = Date.now();
+await env.SITES.put('site:mia-turns-7', JSON.stringify({ html: 'x', title: 'Mia turns 7', tier: 'week', createdAt: now - 2 * 86400000, expiresAt: now + 5 * 86400000 }));
+await env.SITES.put('site:celebrate', JSON.stringify({ html: 'x', pinned: true, expiresAt: now }));
+await env.SITES.put('order:sample-pending', JSON.stringify({ theme: 'celebrate', tier: 'month', status: 'pending', images: ['a'], email: 'dana@example.com', details: 'A backyard party on Saturday with cake and a pinata.', createdAt: now - 3 * 3600000 }));
+await env.SITES.put('order:sample-rush-1', JSON.stringify({ theme: 'sell', tier: 'week', status: 'paid', images: ['a', 'b', 'c'], rush: true, amountDue: 4.5, email: 'sam@example.com', details: 'Three-household yard sale.', createdAt: now - 4 * 60000 }));
+await env.SITES.put('order:sample-built', JSON.stringify({ theme: 'sell', tier: 'free', status: 'built', sub: 'mia-turns-7', images: [], createdAt: now - 864e5, updatedAt: now - 8e7 }));
 
 http.createServer(async (req, res) => {
   try {

@@ -116,15 +116,25 @@ def upload_worker(kv_id, analytics):
     print("worker uploaded:", SCRIPT_NAME, "bindings:", ", ".join(b["name"] for b in bindings))
 
 
-def set_secret(token):
+def set_secret(token, name="ADMIN_TOKEN"):
     res = cf(
         "PUT",
         "/accounts/%s/workers/scripts/%s/secrets" % (ACCOUNT, SCRIPT_NAME),
-        {"name": "ADMIN_TOKEN", "text": token, "type": "secret_text"},
+        {"name": name, "text": token, "type": "secret_text"},
     )
     if not res.get("success"):
         sys.exit("SECRET FAILED: %s" % res.get("errors"))
-    print("secret ADMIN_TOKEN set")
+    print("secret %s set" % name)
+
+
+def set_dashboard_secrets(env):
+    """The /admin page's read-only key, and the optional AI usage token."""
+    if "MAYFLY_DASHBOARD_KEY" not in env:
+        env["MAYFLY_DASHBOARD_KEY"] = secrets.token_urlsafe(32)
+        save_env_value("MAYFLY_DASHBOARD_KEY", env["MAYFLY_DASHBOARD_KEY"])
+    set_secret(env["MAYFLY_DASHBOARD_KEY"], "DASHBOARD_KEY")
+    if env.get("CF_ANALYTICS_TOKEN"):
+        set_secret(env["CF_ANALYTICS_TOKEN"], "CF_ANALYTICS_TOKEN")
 
 
 def set_schedule():
@@ -147,7 +157,7 @@ def put_kv(env, key, data, metadata=None):
 
 
 def upload_pages(env):
-    for src, key in (("index.html", "page:_landing"), ("start.html", "page:_start")):
+    for src, key in (("index.html", "page:_landing"), ("start.html", "page:_start"), ("admin.html", "page:_admin")):
         path = os.path.join(ROOT, "site", src)
         with open(path, encoding="utf-8") as f:
             put_kv(env, key, f.read())
@@ -176,6 +186,7 @@ def main():
         upload_worker(kv, analytics=not args.no_analytics)
         if set_token:
             set_secret(env["MAYFLY_ADMIN_TOKEN"])
+        set_dashboard_secrets(env)
         set_schedule()
     upload_pages(env)
     verify_health(env)

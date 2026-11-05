@@ -377,3 +377,52 @@ test('submit: incomplete fields return 400 with the missing list', async () => {
   assert.equal(j.error, 'incomplete');
   assert.ok(Array.isArray(j.missing) && j.missing.length > 0);
 });
+
+test('dashboard needs its key and adds up pages, orders and AI usage', async () => {
+  assert.equal((await call('https://trymayfly.com/api/dashboard')).status, 401);
+  env.DASHBOARD_KEY = 'read-only-key';
+  env.CF_ANALYTICS_TOKEN = 'analytics';
+  const now = Date.now();
+  await env.SITES.put('site:mia', JSON.stringify({ html: '<p>secret html</p>', title: 'Mia', tier: 'week', createdAt: now - 86400000, expiresAt: now + 6 * 86400000 }));
+  await env.SITES.put('site:gone', JSON.stringify({ html: 'x', tier: 'free', createdAt: now - 3e8, expiresAt: now - 1000 }));
+  await env.SITES.put('site:celebrate', JSON.stringify({ html: 'x', pinned: true, expiresAt: 1 }));
+  await env.SITES.put('order:one-11111', JSON.stringify({ theme: 'celebrate', tier: 'month', status: 'pending', images: ['a', 'b'], createdAt: now - 1000, email: 'a@b.co' }));
+  await env.SITES.put('order:two-22222', JSON.stringify({ theme: 'sell', tier: 'free', status: 'built', images: [], createdAt: now - 7200000, updatedAt: now - 3600000 }));
+  await env.SITES.put('order:bad-33333', JSON.stringify({ theme: 'sell', tier: 'free', status: 'rejected', createdAt: now }));
+  const day = new Date(now).toISOString().slice(0, 10);
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (url, opts) => {
+    assert.match(String(url), /graphql/);
+    assert.equal(opts.headers.Authorization, 'Bearer analytics');
+    return new Response(JSON.stringify({ data: { viewer: { accounts: [{ aiInferenceAdaptiveGroups: [
+      { count: 3, sum: { totalNeurons: 60 }, dimensions: { date: day, modelId: '@cf/meta/llama-guard-3-8b' } }] }] } } }));
+  };
+  try {
+    const r = await call('https://trymayfly.com/api/dashboard', { headers: { Authorization: 'Bearer read-only-key' } });
+    assert.equal(r.status, 200);
+    assert.equal(r.headers.get('Cache-Control'), 'no-store');
+    const text = await r.text(), d = JSON.parse(text);
+    assert.ok(!text.includes('secret html'), 'page HTML stays out of the response');
+    assert.deepEqual(d.livePages.map(p => p.sub), ['mia']);
+    assert.deepEqual(d.examples, ['celebrate']);
+    assert.deepEqual(d.queue.map(o => o.id), ['one-11111']);
+    assert.equal(d.stats.total, 2);
+    assert.equal(d.stats.rejected, 1);
+    assert.equal(d.stats.avgPhotos, 1);
+    assert.equal(d.stats.avgLifespanDays, 15.5);
+    assert.equal(d.stats.avgBuildMinutes, 60);
+    assert.equal(d.ai.todayNeurons, 60);
+    assert.equal(d.ai.models[0].model, 'llama-guard-3-8b');
+  } finally { globalThis.fetch = realFetch; }
+});
+
+test('the dashboard key cannot reach the admin API', async () => {
+  env.DASHBOARD_KEY = 'read-only-key';
+  const r = await call('https://trymayfly.com/api/orders/pending', { headers: { Authorization: 'Bearer read-only-key' } });
+  assert.equal(r.status, 401);
+});
+
+test('dashboard works before the AI token is set', async () => {
+  const j = await (await admin('https://trymayfly.com/api/dashboard')).json();
+  assert.equal(j.ai.configured, false);
+});
