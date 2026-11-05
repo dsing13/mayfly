@@ -371,3 +371,29 @@ Spec: `hidden_files/form-pack-spec.md` (David approved all of it 2026-10-27).
   protection 403s Python-urllib's UA).
 - End-to-end verified 2026-09-26: health, publish, subdomain serve, metadata,
   delete, 404 page, exact TTL math (604800000ms = 7d).
+
+## Page formats (2026-11-05)
+
+Each theme is a different paper object. Write the content for the object, and
+fill the extra keys listed in the comment at the top of the theme.
+
+- celebrate: party ticket. Calendar sheet plus a When/Where/Bring ticket.
+- invite: engraved card in an envelope. `invite_line`, a `.slot` timeline, `rsvp_note`.
+- announce: newspaper front page. `masthead` ("The Hart Family Gazette"), `edition`,
+  `edition_note`, `hero_caption`. `.stat` boxes hold the numbers.
+- sell: yellow sign and a receipt. `.item` rows are the receipt, `details_html`
+  prints at its foot, `receipt_footer` is the last line. Gallery is a swipeable strip.
+- remember: printed service program. No motion. Keep it plain and put the words first.
+- rally: red poster. `.standings` numbers add up into a big headcount, `tally_label`
+  names them. One `cta_html` button pins to the bottom of the screen. Short title,
+  under 20 characters, and the hero photo prints in red ink.
+- inform: stapled flyer. The first tel: or sms: link becomes 8 tear-off tabs.
+  `dir_label`, `tabs_label`.
+- play: dark game board. `details_html` is one `<p class="big">`, then one `<p>` per
+  step (3 to 6), each a numbered square. `verdict_question` plus `verdict_answer`.
+
+Photos on examples come from Unsplash, never AI-generated. Credits live in
+`examples/photos/CREDITS.json`.
+
+Republish all examples after a theme change, without the admin token:
+`scripts/build-site.py --theme <t> --sub <t> --ttl-days 366 --pin --kv --title "..." --vars examples/vars-<t>.json --images examples/photos/<t>/`

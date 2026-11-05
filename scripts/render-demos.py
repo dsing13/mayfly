@@ -17,7 +17,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from mayfly_ops import ROOT, THEMES  # noqa: E402
+from mayfly_ops import EXAMPLE_TITLES, ROOT, THEMES  # noqa: E402
 
 DEMOS = os.path.join(ROOT, "demos")
 CHROME_CANDIDATES = [
@@ -28,16 +28,6 @@ CHROME_CANDIDATES = [
     shutil.which("chromium") or "",
     shutil.which("google-chrome") or "",
 ]
-TITLES = {
-    "celebrate": "Mia turns 7",
-    "invite": "June & Marcus",
-    "announce": "Nora Elise Hart",
-    "sell": "The Morningside yard sale",
-    "remember": "Eleanor “Nana” Whitaker",
-    "rally": "Freedom Park cleanup day",
-    "inform": "Have you seen Biscuit?",
-    "play": "The Dilworth scavenger hunt",
-}
 
 
 def chrome():
@@ -85,7 +75,7 @@ def main():
                 "--ttl-days",
                 "7",
                 "--title",
-                TITLES[t],
+                EXAMPLE_TITLES[t],
                 "--vars",
                 os.path.join(ROOT, "examples", "vars-%s.json" % t),
                 "--images",

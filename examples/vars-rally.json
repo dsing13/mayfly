@@ -1,14 +1,14 @@
 {
-  "title": "Freedom Park <em>cleanup day</em>",
-  "subtitle": "Bring gloves. We'll bring the donuts.",
+  "title": "Clean up <em>Freedom Park</em>",
+  "subtitle": "Bring gloves. We&rsquo;ll bring the donuts.",
   "cta_html": "<a class=\"btn-glow\" href=\"sms:+17045550164\">Join a crew</a>",
-  "details_html": "<div class=\"row head\"><span class=\"rk\">#</span><span class=\"tm\">Crew</span><span class=\"rc\">Signed up</span></div><div class=\"row\"><span class=\"rk\">1</span><span class=\"tm\">Dilworth crew</span><span class=\"rc\">24</span></div><div class=\"row\"><span class=\"rk\">2</span><span class=\"tm\">Myers Park crew</span><span class=\"rc\">19</span></div><div class=\"row\"><span class=\"rk\">3</span><span class=\"tm\">Sedgefield crew</span><span class=\"rc\">12</span></div>",
-  "details2_html": "<div class=\"kv-row\"><span>When</span><span>Saturday, October 24 · 9 AM–12 PM</span></div><div class=\"kv-row\"><span>Meet</span><span>By the bandshell</span></div><div class=\"kv-row\"><span>Bring</span><span>Gloves if you have them — bags provided</span></div><div class=\"kv-row\"><span>Kids</span><span>Welcome — there's a junior litter-patrol</span></div>",
+  "tally_label": "neighbors in so far",
+  "details_heading": "Crews so far",
+  "details_html": "<div class=\"row head\"><span class=\"rk\">#</span><span class=\"tm\">Crew</span><span class=\"rc\">Signed up</span></div><div class=\"row\"><span class=\"rk\">1</span><span class=\"tm\">Dilworth</span><span class=\"rc\">24</span></div><div class=\"row\"><span class=\"rk\">2</span><span class=\"tm\">Myers Park</span><span class=\"rc\">19</span></div><div class=\"row\"><span class=\"rk\">3</span><span class=\"tm\">Sedgefield</span><span class=\"rc\">12</span></div>",
+  "details2_html": "<div class=\"kv-row\"><span>Meet</span><span>By the bandshell at 9 AM</span></div><div class=\"kv-row\"><span>Done by</span><span>Noon</span></div><div class=\"kv-row\"><span>Bring</span><span>Gloves if you have them. We have bags</span></div><div class=\"kv-row\"><span>Kids</span><span>Welcome. There&rsquo;s a junior litter patrol</span></div>",
   "contact_html": "<p>Organized by the Freedom Park neighbors. <a href=\"sms:+17045550164\">Text to sign up</a>.</p>",
-  "gallery_html": "<figure><img src=\"/_img/rally/photo-2.jpg\" alt=\"Crew at work\" loading=\"lazy\"><figcaption>Crew at work</figcaption></figure><figure><img src=\"/_img/rally/photo-3.jpg\" alt=\"Bags filled\" loading=\"lazy\"><figcaption>Bags filled</figcaption></figure><figure><img src=\"/_img/rally/photo-4.jpg\" alt=\"Team effort\" loading=\"lazy\"><figcaption>Team effort</figcaption></figure>",
+  "gallery_html": "<figure><img src=\"/_img/rally/photo-2.jpg\" alt=\"Last spring&rsquo;s crew\" loading=\"lazy\"><figcaption>Last spring&rsquo;s crew</figcaption></figure><figure><img src=\"/_img/rally/photo-3.jpg\" alt=\"Forty-one bags\" loading=\"lazy\"><figcaption>Forty-one bags</figcaption></figure><figure><img src=\"/_img/rally/photo-4.jpg\" alt=\"The donuts are real\" loading=\"lazy\"><figcaption>The donuts are real</figcaption></figure>",
   "hero_image": "/_img/rally/photo-1.jpg",
-  "event_iso": "2026-10-24T09:00:00-04:00",
-  "venue_text": "Freedom Park bandshell, Charlotte NC",
-  "rsvp_contact": "+17045550164",
-  "details_heading": "Crews signed up"
+  "event_iso": "2027-05-08T09:00:00-04:00",
+  "venue_text": "Freedom Park bandshell, Charlotte NC"
 }

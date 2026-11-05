@@ -1,13 +1,14 @@
 {
   "title": "The Dilworth <em>scavenger hunt</em>",
-  "subtitle": "Saturday, October 17 · 10 AM · free, all ages",
+  "subtitle": "Saturday, May 15 at 10 AM. Free for all ages.",
   "cta_html": "<a class=\"btn-glow\" href=\"sms:+17045550177\">Enter a team</a>",
-  "details_html": "<p class=\"big\">Twenty clues hidden across Dilworth. One golden duck. Glory forever.</p><p>Teams of up to 4. Start at the Latta Park gazebo, finish wherever the last clue takes you. First team back with the golden duck wins the trophy (a spray-painted duck, obviously).</p><p>Free to play. Bring a phone for photos and comfortable shoes.</p><details class=\"acc\"><summary>The rules</summary><div class=\"ab\"><p>Teams of up to 4. No cars — feet and bikes only. The golden duck must be carried, not hidden, once found.</p></div></details><details class=\"acc\"><summary>What to bring</summary><div class=\"ab\"><p>A phone for photo clues, comfortable shoes, and a healthy suspicion of garden gnomes.</p></div></details><details class=\"acc\"><summary>Rain plan</summary><div class=\"ab\"><p>Light rain: we hunt. Downpour: we postpone to Sunday and eat the trophy duck's feelings.</p></div></details>",
+  "details_html": "<p class=\"big\">Twenty clues across Dilworth. One golden duck.</p><p>Form a team of up to 4 and text us your team name.</p><p>Start at the Latta Park gazebo at 10 sharp.</p><p>Solve each clue to find the next one. Feet and bikes only.</p><p>Snap a team photo at every stop.</p><p>Carry the golden duck back to the gazebo. First team back wins the trophy, a spray-painted duck.</p><details class=\"acc\"><summary>What to bring</summary><div class=\"ab\"><p>A phone for photo clues, comfortable shoes, and a healthy suspicion of garden gnomes.</p></div></details><details class=\"acc\"><summary>Rain plan</summary><div class=\"ab\"><p>Light rain, we hunt. Downpour, we move to Sunday.</p></div></details>",
+  "verdict_question": "Did you find the golden duck?",
+  "verdict_answer": "Bring it back to the gazebo!",
   "contact_html": "<p><a href=\"sms:+17045550177\">Text to enter your team</a> by Friday night.</p>",
-  "gallery_html": "<figure><img src=\"/_img/play/photo-2.jpg\" alt=\"The hunting grounds\" loading=\"lazy\"><figcaption>The hunting grounds</figcaption></figure><figure><img src=\"/_img/play/photo-3.jpg\" alt=\"At play\" loading=\"lazy\"><figcaption>At play</figcaption></figure><figure><img src=\"/_img/play/photo-4.jpg\" alt=\"Whispers and clues\" loading=\"lazy\"><figcaption>Whispers and clues</figcaption></figure>",
+  "gallery_html": "<figure><img src=\"/_img/play/photo-2.jpg\" alt=\"Last year&rsquo;s fastest team\" loading=\"lazy\"><figcaption>Last year&rsquo;s fastest team</figcaption></figure><figure><img src=\"/_img/play/photo-3.jpg\" alt=\"Clue 14 was a hard one\" loading=\"lazy\"><figcaption>Clue 14 was a hard one</figcaption></figure><figure><img src=\"/_img/play/photo-4.jpg\" alt=\"The trophy, before the paint\" loading=\"lazy\"><figcaption>The trophy, before the paint</figcaption></figure>",
   "hero_image": "/_img/play/photo-1.jpg",
-  "event_iso": "2026-10-17T10:00:00-04:00",
+  "event_iso": "2027-05-15T10:00:00-04:00",
   "venue_text": "Latta Park gazebo, Charlotte NC",
-  "rsvp_contact": "+17045550177",
-  "verdict_answer": "You found the golden duck. Obviously."
+  "rsvp_contact": "+17045550177"
 }

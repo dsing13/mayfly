@@ -11,7 +11,7 @@
 <meta property="og:image" content="{{og_image}}">
 <meta property="og:url" content="{{site_url}}">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#1E2621">
+<meta name="theme-color" content="#24392E">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <!--
   MAYFLY THEME: invite (weddings and formal events)
@@ -28,12 +28,17 @@
     gallery_html     <figure><img src=".." alt=".." loading="lazy"><figcaption>..</figcaption></figure>
     rsvp_contact     email or phone; turns on the RSVP buttons
     contact_html     closing note / contact block
+  Format keys:
+    invite_line      small line above the names (default: Together with their families)
+    details_html     <div class="slot"><span class="time">4:30 PM</span><span class="what">Ceremony</span></div> rows
+    details2_html    <details class="acc"> questions
+    rsvp_contact     email or phone; turns on the reply card
   Section labels have defaults; override with schedule_heading, details2_heading, photos_heading, rsvp_heading.
   build-site.py fills: page_title, og_description, og_image, site_url,
   expires_at_iso, expires_label, qr_svg.
 -->
 <style>
-/* mayfly:shared v9 */
+/* mayfly:shared v10 */
 :root{
   --f-oldstyle:"Iowan Old Style","Palatino Linotype",Palatino,"URW Palladio L",P052,"Book Antiqua",Georgia,serif;
   --f-transitional:Charter,"Bitstream Charter","Sitka Text",Cambria,Georgia,serif;
@@ -68,7 +73,7 @@ button{font:inherit;cursor:pointer}
 .hero{background:var(--paper)}
 .hero-photo{width:100%;aspect-ratio:var(--hero-ratio,4/3);max-height:74vh;object-fit:cover;background:var(--soft)}
 .hero-text{max-width:680px;margin:0 auto;padding:30px 20px 4px}
-.hero-title{font-size:clamp(40px,11vw,80px);letter-spacing:-.015em}
+.hero-title{font-size:clamp(40px,11vw,80px);letter-spacing:-.015em;overflow-wrap:anywhere}
 .hero-title em{font-style:italic;color:var(--accent)}
 .hero-sub{font-size:clamp(18px,4.8vw,22px);line-height:1.45;color:var(--muted);margin:14px 0 0;max-width:32em}
 .cta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
@@ -156,7 +161,7 @@ details.acc .ab{padding:0 0 16px;color:var(--muted)}
 .lb button svg{width:22px;height:22px}
 .lb-x{top:12px;right:12px}.lb-p{left:10px;top:50%;margin-top:-24px}.lb-n{right:10px;top:50%;margin-top:-24px}
 
-/* party kit: taped print, calendar sheet, ticket, cut-paper edge (themes with data-party) */
+/* title letters animate on themes with data-party */
 .hero-title .wd{display:inline-block;white-space:nowrap}
 .hero-title .ch{display:inline-block}
 [data-party=pop] .hero-title .ch{animation:mf-pop .55s cubic-bezier(.3,1.7,.5,1) both}
@@ -165,29 +170,6 @@ details.acc .ab{padding:0 0 16px;color:var(--muted)}
 @keyframes mf-rise{from{transform:translateY(.25em);opacity:0}}
 [data-party=stamp] .hero-title{animation:mf-stamp .4s cubic-bezier(.3,1.4,.6,1)}
 @keyframes mf-stamp{from{transform:scale(1.5) rotate(-3deg)}}
-.print{position:relative;display:block;width:min(86%,520px);margin:-70px auto 0;background:var(--card);padding:10px 10px 30px;z-index:2;
-  transform:rotate(-2.5deg);box-shadow:0 8px 0 rgba(42,24,64,.16);transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
-.print:hover,.print:active{transform:rotate(0) scale(1.02)}
-.print::before{content:"";position:absolute;left:50%;top:-13px;width:104px;height:27px;margin-left:-52px;background:var(--tape,rgba(154,220,235,.85));transform:rotate(2.5deg);z-index:1}
-.print .hero-photo{width:100%;aspect-ratio:4/3;max-height:none;object-fit:cover}
-.print:empty{display:none}
-.evsec:has(.when){padding:34px 0 8px}
-.when{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap}
-.sheet{width:138px;background:var(--card);text-align:center;transform:rotate(2deg);box-shadow:0 6px 0 rgba(42,24,64,.16);overflow:hidden;border-radius:6px}
-.sheet b{display:block;background:var(--accent);color:var(--accent-ink);font:600 17px/1 var(--display);letter-spacing:.06em;text-transform:uppercase;padding:9px 0}
-.sheet strong{display:block;font:var(--display-weight,600) 78px/1 var(--display);padding:6px 0 0}
-.sheet span{display:block;font:600 15px/1.2 var(--display);padding:0 0 11px}
-.when .ev-date{display:none}
-.ev-time{font:var(--display-weight,600) 28px/1.1 var(--display);margin:0}
-.when .ev-left{font:600 18px/1.2 var(--display);color:var(--accent);margin:6px 0 0}
-.evsec:has(.when) .ev-actions{justify-content:center;margin-top:20px}
-.evsec:has(.when) .chip{background:var(--card);border-color:var(--card);box-shadow:0 3px 0 rgba(42,24,64,.16)}
-[data-party] .kv{background:var(--card);padding:6px 20px;border-radius:12px;box-shadow:0 6px 0 rgba(42,24,64,.14);
-  -webkit-mask:radial-gradient(11px at 0 50%,#0000 98%,#000) left/51% 100% no-repeat,radial-gradient(11px at 100% 50%,#0000 98%,#000) right/51% 100% no-repeat;
-          mask:radial-gradient(11px at 0 50%,#0000 98%,#000) left/51% 100% no-repeat,radial-gradient(11px at 100% 50%,#0000 98%,#000) right/51% 100% no-repeat}
-[data-party] .kv:empty{display:none}
-[data-party] .kv-row{grid-template-columns:5.5rem 1fr;border-top:2px dashed rgba(42,24,64,.18)}
-[data-party] .kv-row:first-child{border-top:0}[data-party] .kv-row:last-child{border-bottom:0}
 .edge{position:absolute;left:0;right:0;bottom:calc(100% - 1px);width:100%;height:26px;display:block}
 
 @media (min-width:760px){
@@ -196,79 +178,71 @@ details.acc .ab{padding:0 0 16px;color:var(--muted)}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 /* /mayfly:shared */
-:root{--paper:#F6F4EF;--ink:#1E2621;--muted:#5D655E;--line:#DCD8CE;--line-strong:#AEA99C;--soft:#E8E5DC;
-  --accent:#2E4B3C;--accent-ink:#F6F4EF;--display:var(--f-didone);--display-weight:400;--text:var(--f-oldstyle);
-  --label:var(--f-oldstyle);--radius:2px;--hero-ratio:4/5}
-body{font-size:18px}
-.hero-text{text-align:center}
-.hero-title{font-size:clamp(44px,12vw,86px);letter-spacing:0;line-height:1.02}
-.hero-sub{margin-left:auto;margin-right:auto;font-style:italic}
-.cta-row{justify-content:center}
-.btn-glow,.btn-ghost,.chip,.btn-rsvp{font-family:var(--f-ui);letter-spacing:.02em}
-.kicker{font:italic 400 18px/1.2 var(--f-oldstyle);letter-spacing:0;text-transform:none;color:var(--accent)}
-.kicker::before{content:"";flex:1;height:1px;background:var(--line)}
-.evsec .wrap{text-align:center}
-.ev-actions{justify-content:center}
-.ev-date{font-weight:400}
-.slot{display:grid;grid-template-columns:5.5rem 1fr;gap:16px;padding:14px 0;border-top:1px solid var(--line);align-items:baseline}
-.slot:last-child{border-bottom:1px solid var(--line)}
-.slot .time{font-style:italic;color:var(--accent);white-space:nowrap}
-.slot .what small{display:block;font-size:15px;color:var(--muted);font-style:italic}
-.kv-row>span:first-child{font:italic 400 16px/1.6 var(--f-oldstyle);letter-spacing:0;text-transform:none;color:var(--accent)}
-.contact{text-align:center;border-color:var(--line-strong)}
-.contact h2{font-weight:400}
-.qr{justify-content:center}
-
-/* the envelope: the flap lifts, petals fall, and the photo sits in an arch */
-:root{--paper:#EFEBE1;--card:#FBF8F1;--accent:#2E4B3C;--accent-ink:#FBF8F1;--tape:transparent;
+/* an engraved card sliding out of an envelope, then the day as a timeline */
+:root{--paper:#EFEBE1;--card:#FBF8F1;--ink:#1E2621;--muted:#5D655E;--line:#DCD8CE;--line-strong:#AEA99C;--soft:#E8E5DC;
+  --accent:#2E4B3C;--accent-ink:#FBF8F1;--display:var(--f-didone);--display-weight:400;--text:var(--f-oldstyle);
+  --label:var(--f-oldstyle);--radius:2px;
   --bits:#F4CFC4,#FBF8F1,#E8B9A8,#C9A96A;--bit-w:13px;--bit-h:13px;--bit-r:70% 0;--bit-t:2.2s}
-.hero{position:relative;background:var(--accent);overflow:hidden;perspective:900px}
-.flap{display:block;width:100%;height:96px;transform-origin:50% 0;animation:flap 1.1s cubic-bezier(.5,0,.3,1) .35s both}
+body{font-size:18px}
+.env{position:relative;background:var(--accent);padding:0 16px 150px;overflow:hidden;perspective:900px}
+.flap{display:block;width:calc(100% + 32px);margin:0 -16px;height:96px;transform-origin:50% 0;animation:flap 1.1s cubic-bezier(.5,0,.3,1) .35s both}
 @keyframes flap{to{transform:rotateX(-178deg);opacity:0}}
-.hero-text{padding:0 22px 104px;color:var(--card);text-align:center}
-.hero-title{color:var(--card);font-size:clamp(50px,15vw,104px);line-height:1.02}
-.hero-title em{color:#E8C9A0;font-style:italic}
-.hero-sub{color:#E7E1D2;margin-left:auto;margin-right:auto}
-.hero .btn-glow{background:var(--card);color:var(--ink);border-color:var(--card)}
-.hero .btn-ghost{color:var(--card);border-color:rgba(251,248,241,.6)}
-.print{padding:10px;border-radius:999px 999px 6px 6px;transform:none;width:min(76%,420px)}
-.print::before{display:none}
-.print .hero-photo{aspect-ratio:4/5;border-radius:999px 999px 2px 2px}
-.print:hover,.print:active{transform:translateY(-4px)}
-.sheet{transform:none;border-radius:2px}.sheet b{letter-spacing:.14em;font-family:var(--f-oldstyle);font-size:15px;font-weight:400}
-.sheet strong{font-weight:400}.sheet span{font-family:var(--f-oldstyle);font-weight:400;font-style:italic}
-.ev-time{font-weight:400}.when .ev-left{font:italic 400 18px/1.2 var(--f-oldstyle)}
+.card{position:relative;max-width:560px;margin:-40px auto 0;background:var(--card);padding:44px 26px 40px;text-align:center;
+  outline:1px solid var(--line-strong);outline-offset:-10px;animation:slide 1s cubic-bezier(.2,.8,.2,1) .8s both}
+@keyframes slide{from{transform:translateY(90px)}}
+.card .line{margin:0 0 18px;font:italic 400 18px/1.3 var(--f-oldstyle);color:var(--muted)}
+.hero-title{font-size:clamp(46px,14vw,92px);line-height:1.04;letter-spacing:0;color:var(--accent)}
+.hero-title em{font-style:italic;color:inherit}
+.hero-sub{margin:16px auto 0;font-style:italic;color:var(--ink)}
+.rule{width:64px;height:1px;background:var(--line-strong);margin:26px auto}
+.evsec{padding:0}.ev-date{font:400 22px/1.3 var(--f-oldstyle)}
+.venue{margin:8px 0 0;color:var(--muted);font-size:17px}.venue:empty{display:none}
+.ev-left{font-style:italic}
+.ev-actions,.cta-row{justify-content:center}
+.btn-glow,.btn-ghost,.chip,.btn-rsvp{font-family:var(--f-ui);letter-spacing:.02em}
+.arch{position:relative;width:min(70%,380px);margin:-120px auto 0;padding:10px;background:var(--card);border-radius:999px 999px 4px 4px;z-index:2}
+.arch .hero-photo{aspect-ratio:4/5;max-height:none;border-radius:999px 999px 2px 2px}
+.arch:not(:has(img)){display:none}
+.env:has(+ .arch:not(:has(img))){padding-bottom:36px}
+.kicker{justify-content:center;font:italic 400 19px/1.2 var(--f-oldstyle);letter-spacing:0;text-transform:none;color:var(--accent)}
+.kicker::after{display:none}
+.schedule{max-width:440px;margin:6px auto 0;border-left:1px solid var(--line-strong);padding-left:26px}
+.slot{position:relative;padding:0 0 28px}.slot:last-child{padding-bottom:4px}
+.slot::before{content:"";position:absolute;left:-31px;top:.45em;width:9px;height:9px;border-radius:50%;background:var(--accent)}
+.slot .time{display:block;font-style:italic;color:var(--accent);font-size:16px}
+.slot .what{display:block;font:400 clamp(22px,5.8vw,27px)/1.25 var(--display)}
+.slot .what small{display:block;font:italic 400 16px/1.4 var(--f-oldstyle);color:var(--muted);margin-top:3px}
+.gallery{grid-template-columns:1fr}.gallery img{aspect-ratio:3/2;border-radius:0}
+.gallery figcaption{text-align:center;font-style:italic}
+.reply{background:var(--card);padding:34px 26px;text-align:center;outline:1px solid var(--line-strong);outline-offset:-8px}
+.reply .kicker{margin-bottom:6px}
+.reply p{font-style:italic;color:var(--muted);margin:0 0 18px}
+.contact{border:0;text-align:center;padding:0}
+.qr{justify-content:center}
 </style>
 </head>
 <body data-party="rise">
 <div class="mf-badge" id="expiry" data-expires="{{expires_at_iso}}" data-born="{{born_at_iso}}">{{expires_label|This page comes down in 7 days}}</div>
 
-<header class="hero">
+<header class="env">
   <svg class="flap" viewBox="0 0 430 96" preserveAspectRatio="none" aria-hidden="true"><path fill="#24392E" d="M0 0h430L215 96z"/></svg>
-  <div class="hero-text">
+  <div class="card">
+    <p class="line">{{invite_line|Together with their families}}</p>
     <h1 class="hero-title">{{title}}</h1>
     <p class="hero-sub">{{subtitle}}</p>
+    <div class="rule"></div>
+    <div class="evsec" hidden>
+      <div data-event="{{event_iso}}"><p class="ev-date" data-evdate></p></div>
+      <p class="venue">{{venue_text}}</p>
+      <div class="ev-actions">
+      <a class="chip" data-cal hidden>Add to calendar</a>
+      <a class="chip" data-dir data-venue="{{venue_text}}" hidden>Directions</a>
+      </div>
+    </div>
     <div class="cta-row">{{cta_html}}<button type="button" class="btn-ghost" data-share>Share</button></div>
   </div>
 </header>
-<div class="print"><img class="hero-photo" src="{{hero_image}}" alt="" fetchpriority="high"></div>
-
-<section class="evsec" hidden>
-  <div class="wrap">
-    <div class="when" data-event="{{event_iso}}">
-      <div class="sheet" aria-hidden="true"><b data-cal-dow></b><strong data-cal-day></strong><span data-cal-mon></span></div>
-      <div>
-        <p class="ev-date" data-evdate></p>
-        <p class="ev-time" data-cal-time></p>
-        <p class="ev-left" data-evleft></p>
-      </div>
-    </div>
-    <div class="ev-actions">
-      <a class="chip" data-cal hidden>Add to calendar</a>
-      <a class="chip" data-dir data-venue="{{venue_text}}" hidden>Directions</a>
-    </div>
-  </div>
-</section>
+<div class="arch"><img class="hero-photo" src="{{hero_image}}" alt="" fetchpriority="high"></div>
 
 <main>
 <section id="schedule">
@@ -277,24 +251,26 @@ body{font-size:18px}
     <div class="schedule" data-fill>{{details_html}}</div>
   </div>
 </section>
+<section id="photos">
+  <div class="wrap">
+    <div class="gallery" data-fill>{{gallery_html}}</div>
+  </div>
+</section>
 <section id="details">
   <div class="wrap">
     <h2 class="kicker">{{details2_heading|Good to know}}</h2>
     <div class="kv" data-fill>{{details2_html}}</div>
   </div>
 </section>
-<section id="photos">
-  <div class="wrap">
-    <h2 class="kicker">{{photos_heading|Photos}}</h2>
-    <div class="gallery" data-fill>{{gallery_html}}</div>
-  </div>
-</section>
 <section class="rsvpsec" hidden>
   <div class="wrap">
-    <h2 class="kicker">{{rsvp_heading|RSVP}}</h2>
-    <div class="rsvp-btns">
+    <div class="reply">
+      <h2 class="kicker">{{rsvp_heading|Kindly reply}}</h2>
+      <p>{{rsvp_note|We hope you can join us.}}</p>
+      <div class="rsvp-btns">
       <a class="btn-rsvp yes" data-rsvp="{{rsvp_contact}}" data-answer="yes" href="#">I&rsquo;ll be there</a>
       <a class="btn-rsvp no" data-rsvp="{{rsvp_contact}}" data-answer="no" href="#">Can&rsquo;t make it</a>
+      </div>
     </div>
   </div>
 </section>
@@ -312,7 +288,7 @@ body{font-size:18px}
 </footer>
 
 <script>
-/* mayfly:widgets v9 */
+/* mayfly:widgets v10 */
 (function(){
 "use strict";
 function $(s,r){return (r||document).querySelector(s);}
@@ -393,10 +369,13 @@ function confetti(from){
 /* party pages: the title's letters pop in, and confetti greets you */
 (function(){
   var party=document.body.getAttribute('data-party'); if(!party) return;
-  if(party==='stamp'&&!still){ // scoreboard numbers count up
-    $all('.standings .row:not(.head) .rc').forEach(function(e){
-      var end=parseInt(e.textContent,10); if(isNaN(end)||String(end)!==e.textContent.trim()) return;
-      var t0=null;e.textContent='0';
+  if(party==='stamp'){ // scoreboard numbers add up to the headcount, and count up
+    var cells=$all('.standings .row:not(.head) .rc').filter(function(e){return /^\d+$/.test(e.textContent.trim());});
+    var total=cells.reduce(function(n,e){return n+parseInt(e.textContent,10);},0);
+    var tally=$('[data-tally]');
+    if(tally&&total){$('strong',tally).textContent=total;tally.hidden=false;cells=cells.concat($('strong',tally));}
+    if(!still) cells.forEach(function(e){
+      var end=parseInt(e.textContent,10), t0=null;e.textContent='0';
       requestAnimationFrame(function step(ts){t0=t0||ts;var f=Math.min(1,(ts-t0)/1100);
         e.textContent=Math.round(end*(1-Math.pow(1-f,3)));if(f<1)requestAnimationFrame(step);});
     });
@@ -481,6 +460,20 @@ function confetti(from){
     dir.target='_blank'; dir.rel='noopener';
     icon(dir,'pin'); dir.hidden=false; sec.hidden=false;
   }
+})();
+
+/* tear-off number tabs along the bottom of a flyer */
+(function(){
+  var box=$('[data-tabs]'); if(!box) return;
+  var a=$('a[href^="tel:"],a[href^="sms:"]'); if(!a) return;
+  var d=a.getAttribute('href').replace(/^\w+:/,'').replace(/[?&].*$/,'').replace(/[^\d]/g,'').replace(/^1(?=\d{10}$)/,'');
+  var num=d.length===10?d.slice(0,3)+'-'+d.slice(3,6)+'-'+d.slice(6):d;
+  for(var i=0;i<8;i++){
+    var t=document.createElement('a');t.className='tab';t.href=a.getAttribute('href');t.textContent=num;
+    t.addEventListener('click',function(){this.classList.add('torn');});
+    box.appendChild(t);
+  }
+  box.parentNode.hidden=false;
 })();
 
 /* RSVP buttons: prefilled email or text message */

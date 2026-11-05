@@ -18,6 +18,9 @@ swapped in so browsers can cache them for good.
 
 --pin publishes a permanent example (the expiry sweep skips it).
 --out writes the page and its photos locally instead of publishing.
+--kv publishes a pinned example straight to KV with the Cloudflare token, for
+when the admin token isn't on this machine. It needs --pin; customer pages go
+through the admin API.
 """
 
 import argparse
@@ -29,9 +32,10 @@ import json
 import os
 import re
 import sys
+import time
 from datetime import datetime, timedelta, timezone
 
-from mayfly_ops import APEX, ROOT, THEMES, admin_api, load_env
+from mayfly_ops import APEX, ROOT, THEMES, admin_api, cf, kv_url, load_env
 
 SUB_RE = re.compile(r"^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$")
 PLACEHOLDER_RE = re.compile(r"\{\{([a-z0-9_]+)(?:\|([^}]*))?\}\}")
@@ -190,6 +194,24 @@ def render(theme, varmap):
     return out, sorted(missing)
 
 
+def publish_kv(env, sub, html, images, title, tier):
+    """Write a pinned example directly to KV, in the same shape the worker writes."""
+    now = int(time.time() * 1000)
+    for _, hashed, data in images:
+        meta = json.dumps({"ct": "image/jpeg", "exp": 0})
+        res = cf("PUT", kv_url("img:%s/%s" % (sub, hashed), env), form=[("value", data), ("metadata", meta)])
+        if not res.get("success"):
+            sys.exit("KV image write failed: %s" % res.get("errors"))
+    expires = now + 366 * 86400000
+    rec = {"html": html, "title": title, "tier": tier, "pinned": True,
+           "createdAt": now, "updatedAt": now, "expiresAt": expires}
+    meta = json.dumps({"exp": expires, "pinned": True})
+    res = cf("PUT", kv_url("site:" + sub, env), form=[("value", json.dumps(rec).encode()), ("metadata", meta)])
+    if not res.get("success"):
+        sys.exit("KV write failed: %s" % res.get("errors"))
+    print("live:", "https://%s.%s/" % (sub, APEX))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--theme", required=True, choices=THEMES)
@@ -201,11 +223,14 @@ def main():
     ap.add_argument("--images", default="")
     ap.add_argument("--pin", action="store_true", help="permanent example; never expires")
     ap.add_argument("--out", default="", help="write locally instead of publishing")
+    ap.add_argument("--kv", action="store_true", help="publish a pinned example straight to KV")
     ap.add_argument("--no-badge", action="store_true", help="remove the \"made with Mayfly\" footer badge")
     ap.add_argument("--poster", action="store_true", help="also generate a print poster PNG with a QR code")
     ap.add_argument("--worker-url", default="", help="override MAYFLY_WORKER_URL")
     args = ap.parse_args()
 
+    if args.kv and not args.pin:
+        sys.exit("--kv is for pinned examples only")
     sub = args.sub.lower().strip()
     if not SUB_RE.match(sub):
         sys.exit("bad --sub: lowercase letters, digits and dashes only")
@@ -268,6 +293,9 @@ def main():
     for plain, hashed, _ in images:
         html = html.replace("/_img/%s/%s" % (sub, plain), "/_img/%s/%s" % (sub, hashed))
     env = load_env()
+    if args.kv:
+        publish_kv(env, sub, html, images, page_title, args.tier or "example")
+        return
     if args.worker_url:
         env["MAYFLY_WORKER_URL"] = args.worker_url
     res = admin_api(
