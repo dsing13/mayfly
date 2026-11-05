@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Subset Fredoka and inline it into the landing and form pages.
+"""Subset Fredoka and inline it into the landing page, form, and the themes that use it.
 
 Reads site/fonts/Fredoka.ttf (variable, SIL OFL), pins it to weight 600,
 keeps Latin text and punctuation, and writes the WOFF2 as a base64 data URI
@@ -41,7 +41,7 @@ def main():
     data = base64.b64encode(buf.getvalue()).decode()
     css = ('/* mayfly:font */@font-face{font-family:Fredoka;font-weight:600;font-display:block;'
            'src:url(data:font/woff2;base64,%s) format("woff2")}/* /mayfly:font */' % data)
-    for page in ("index.html", "start.html"):
+    for page in ("index.html", "start.html", "themes/celebrate.html", "themes/announce.html", "themes/play.html"):
         path = os.path.join(ROOT, "site", page)
         src = open(path, encoding="utf-8").read()
         if not MARK.search(src):
