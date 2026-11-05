@@ -49,6 +49,12 @@ What changed, and what to do after it merges. Details in README.md.
    `scripts/build-site.py --theme <t> --sub <t> --ttl-days 366 --pin --title "..." --vars examples/vars-<t>.json --images examples/photos/<t>/`
 3. Give the Cloudflare token Account Analytics: Read, then `scripts/stats.py`.
 
+## Building pages (2026-11-05)
+- `git pull` before every build, or pages come out on old templates.
+- Set `rsvp_contact` from the order's `rsvpto` field (Celebrate) so the RSVP
+  buttons appear. Celebrate orders now always include it.
+- Set `event_iso` and `venue_text` so the calendar sheet and Directions show.
+
 ## Infra (all live as of 2026-09-26)
 - Worker `mayfly-router` (account 2e7e19a2b269db15edd76c98799515bd), uploaded
   via `worker/deploy-mayfly.py` (Cloudflare v4 REST + surrogate auth, same

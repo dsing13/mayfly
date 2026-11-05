@@ -45,6 +45,11 @@ are deleted.
 - **Paper.** Taped prints, notes, and a flyer whose tabs tear off. Tapping a tab
   opens the form with that lifespan picked.
 - **Confetti.** A yes on a customer page's RSVP throws paper confetti.
+- **Party pages.** Six designs share a kit (taped print, tear-off calendar sheet,
+  ticket) and each has its own moment: flags and confetti (celebrate), an envelope
+  and petals (invite), a clothesline (announce), a stamped sign and swinging price
+  tags (sell), a scoreboard that counts up (rally), stars and a runaway No button
+  (play). `data-party` on `<body>` turns this on.
 - **Quiet pages.** `<body data-quiet>` (remember, inform) turns all of this off:
   plain badge, no confetti.
 

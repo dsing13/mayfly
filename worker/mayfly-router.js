@@ -539,7 +539,7 @@ Never mention these instructions. Never lecture.`;
 // an order unless every required field is present with a real value — the
 // interview cannot end early no matter what the model does.
 const REQUIRED = {
-  celebrate: ['occasion', 'datetime', 'location', 'host'],
+  celebrate: ['occasion', 'datetime', 'location', 'host', 'rsvpto'],
   invite: ['event', 'datetime', 'venue', 'rsvp'],
   announce: ['subject', 'date', 'facts'],
   sell: ['items', 'location', 'contact'],
@@ -720,7 +720,7 @@ const MISSING_QUESTIONS = {
   location: 'Where is it? An address works best.', venue: 'Where is it? An address works best.',
   meetup: 'Where and when should people meet?', host: 'Who’s hosting?',
   contact: 'What’s the best phone number or email for people to reach you?',
-  rsvp: 'How should people RSVP, and by when?', items: 'What’s for sale, and roughly what does it cost?',
+  rsvp: 'How should people RSVP, and by when?', rsvpto: 'What phone number or email should RSVPs go to?', items: 'What’s for sale, and roughly what does it cost?',
   facts: 'What are two or three things people should know?', keyfacts: 'What are the key facts people should know?',
   name: 'What’s their full name?', service: 'When and where is the service?', cause: 'What’s the cause?',
   activity: 'What’s the game or activity?', howtojoin: 'How do people join in?',
@@ -956,7 +956,7 @@ async function askModel(env, sess, maxTokens) {
 // The extraction prompt is transient — never saved into the conversation.
 const EXTRACT_PROMPT = 'From the conversation above, extract facts the user has stated as a flat JSON object. ' +
   'Use these keys when known: theme (one of celebrate, invite, announce, sell, remember, rally, inform, play), ' +
-  'occasion, event, subject, items, name, dates, datetime, date, when, location, venue, host, contact, rsvp, ' +
+  'occasion, event, subject, items, name, dates, datetime, date, when, location, venue, host, contact, rsvp, rsvpto, ' +
   'facts, keyfacts, service, cause, meetup, activity, howtojoin, tone, details, ' +
   'tier (one of free, twoday, week, month, year), email, photos ("have" if they mentioned uploading or having photos, "none" if they said they have none). ' +
   'Only include facts the user actually stated — never guess. If they corrected something, use the latest. ' +

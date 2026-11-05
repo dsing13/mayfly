@@ -32,7 +32,7 @@
   expires_at_iso, expires_label, qr_svg.
 -->
 <style>
-/* mayfly:shared v7 */
+/* mayfly:shared v9 */
 :root{
   --f-oldstyle:"Iowan Old Style","Palatino Linotype",Palatino,"URW Palladio L",P052,"Book Antiqua",Georgia,serif;
   --f-transitional:Charter,"Bitstream Charter","Sitka Text",Cambria,Georgia,serif;
@@ -142,7 +142,7 @@ details.acc .ab{padding:0 0 16px;color:var(--muted)}
 .mf-foot p{font:500 12px/1.4 var(--f-mono);letter-spacing:.03em;color:var(--muted);margin:0}
 .mf-foot a{color:inherit}
 /* paper confetti on a yes */
-.mf-bit{position:fixed;z-index:90;width:9px;height:14px;pointer-events:none;animation:mf-bit 1.2s cubic-bezier(.2,.6,.5,1) forwards}
+.mf-bit{position:fixed;z-index:90;width:var(--bit-w,9px);height:var(--bit-h,14px);border-radius:var(--bit-r,0);clip-path:var(--bit-clip,none);pointer-events:none;animation:mf-bit var(--bit-t,1.2s) cubic-bezier(.2,.6,.5,1) forwards}
 @keyframes mf-bit{to{transform:translate(var(--x),var(--y)) rotate(var(--a));opacity:0}}
 
 /* photo viewer */
@@ -154,6 +154,40 @@ details.acc .ab{padding:0 0 16px;color:var(--muted)}
   display:flex;align-items:center;justify-content:center}
 .lb button svg{width:22px;height:22px}
 .lb-x{top:12px;right:12px}.lb-p{left:10px;top:50%;margin-top:-24px}.lb-n{right:10px;top:50%;margin-top:-24px}
+
+/* party kit: taped print, calendar sheet, ticket, cut-paper edge (themes with data-party) */
+.hero-title .wd{display:inline-block;white-space:nowrap}
+.hero-title .ch{display:inline-block}
+[data-party=pop] .hero-title .ch{animation:mf-pop .55s cubic-bezier(.3,1.7,.5,1) both}
+@keyframes mf-pop{from{transform:translateY(.5em) scale(.4) rotate(-12deg);opacity:0}}
+[data-party=rise] .hero-title .ch{animation:mf-rise .9s ease-out both}
+@keyframes mf-rise{from{transform:translateY(.25em);opacity:0}}
+[data-party=stamp] .hero-title{animation:mf-stamp .4s cubic-bezier(.3,1.4,.6,1)}
+@keyframes mf-stamp{from{transform:scale(1.5) rotate(-3deg)}}
+.print{position:relative;display:block;width:min(86%,520px);margin:-70px auto 0;background:var(--card);padding:10px 10px 30px;z-index:2;
+  transform:rotate(-2.5deg);box-shadow:0 8px 0 rgba(42,24,64,.16);transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+.print:hover,.print:active{transform:rotate(0) scale(1.02)}
+.print::before{content:"";position:absolute;left:50%;top:-13px;width:104px;height:27px;margin-left:-52px;background:var(--tape,rgba(154,220,235,.85));transform:rotate(2.5deg);z-index:1}
+.print .hero-photo{width:100%;aspect-ratio:4/3;max-height:none;object-fit:cover}
+.print:empty{display:none}
+.evsec:has(.when){padding:34px 0 8px}
+.when{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap}
+.sheet{width:138px;background:var(--card);text-align:center;transform:rotate(2deg);box-shadow:0 6px 0 rgba(42,24,64,.16);overflow:hidden;border-radius:6px}
+.sheet b{display:block;background:var(--accent);color:var(--accent-ink);font:600 17px/1 var(--display);letter-spacing:.06em;text-transform:uppercase;padding:9px 0}
+.sheet strong{display:block;font:var(--display-weight,600) 78px/1 var(--display);padding:6px 0 0}
+.sheet span{display:block;font:600 15px/1.2 var(--display);padding:0 0 11px}
+.when .ev-date{display:none}
+.ev-time{font:var(--display-weight,600) 28px/1.1 var(--display);margin:0}
+.when .ev-left{font:600 18px/1.2 var(--display);color:var(--accent);margin:6px 0 0}
+.evsec:has(.when) .ev-actions{justify-content:center;margin-top:20px}
+.evsec:has(.when) .chip{background:var(--card);border-color:var(--card);box-shadow:0 3px 0 rgba(42,24,64,.16)}
+[data-party] .kv{background:var(--card);padding:6px 20px;border-radius:12px;box-shadow:0 6px 0 rgba(42,24,64,.14);
+  -webkit-mask:radial-gradient(11px at 0 50%,#0000 98%,#000) left/51% 100% no-repeat,radial-gradient(11px at 100% 50%,#0000 98%,#000) right/51% 100% no-repeat;
+          mask:radial-gradient(11px at 0 50%,#0000 98%,#000) left/51% 100% no-repeat,radial-gradient(11px at 100% 50%,#0000 98%,#000) right/51% 100% no-repeat}
+[data-party] .kv:empty{display:none}
+[data-party] .kv-row{grid-template-columns:5.5rem 1fr;border-top:2px dashed rgba(42,24,64,.18)}
+[data-party] .kv-row:first-child{border-top:0}[data-party] .kv-row:last-child{border-bottom:0}
+.edge{position:absolute;left:0;right:0;bottom:calc(100% - 1px);width:100%;height:26px;display:block}
 
 @media (min-width:760px){
   section{padding:44px 0}
@@ -245,7 +279,7 @@ body{font-size:18px;line-height:1.7}
 </footer>
 
 <script>
-/* mayfly:widgets v7 */
+/* mayfly:widgets v9 */
 (function(){
 "use strict";
 function $(s,r){return (r||document).querySelector(s);}
@@ -309,7 +343,8 @@ var still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matc
 function confetti(from){
   if(quiet||still) return;
   var r=from.getBoundingClientRect(), css=getComputedStyle(document.documentElement);
-  var cols=[css.getPropertyValue('--accent'),'#FFD400','#FFF7EA','#BDE7F3'];
+  var cols=(css.getPropertyValue('--bits')||'').split(',').map(function(c){return c.trim();}).filter(Boolean);
+  if(!cols.length) cols=[css.getPropertyValue('--accent'),'#FFD400','#FFF7EA','#BDE7F3'];
   for(var i=0;i<26;i++){
     var d=document.createElement('i');d.className='mf-bit';
     d.style.left=(r.left+r.width/2)+'px';d.style.top=(r.top+r.height/2)+'px';
@@ -318,9 +353,50 @@ function confetti(from){
     d.style.setProperty('--y',(Math.random()*-260+60)+'px');
     d.style.setProperty('--a',(Math.random()*720-360)+'deg');
     document.body.appendChild(d);
-    setTimeout(d.remove.bind(d),1300);
+    setTimeout(d.remove.bind(d),2400);
   }
 }
+
+/* party pages: the title's letters pop in, and confetti greets you */
+(function(){
+  var party=document.body.getAttribute('data-party'); if(!party) return;
+  if(party==='stamp'&&!still){ // scoreboard numbers count up
+    $all('.standings .row:not(.head) .rc').forEach(function(e){
+      var end=parseInt(e.textContent,10); if(isNaN(end)||String(end)!==e.textContent.trim()) return;
+      var t0=null;e.textContent='0';
+      requestAnimationFrame(function step(ts){t0=t0||ts;var f=Math.min(1,(ts-t0)/1100);
+        e.textContent=Math.round(end*(1-Math.pow(1-f,3)));if(f<1)requestAnimationFrame(step);});
+    });
+  }
+  var pop=$('[data-pop]'); if(pop) pop.addEventListener('click',function(){confetti(pop);});
+  var title=$('.hero-title'); if(!title) return;
+  title.setAttribute('aria-label',title.textContent);
+  var n=0;
+  (function walk(node){
+    Array.prototype.slice.call(node.childNodes).forEach(function(c){
+      if(c.nodeType!==3){walk(c);return;}
+      var f=document.createDocumentFragment();
+      c.textContent.split(/(\s+)/).forEach(function(w){
+        if(!w.trim()){f.appendChild(document.createTextNode(w));return;}
+        var wd=document.createElement('span');wd.className='wd';wd.setAttribute('aria-hidden','true');
+        Array.from(w).forEach(function(ch){
+          var s=document.createElement('span');s.className='ch';s.textContent=ch;s.style.animationDelay=(n++*45)+'ms';wd.appendChild(s);
+        });
+        f.appendChild(wd);
+      });
+      node.replaceChild(f,c);
+    });
+  })(title);
+  // Long words shrink to fit the screen.
+  function fit(){
+    title.style.fontSize='';
+    var room=title.clientWidth, wide=Math.max.apply(null,$all('.wd',title).map(function(w){return w.offsetWidth;}));
+    if(wide>room) title.style.fontSize=(parseFloat(getComputedStyle(title).fontSize)*room/wide*.97)+'px';
+  }
+  fit(); addEventListener('resize',fit);
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fit);
+  if(party!=='stamp') setTimeout(function(){confetti(title);},n*45+250);
+})();
 
 /* when & where: date line, time left, calendar file, directions */
 (function(){
@@ -340,6 +416,10 @@ function confetti(from){
       date+=' at '+shown.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:tz}).replace(':00','');
     }
     var dl=$('[data-evdate]',sec); if(dl) dl.textContent=date;
+    // Calendar sheet (celebrate theme)
+    var part=function(sel,o){var e=$(sel,sec);if(e)e.textContent=shown.toLocaleString('en-US',Object.assign({timeZone:tz},o));};
+    part('[data-cal-dow]',{weekday:'short'});part('[data-cal-day]',{day:'numeric'});part('[data-cal-mon]',{month:'long'});
+    if(/T\d\d:\d\d/.test(raw)) part('[data-cal-time]',{hour:'numeric',minute:'2-digit'});
     var left=$('[data-evleft]',sec);
     // Permanent examples (no expiry date) keep their sample dates; don't call them past.
     var badge=$('#expiry'), example=badge&&!badge.getAttribute('data-expires');
@@ -412,7 +492,12 @@ $all('[data-share]').forEach(function(b){
   v.hidden=false;
   var yes=$('.yes',v), no=$('.no',v);
   if(yes) yes.addEventListener('click',function(){confetti(yes);a.textContent=txt;a.hidden=false;yes.setAttribute('aria-pressed','true');});
-  if(no) no.addEventListener('click',function(){no.textContent='Try the other button';});
+  if(no){
+    var flee=function(){no.textContent='Try the other button';
+      no.style.transform='translate('+(Math.random()*90-60)+'px,'+(Math.random()*70-35)+'px) rotate('+(Math.random()*24-12)+'deg)';};
+    no.style.transition='transform .18s';
+    no.addEventListener('pointerenter',flee);no.addEventListener('click',flee);
+  }
 })();
 
 /* photo viewer */
