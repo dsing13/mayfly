@@ -24,6 +24,17 @@ ACCOUNT = "2e7e19a2b269db15edd76c98799515bd"
 CF_BASE = "https://api.cloudflare.com/client/v4"
 APEX = os.environ.get("MAYFLY_APEX", "trymayfly.com")
 THEMES = ["celebrate", "invite", "announce", "sell", "remember", "rally", "inform", "play"]
+# The example page published for each theme (sample data in examples/).
+EXAMPLE_TITLES = {
+    "celebrate": "Mia turns 7",
+    "invite": "June & Marcus",
+    "announce": "Nora Elise Hart",
+    "sell": "Yard sale Saturday",
+    "remember": "Eleanor “Nana” Whitaker",
+    "rally": "Clean up Freedom Park",
+    "inform": "Have you seen Biscuit?",
+    "play": "The Dilworth scavenger hunt",
+}
 BROWSER_UA = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
 )
